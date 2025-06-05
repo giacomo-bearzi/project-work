@@ -1,21 +1,38 @@
-import dotenv from "dotenv";
+import express from 'express';
+import mongoose from 'mongoose';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import userRouter from './routers/userRouter';
+import authRouter from './routers/authRouter';
+import { auth, checkRole } from './middleware/auth';
+
 dotenv.config();
-import express from "express";
-import cors from "cors";
-// import { foodRouter } from "./routers/food.router";
-// import { router as userRouter } from "./routers/user.router";
-import { dbConnect } from "./configs/database.config";
-dbConnect();
 
 const app = express();
+
+// Middleware
+app.use(cors());
 app.use(express.json());
-app.use(cors({ credentials: true, origin: "http://localhost:4200" }));
 
-// app.use("/api/foods", foodRouter);
-// app.use("/api/users", userRouter);
+// Routes pubbliche
+app.use('/api/auth', authRouter);
 
-const port = 5000;
+// Routes protette
+app.use('/api/users', auth, checkRole(['admin']), userRouter);
 
-app.listen(port, () => {
-  console.log(`Server started on http://localhost:${port}`);
+// MongoDB connection
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/production-db';
+mongoose.connect(MONGODB_URI)
+  .then(() => console.log('Connected to MongoDB'))
+  .catch((error) => console.error('MongoDB connection error:', error));
+
+// Error handling middleware
+app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  console.error(err.stack);
+  res.status(500).json({ message: 'Something went wrong!' });
+});
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });

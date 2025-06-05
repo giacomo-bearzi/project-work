@@ -6,7 +6,15 @@
     "outDir": "./built",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "target": "ES2020",
+    "sourceMap": true
   },
-  "include": ["src/**/*"],
+  "include": [
+    "./**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "built"
+  ]
 }
