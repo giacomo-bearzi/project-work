@@ -24,6 +24,7 @@ const Login = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
+    const [isPressed, setIsPressed] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
     const navigate = useNavigate();
@@ -132,17 +133,29 @@ const Login = () => {
                                 endAdornment: (
                                     <InputAdornment position="end" sx={{ marginRight: 0, marginLeft: 0, padding: 0 }}>
                                         <IconButton
-                                            className="no-focus-ring"
+                                            disableRipple
+                                            disableFocusRipple
                                             aria-label="toggle password visibility"
-                                            onMouseDown={() => setShowPassword(true)}
-                                            onMouseUp={() => setShowPassword(false)}
-                                            onMouseLeave={() => setShowPassword(false)}
+                                            onMouseDown={() => {
+                                                setShowPassword(true);
+                                                setIsPressed(true);
+                                            }}
+                                            onMouseUp={() => {
+                                                setShowPassword(false);
+                                                setIsPressed(false);
+                                            }}
+                                            onMouseLeave={() => {
+                                                setShowPassword(false);
+                                                setIsPressed(false);
+                                            }}
                                             edge="end"
                                             sx={{
                                                 padding: "15px 10px",
+                                                borderRadius: 0,
                                                 margin: 0,
                                                 minWidth: 0,
-                                                backgroundColor: 'transparent',
+                                                backgroundColor: isPressed ? '#444' : 'transparent',
+                                                transition: 'background-color 0.2s ease',
                                             }}
                                         >
                                             {showPassword ? <VisibilityOffOutlinedIcon /> : <VisibilityOutlinedIcon />}
