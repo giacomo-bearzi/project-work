@@ -13,18 +13,12 @@ import {
 } from '@mui/material';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const AdminDashboard = () => {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-    const [user, setUser] = useState<any>(null);
+    const { user, logout } = useAuth();
     const navigate = useNavigate();
-
-    useEffect(() => {
-        const userStr = localStorage.getItem('user');
-        if (userStr) {
-            setUser(JSON.parse(userStr));
-        }
-    }, []);
 
     const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
@@ -35,10 +29,12 @@ const AdminDashboard = () => {
     };
 
     const handleLogout = () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        navigate('/login');
+        logout();
     };
+
+    if (!user) {
+        return <Typography>Loading user data...</Typography>;
+    }
 
     return (
         <Box sx={{ flexGrow: 1 }}>
@@ -78,7 +74,7 @@ const AdminDashboard = () => {
                     </div>
                 </Toolbar>
             </AppBar>
-            <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+            <Container>
                 <Paper sx={{ p: 3 }}>
                     <Typography variant="h5" gutterBottom>
                         Benvenuto, {user?.fullName}
