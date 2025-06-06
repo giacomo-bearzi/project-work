@@ -8,14 +8,16 @@ import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import VisibilityOffOutlinedIcon from '@mui/icons-material/VisibilityOffOutlined';
 import { CircularProgress } from '@mui/material';
 
-interface LoginResponse {
+export interface LoginResponse {
     token: string;
-    user: {
-        _id: string;
-        username: string;
-        role: string;
-        fullName: string;
-    };
+    user: User;
+}
+
+export interface User {
+    _id: string;
+    username: string;
+    role: string;
+    fullName: string;
 }
 
 const Login = () => {
