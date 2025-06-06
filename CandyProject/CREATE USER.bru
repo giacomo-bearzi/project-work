@@ -1,0 +1,24 @@
+meta {
+  name: CREATE USER
+  type: http
+  seq: 3
+}
+
+post {
+  url: http://localhost:5000/api/users
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODQxNGM5MTBjZWU4MzA2NDRhZWEyNzIiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NDkyMDM2NzIsImV4cCI6MTc0OTI5MDA3Mn0.ELjZPn4CC5j0e3tvpYGQGDNrFlt10vaheP_judE2AU4
+}
+
+body:json {
+  {
+    "username": "testuser",
+    "fullName": "Test User",
+    "password": "password123",
+    "role": "operator"
+  }
+}
