@@ -1,15 +1,15 @@
 // src/context/ThemeContext.tsx
-import { createContext, useContext, useMemo, useState } from "react";
-import { createTheme, ThemeProvider } from "@mui/material";
-import type { Theme } from "@mui/material";
+import { createContext, useContext, useMemo, useState } from 'react';
+import { createTheme, ThemeProvider } from '@mui/material';
+import type { Theme } from '@mui/material';
 
-type ThemeMode = "light" | "dark";
+type ThemeMode = 'light' | 'dark';
 
 const ThemeModeContext = createContext<{
   mode: ThemeMode;
   toggleTheme: () => void;
 }>({
-  mode: "dark",
+  mode: 'dark',
   toggleTheme: () => {},
 });
 
@@ -20,10 +20,10 @@ export const CustomThemeProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const [mode, setMode] = useState<ThemeMode>("dark");
+  const [mode, setMode] = useState<ThemeMode>('dark');
 
   const toggleTheme = () => {
-    setMode((prev) => (prev === "dark" ? "light" : "dark"));
+    setMode((prev) => (prev === 'dark' ? 'light' : 'dark'));
   };
 
   const theme: Theme = useMemo(
@@ -32,8 +32,11 @@ export const CustomThemeProvider = ({
         palette: {
           mode,
         },
+        typography: {
+          fontFamily: 'Montserrat, Arial, Helvetica, sans-serif',
+        },
       }),
-    [mode]
+    [mode],
   );
 
   return (
