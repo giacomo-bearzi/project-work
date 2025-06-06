@@ -13,6 +13,7 @@ import {
     IconButton
 } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import { useAuth } from '../context/AuthContext';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import VisibilityOffOutlinedIcon from '@mui/icons-material/VisibilityOffOutlined';
 
@@ -32,6 +33,7 @@ const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
     const navigate = useNavigate();
+    const { login } = useAuth();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -43,11 +45,8 @@ const Login = () => {
                 password
             });
 
-            // Salva il token e i dati utente nel localStorage
-            localStorage.setItem('token', response.data.token);
-            localStorage.setItem('user', JSON.stringify(response.data.user));
+            login(response.data.user, response.data.token);
 
-            // Redirect in base al ruolo
             switch (response.data.user.role) {
                 case 'admin':
                     navigate('/admin');
