@@ -1,0 +1,40 @@
+meta {
+  name: CREATE ISSUE
+  type: http
+  seq: 12
+}
+
+post {
+  url: http://localhost:5000/api/issues
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODQxNGM5MTBjZWU4MzA2NDRhZWEyNzIiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NDkyMTcyNTEsImV4cCI6MTc0OTMwMzY1MX0.nDZMzFfRcqvyohW3SCIBYjGZLm9sf14_k9t_YiedPOk
+}
+
+body:json {
+  {
+    "lineId": "LINE-1",
+    "type": "meccanico",
+    "priority": "bassa",
+    "status": "aperta",
+    "description": "Caffè finito",
+    "reportedBy": {
+      "_id": "68405b59b203b5c97f89f496",
+      "username": "GioZacca12",
+      "role": "operator",
+      "fullName": "Giovanni Zaccarin"
+    },
+    "assignedTo": {
+      "_id": "66405b59b203b5c97f89f222",
+      "username": "ManagerLuca",
+      "role": "manager",
+      "fullName": "Luca Negri"
+    },
+    "__v": 0,
+    "createdAt": "2025-06-06T13:25:19.018Z",
+    "updatedAt": "2025-06-06T13:25:19.018Z"
+  }
+}
