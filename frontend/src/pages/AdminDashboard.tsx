@@ -15,6 +15,10 @@ import {
   TextField,
   Select,
   MenuItem,
+  DialogContent,
+  Dialog,
+  DialogTitle,
+  DialogActions,
 } from "@mui/material";
 import { useAuth } from "../context/AuthContext";
 import Navbar from "../components/Navbar";
@@ -24,6 +28,7 @@ import {
   Save as SaveIcon,
   Close as CancelIcon,
 } from "@mui/icons-material";
+import AddIcon from "@mui/icons-material/Add";
 import type { User } from "../components/Login";
 
 const AdminDashboard = () => {
@@ -35,9 +40,58 @@ const AdminDashboard = () => {
     username: "",
     role: "",
   });
+  const [addDialogOpen, setAddDialogOpen] = useState(false);
+  const [newUser, setNewUser] = useState({
+    fullName: "",
+    username: "",
+    password: "",
+    role: "operator",
+  });
+
   if (!user) {
     return <Typography>Loading user data...</Typography>;
   }
+  const handleOpenAddDialog = () => {
+    setNewUser({
+      fullName: "",
+      username: "",
+      password: "",
+      role: "operator",
+    });
+    setAddDialogOpen(true);
+  };
+
+  const handleCloseAddDialog = () => {
+    setAddDialogOpen(false);
+  };
+
+  const handleNewUserChange = (
+    e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>
+  ) => {
+    const { name, value } = e.target;
+    setNewUser((prev) => ({
+      ...prev,
+      [name!]: value,
+    }));
+  };
+
+  const handleAddUser = async () => {
+    try {
+      const res = await axios.post("http://localhost:5000/api/users", newUser, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setUsers((prev) => [...prev, res.data.user]); // aggiungi alla lista
+      handleCloseAddDialog();
+    } catch (err: any) {
+      console.error(
+        "Errore durante la creazione dell'utente:",
+        err.response?.data || err
+      );
+    }
+  };
 
   const handleShowUsers = async () => {
     try {
@@ -127,6 +181,14 @@ const AdminDashboard = () => {
               Visualizza Statistiche
             </Button>
           </Box>
+          <Button
+            variant="outlined"
+            startIcon={<AddIcon />}
+            sx={{ mt: 1, mb: 2 }}
+            onClick={handleOpenAddDialog}
+          >
+            Aggiungi Utente
+          </Button>
 
           {users.length > 0 && (
             <TableContainer component={Paper} sx={{ maxHeight: 500 }}>
@@ -182,7 +244,7 @@ const AdminDashboard = () => {
                             >
                               <MenuItem value="admin">admin</MenuItem>
                               <MenuItem value="manager">manager</MenuItem>
-                              <MenuItem value="operator">operator</MenuItem>
+                              <MenuItem value="simple-user">operator</MenuItem>
                             </Select>
                           ) : (
                             u.role
@@ -223,6 +285,56 @@ const AdminDashboard = () => {
               </Table>
             </TableContainer>
           )}
+          <Dialog open={addDialogOpen} onClose={handleCloseAddDialog} fullWidth>
+            <DialogTitle>Nuovo Utente</DialogTitle>
+            <DialogContent>
+              <TextField
+                autoFocus
+                margin="dense"
+                name="fullName"
+                label="Full Name"
+                fullWidth
+                value={newUser.fullName}
+                onChange={handleNewUserChange}
+              />
+              <TextField
+                margin="dense"
+                name="username"
+                label="Username"
+                fullWidth
+                value={newUser.username}
+                onChange={handleNewUserChange}
+                autoComplete="off"
+              />
+              <TextField
+                margin="dense"
+                name="password"
+                label="Password"
+                type="password"
+                fullWidth
+                value={newUser.password}
+                onChange={handleNewUserChange}
+                autoComplete="new-password"
+              />
+              <Select
+                name="role"
+                value={newUser.role}
+                onChange={handleNewUserChange}
+                fullWidth
+                sx={{ mt: 2 }}
+              >
+                <MenuItem value="admin">admin</MenuItem>
+                <MenuItem value="manager">manager</MenuItem>
+                <MenuItem value="operator">operator</MenuItem>
+              </Select>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleCloseAddDialog}>Annulla</Button>
+              <Button variant="contained" onClick={handleAddUser}>
+                Salva
+              </Button>
+            </DialogActions>
+          </Dialog>
         </Paper>
       </Container>
     </Box>
