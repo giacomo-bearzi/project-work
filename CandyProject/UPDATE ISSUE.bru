@@ -1,0 +1,40 @@
+meta {
+  name: UPDATE ISSUE
+  type: http
+  seq: 13
+}
+
+put {
+  url: http://localhost:5000/api/issues/6842ec3f43e5c0a14c010dbe
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODQxNGM5MTBjZWU4MzA2NDRhZWEyNzIiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NDkyMTcyNTEsImV4cCI6MTc0OTMwMzY1MX0.nDZMzFfRcqvyohW3SCIBYjGZLm9sf14_k9t_YiedPOk
+}
+
+body:json {
+  {
+      "lineId": "LINE-2",
+      "type": "elettrico",
+      "priority": "media",
+      "status": "risolta",
+      "description": "Problema alimentazione pannello di controllo",
+      "reportedBy": {
+        "_id": "68405b59b203b5c97f89f496",
+        "username": "GioZacca12",
+        "role": "operator",
+        "fullName": "Giovanni Zaccarin"
+      },
+      "assignedTo": {
+        "_id": "68414c910cee830644aea272",
+        "username": "AdminMario",
+        "role": "admin",
+        "fullName": "Mario Verdi"
+      },
+      "__v": 0,
+      "createdAt": "2025-06-06T13:25:19.019Z",
+      "updatedAt": "2025-06-06T13:25:19.019Z"
+    }
+}
