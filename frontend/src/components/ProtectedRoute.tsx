@@ -1,13 +1,19 @@
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import React from 'react';
+import { CircularProgress } from '@mui/material';
 
 interface ProtectedRouteProps {
     allowedRoles: string[];
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ allowedRoles }) => {
-    const { user, token } = useAuth();
+    const { user, token, loading } = useAuth();
+
+    if (loading) {
+        // Puoi mostrare un loader o null per non renderizzare niente finché non carica
+        return <CircularProgress size={50} color="inherit" />;
+    }
 
     if (!token || !user) {
         // Not authenticated, redirect to login
