@@ -244,7 +244,7 @@ const AdminDashboard = () => {
                             >
                               <MenuItem value="admin">admin</MenuItem>
                               <MenuItem value="manager">manager</MenuItem>
-                              <MenuItem value="simple-user">operator</MenuItem>
+                              <MenuItem value="operator">operator</MenuItem>
                             </Select>
                           ) : (
                             u.role
