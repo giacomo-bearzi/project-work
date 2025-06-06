@@ -15,6 +15,7 @@ import {
 import { useAuth } from "../context/AuthContext";
 import Navbar from "../components/Navbar";
 import axios from "axios";
+import type { User } from "../components/Login";
 
 const AdminDashboard = () => {
   const { user, logout, token } = useAuth(); // assicurati che accessToken sia disponibile
@@ -82,7 +83,7 @@ const AdminDashboard = () => {
         <DialogTitle>Lista Utenti</DialogTitle>
         <DialogContent>
           <List>
-            {users.map((u: any) => (
+            {users.map((u: User) => (
               <ListItem key={u._id}>
                 <ListItemText
                   primary={`${u.fullName} (${u.username})`}
