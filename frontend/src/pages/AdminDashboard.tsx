@@ -12,7 +12,7 @@ const AdminDashboard = () => {
   return (
     <Box sx={{ flexGrow: 1 }}>
       <Navbar
-        title="Dashboard Operatore"
+        title={`Dashboard ${user.role}`}
         userFullName={user.fullName}
         onLogout={logout}
       />
