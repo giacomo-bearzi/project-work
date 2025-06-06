@@ -6,6 +6,7 @@ import ManagerDashboard from './pages/ManagerDashboard';
 import OperatorDashboard from './pages/OperatorDashboard';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
+import { CustomThemeProvider } from './context/ThemeContext';
 
 const theme = createTheme({
   palette: {
@@ -20,7 +21,7 @@ const theme = createTheme({
 
 const App = () => {
   return (
-    <ThemeProvider theme={theme}>
+    <CustomThemeProvider >
       <CssBaseline />
       <Router>
         <AuthProvider>
@@ -46,7 +47,7 @@ const App = () => {
           </Routes>
         </AuthProvider>
       </Router>
-    </ThemeProvider>
+    </CustomThemeProvider>
   );
 };
 
