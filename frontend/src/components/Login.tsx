@@ -130,6 +130,7 @@ const Login = () => {
                                 endAdornment: (
                                     <InputAdornment position="end" sx={{ marginRight: 0, marginLeft: 0, padding: 0 }}>
                                         <IconButton
+                                            className="no-focus-ring"
                                             aria-label="toggle password visibility"
                                             onMouseDown={() => setShowPassword(true)}
                                             onMouseUp={() => setShowPassword(false)}
