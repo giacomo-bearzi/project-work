@@ -123,14 +123,21 @@ const Login = () => {
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             InputProps={{
+                                sx: { paddingRight: '0px' },
                                 endAdornment: (
-                                    <InputAdornment position="end">
+                                    <InputAdornment position="end" sx={{ marginRight: 0, marginLeft: 0, padding: 0 }}>
                                         <IconButton
                                             aria-label="toggle password visibility"
                                             onMouseDown={() => setShowPassword(true)}
                                             onMouseUp={() => setShowPassword(false)}
                                             onMouseLeave={() => setShowPassword(false)}
                                             edge="end"
+                                            sx={{
+                                                padding: "15px 10px",
+                                                margin: 0,
+                                                minWidth: 0,
+                                                backgroundColor: 'transparent',
+                                            }}
                                         >
                                             {showPassword ? <VisibilityOffOutlinedIcon /> : <VisibilityOutlinedIcon />}
                                         </IconButton>
