@@ -1,21 +1,12 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../utils/axios';
-import {
-    Container,
-    Box,
-    Typography,
-    TextField,
-    Button,
-    Paper,
-    Alert,
-    InputAdornment,
-    IconButton
-} from '@mui/material';
+import { Container, Box, Typography, TextField, Button, Paper, Alert, InputAdornment, IconButton } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { useAuth } from '../context/AuthContext';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import VisibilityOffOutlinedIcon from '@mui/icons-material/VisibilityOffOutlined';
+import { CircularProgress } from '@mui/material';
 
 interface LoginResponse {
     token: string;
@@ -31,19 +22,27 @@ const Login = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
     const navigate = useNavigate();
     const { login } = useAuth();
 
+    const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
+        setIsLoading(true);
+
+        const responsePromise = api.post<LoginResponse>('/auth/login', {
+            username,
+            password,
+        });
+
+        const delayPromise = delay(500);
 
         try {
-            const response = await api.post<LoginResponse>('/auth/login', {
-                username,
-                password
-            });
+            const [response] = await Promise.all([responsePromise, delayPromise]);
 
             login(response.data.user, response.data.token);
 
@@ -61,9 +60,13 @@ const Login = () => {
                     navigate('/');
             }
         } catch (err) {
+            await delayPromise;
             setError('Credenziali non valide');
+        } finally {
+            setIsLoading(false);
         }
     };
+
 
     return (
         <Container component="main" maxWidth="xs">
@@ -155,8 +158,9 @@ const Login = () => {
                             fullWidth
                             variant="contained"
                             sx={{ mt: 3, mb: 2 }}
+                            disabled={isLoading}
                         >
-                            Accedi
+                            {isLoading ? <CircularProgress size={24} color="inherit" /> : 'Accedi'}
                         </Button>
                     </Box>
                 </Paper>
