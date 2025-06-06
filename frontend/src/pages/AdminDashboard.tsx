@@ -181,8 +181,8 @@ const AdminDashboard = () => {
                               size="small"
                             >
                               <MenuItem value="admin">admin</MenuItem>
-                              <MenuItem value="moderator">moderator</MenuItem>
-                              <MenuItem value="simple-user">operator</MenuItem>
+                              <MenuItem value="manager">manager</MenuItem>
+                              <MenuItem value="operator">operator</MenuItem>
                             </Select>
                           ) : (
                             u.role
