@@ -1,40 +1,67 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose from 'mongoose';
+import { IUser } from './User'; // Assuming User model is in the same directory
 
-export interface IIssue extends Document {
+export interface IIssue extends mongoose.Document {
     lineId: string;
     type: 'meccanico' | 'elettrico' | 'qualità' | 'sicurezza';
-    priority: string;
+    priority: 'bassa' | 'media' | 'alta';
     status: 'aperta' | 'in lavorazione' | 'risolta';
     description: string;
-    reportedBy: mongoose.Types.ObjectId;
-    assignedTo: mongoose.Types.ObjectId;
-    createdAt: Date;
+    reportedBy: mongoose.Types.ObjectId | IUser; // Reference to User
+    assignedTo?: mongoose.Types.ObjectId | IUser; // Optional reference to User
+    createdAt?: Date; // Handled by timestamps
     resolvedAt?: Date;
 }
 
-const IssueSchema = new Schema<IIssue>({
-    lineId: { type: String, required: true },
+const issueSchema = new mongoose.Schema({
+    lineId: {
+        type: String,
+        required: true
+    },
     type: {
         type: String,
-        enum: ['meccanico', 'elettrico', 'qualità', 'sicurezza'],
-        required: true
+        required: true,
+        enum: ['meccanico', 'elettrico', 'qualità', 'sicurezza']
     },
-    priority: { type: String, required: true },
+    priority: {
+        type: String,
+        required: true,
+        enum: ['bassa', 'media', 'alta']
+    },
     status: {
         type: String,
+        required: true,
         enum: ['aperta', 'in lavorazione', 'risolta'],
+        default: 'aperta'
+    },
+    description: {
+        type: String,
         required: true
     },
-    description: { type: String, required: true },
-    reportedBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-    assignedTo: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-    createdAt: { type: Date, default: Date.now },
-    resolvedAt: { type: Date }
+    reportedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
+    },
+    assignedTo: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: false // AssignedTo is optional
+    },
+    resolvedAt: {
+        type: Date,
+        required: false // ResolvedAt is optional
+    }
+}, {
+    timestamps: true, // Handles createdAt and updatedAt
+    collection: 'Issues' // Explicitly set collection name
 });
 
 // Indici per query efficienti
-IssueSchema.index({ lineId: 1, status: 1 });
-IssueSchema.index({ reportedBy: 1 });
-IssueSchema.index({ assignedTo: 1 });
+issueSchema.index({ lineId: 1, status: 1 });
+issueSchema.index({ reportedBy: 1 });
+issueSchema.index({ assignedTo: 1 });
 
-export default mongoose.model<IIssue>('Issue', IssueSchema); 
+const Issue = mongoose.model<IIssue>('Issue', issueSchema);
+
+export default Issue; 
