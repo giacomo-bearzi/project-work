@@ -181,10 +181,10 @@ const Login = () => {
                                                 edge="end"
                                                 sx={{
                                                     padding: "15px 10px",
-                                                    borderRadius: 0,
+                                                    borderRadius: "0 3px 3px 0",
                                                     margin: 0,
                                                     minWidth: 0,
-                                                    backgroundColor: isPressed ? '#444' : 'transparent',
+                                                    backgroundColor: isPressed ? '#ccc' : 'transparent',
                                                     transition: 'background-color 0.2s ease',
                                                 }}
                                             >
