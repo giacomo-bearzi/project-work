@@ -1,16 +1,18 @@
-// src/context/ThemeContext.tsx
-import { useEffect } from "react";
-import { createContext, useContext, useMemo, useState } from "react";
-import { createTheme, ThemeProvider } from "@mui/material";
-import type { Theme } from "@mui/material";
+/* eslint-disable react-refresh/only-export-components */
 
-type ThemeMode = "light" | "dark";
+import { useEffect } from 'react';
+import { createContext, useContext, useMemo, useState } from 'react';
+import { createTheme, ThemeProvider } from '@mui/material';
+import type { Theme } from '@mui/material';
+import { blue, pink } from '@mui/material/colors';
+
+type ThemeMode = 'light' | 'dark';
 
 const ThemeModeContext = createContext<{
   mode: ThemeMode;
   toggleTheme: () => void;
 }>({
-  mode: "dark",
+  mode: 'dark',
   toggleTheme: () => {},
 });
 
@@ -22,52 +24,58 @@ export const CustomThemeProvider = ({
   children: React.ReactNode;
 }) => {
   const [mode, setMode] = useState<ThemeMode>(() => {
-    const storedMode = localStorage.getItem("themeMode");
-    return storedMode === "light" || storedMode === "dark"
+    const storedMode = localStorage.getItem('themeMode');
+    return storedMode === 'light' || storedMode === 'dark'
       ? storedMode
-      : "dark";
+      : 'dark';
   });
 
   const toggleTheme = () => {
-    setMode((prev) => (prev === "dark" ? "light" : "dark"));
+    setMode((prev) => (prev === 'dark' ? 'light' : 'dark'));
   };
 
   useEffect(() => {
-    localStorage.setItem("themeMode", mode);
+    localStorage.setItem('themeMode', mode);
   }, [mode]);
 
-
-
-const theme: Theme = useMemo(
-  () =>
-    createTheme({
-      palette: {
-        mode,
-      },
-      typography: {
-        fontFamily: "Montserrat, Arial, Helvetica, sans-serif",
-      },
-      components: {
-        MuiCssBaseline: {
-          styleOverrides: {
-            body: {
-              backgroundImage:
-                mode === "light"
-                  ? "url(/background-light.svg)"
-                  : "url(/background-dark.svg)",
-              backgroundRepeat: "no-repeat",
-              backgroundSize: "cover",
-              backgroundAttachment: "fixed",
-              backgroundPosition: "center",
-              minHeight: "100vh",
+  const theme: Theme = useMemo(
+    () =>
+      createTheme({
+        palette: {
+          mode,
+          primary: blue,
+          secondary: pink,
+        },
+        typography: {
+          fontFamily: 'Montserrat, Arial, Helvetica, sans-serif',
+        },
+        components: {
+          MuiCssBaseline: {
+            styleOverrides: {
+              body: {
+                backgroundImage:
+                  mode === 'light'
+                    ? 'url(/background-light.svg)'
+                    : 'url(/background-dark.svg)',
+                backgroundRepeat: 'no-repeat',
+                backgroundSize: 'cover',
+                backgroundAttachment: 'fixed',
+                backgroundPosition: 'bottom',
+                minHeight: '100vh',
+              },
+            },
+          },
+          MuiOutlinedInput: {
+            styleOverrides: {
+              root: {
+                borderRadius: '8px',
+              },
             },
           },
         },
-      },
-    }),
-  [mode]
-);
-
+      }),
+    [mode],
+  );
 
   return (
     <ThemeModeContext.Provider value={{ mode, toggleTheme }}>
