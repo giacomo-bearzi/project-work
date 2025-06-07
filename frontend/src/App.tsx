@@ -11,11 +11,13 @@ import OperatorDashboard from './pages/OperatorDashboard';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import './index.css';
+import NotificationPoller from './components/NotificationPoller';
 
 const App = () => {
   return (
     <Router>
       <AuthProvider>
+        <NotificationPoller />
         <Routes>
           <Route
             path="/login"
