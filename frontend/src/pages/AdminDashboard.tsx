@@ -329,7 +329,7 @@ const AdminDashboard = () => {
               </Select>
             </DialogContent>
             <DialogActions>
-              <Button onClick={handleCloseAddDialog}>Annulla</Button>
+              <Button variant="outlined" onClick={handleCloseAddDialog}>Annulla</Button>
               <Button variant="contained" onClick={handleAddUser}>
                 Salva
               </Button>

@@ -29,22 +29,37 @@ export const getThemeOptions = (mode: "light" | "dark"): ThemeOptions => ({
     MuiButton: {
       styleOverrides: {
         root: {
-          background: "linear-gradient(45deg, #FB4376 30%, #FFB6C1 90%)",
-          border: 0,
           borderRadius: 20,
-          boxShadow: "0 4px 10px rgba(251, 67, 118, 0.4)",
-          color: "white",
-          height: 48,
-          padding: "0 30px",
           textTransform: "none",
           transition: "0.3s ease",
+        },
+        contained: {
+          background: "linear-gradient(45deg, #FB4376 30%, #FFB6C1 90%)",
+          color: "white",
+          boxShadow: "0 4px 10px rgba(251, 67, 118, 0.4)",
           "&:hover": {
             background: "linear-gradient(45deg, #FF6699 30%, #FFD1DC 90%)",
             boxShadow: "0 6px 14px rgba(251, 67, 118, 0.5)",
           },
         },
+        outlined: {
+          color: "#FB4376",
+          border: "2px solid #FB4376",
+          backgroundColor: "transparent",
+          "&:hover": {
+            backgroundColor: "rgba(251, 67, 118, 0.1)",
+            borderColor: "#FB4376",
+          },
+        },
+        text: {
+          color: "#FB4376",
+          "&:hover": {
+            backgroundColor: "rgba(251, 67, 118, 0.08)",
+          },
+        },
       },
     },
+
     MuiToolbar: {
       styleOverrides: {
         root: {
