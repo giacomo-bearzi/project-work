@@ -222,7 +222,7 @@ const Login = () => {
                 </Alert>
               )}
 
-              <Typography
+              {/* <Typography
                 variant="body1"
                 align="right"
                 sx={{ mt: 1 }}
@@ -236,7 +236,7 @@ const Login = () => {
                 >
                   Hai dimenticato la password?
                 </Typography>
-              </Typography>
+              </Typography> */}
               <Button
                 type="submit"
                 fullWidth
