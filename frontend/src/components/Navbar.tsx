@@ -40,9 +40,9 @@ const Navbar = ({ title, userFullName, onLogout }: NavbarProps) => {
          <Button color="inherit" onClick={toggleTheme} className="mr-2">
             {mode === "dark" ? <Brightness7 /> : <Brightness4 />}
           </Button>
-        <IconButton size="large" color="inherit" onClick={handleMenu}>
+        <Button size="large" color="inherit" onClick={handleMenu}>
           <AccountCircle />
-        </IconButton>
+        </Button>
         <Menu
           anchorEl={anchorEl}
           open={Boolean(anchorEl)}

@@ -130,13 +130,13 @@ export const LogInForm = () => {
                 )}
               />
               <Link to="/reset-password">
-                <Typography
+                {/* <Typography
                   variant="body2"
                   fontWeight={500}
                   sx={{ ':hover': { textDecoration: 'underline' } }}
                 >
                   Non ricordi la password?
-                </Typography>
+                </Typography> */}
               </Link>
             </Stack>
             {isError && (

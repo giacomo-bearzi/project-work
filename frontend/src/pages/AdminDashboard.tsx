@@ -182,7 +182,7 @@ const AdminDashboard = () => {
             </Button>
           </Box>
           <Button
-            variant="outlined"
+            variant="contained"
             startIcon={<AddIcon />}
             sx={{ mt: 1, mb: 2 }}
             onClick={handleOpenAddDialog}
