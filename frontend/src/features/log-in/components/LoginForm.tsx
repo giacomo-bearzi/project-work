@@ -104,7 +104,7 @@ export const LogInForm = () => {
                 children={(field) => (
                   <>
                     <TextField
-                      required
+                      // required
                       fullWidth
                       error={isError}
                       name="password"
