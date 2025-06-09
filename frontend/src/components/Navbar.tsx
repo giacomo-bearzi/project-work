@@ -9,7 +9,7 @@ import {
   Button,
 } from "@mui/material";
 import AccountCircle from "@mui/icons-material/AccountCircle";
-import { Brightness4, Brightness7 } from "@mui/icons-material";
+import { DarkMode, LightMode } from "@mui/icons-material";
 import { useThemeMode } from "../context/ThemeContext";
 
 interface NavbarProps {
@@ -37,12 +37,12 @@ const Navbar = ({ title, userFullName, onLogout }: NavbarProps) => {
           {title}
         </Typography>
         <Typography sx={{ mr: 1 }}>{userFullName}</Typography>
-         <Button color="inherit" onClick={toggleTheme} className="mr-2">
-            {mode === "dark" ? <Brightness7 /> : <Brightness4 />}
-          </Button>
-        <Button size="large" color="inherit" onClick={handleMenu}>
+         <IconButton color="inherit" onClick={toggleTheme} className="mr-2">
+            {mode === "dark" ? <LightMode /> : <DarkMode />}
+          </IconButton>
+        <IconButton size="large" color="inherit" onClick={handleMenu}>
           <AccountCircle />
-        </Button>
+        </IconButton>
         <Menu
           anchorEl={anchorEl}
           open={Boolean(anchorEl)}
