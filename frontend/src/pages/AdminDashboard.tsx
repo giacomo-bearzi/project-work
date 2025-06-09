@@ -182,7 +182,7 @@ const AdminDashboard = () => {
             </Button>
           </Box>
           <Button
-            variant="outlined"
+            variant="contained"
             startIcon={<AddIcon />}
             sx={{ mt: 1, mb: 2 }}
             onClick={handleOpenAddDialog}
@@ -208,7 +208,7 @@ const AdminDashboard = () => {
                     return (
                       <TableRow
                         key={u._id}
-                        sx={isEditing ? { backgroundColor: "grey" } : {}}
+                        sx={isEditing ? { backgroundColor: "#FFC7D6" } : {}}
                       >
                         <TableCell>
                           {isEditing ? (
@@ -254,14 +254,12 @@ const AdminDashboard = () => {
                           {isEditing ? (
                             <>
                               <IconButton
-                                color="success"
                                 onClick={() => handleSaveEdit(u._id)}
                                 className="no-focus-ring"
                               >
                                 <SaveIcon />
                               </IconButton>
                               <IconButton
-                                color="error"
                                 onClick={handleCancelEdit}
                                 className="no-focus-ring"
                               >
@@ -270,7 +268,6 @@ const AdminDashboard = () => {
                             </>
                           ) : (
                             <IconButton
-                              color="primary"
                               onClick={() => handleEditClick(u)}
                               className="no-focus-ring"
                             >
