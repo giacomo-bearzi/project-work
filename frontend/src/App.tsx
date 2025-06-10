@@ -6,7 +6,7 @@ import {
 } from 'react-router-dom';
 import NotificationPoller from './components/NotificationPoller';
 import ProtectedRoute from './components/ProtectedRoute';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider } from './features/log-in/context/AuthContext.tsx';
 import { LogInPage } from './features/log-in/pages/LoginPage.tsx';
 import './index.css';
 import AdminDashboard from './pages/AdminDashboard';

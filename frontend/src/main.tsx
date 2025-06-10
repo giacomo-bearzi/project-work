@@ -1,12 +1,12 @@
-import { createRoot } from "react-dom/client";
-import "./index.css";
-import App from "./App.tsx";
-import { CustomThemeProvider } from "./context/ThemeContext.tsx";
-import { CssBaseline } from "@mui/material";
+import { createRoot } from 'react-dom/client';
+import './index.css';
+import App from './App.tsx';
+import { CustomThemeProvider } from './features/theme/context/ThemeContext.tsx';
+import { CssBaseline } from '@mui/material';
 
-createRoot(document.getElementById("root")!).render(
+createRoot(document.getElementById('root')!).render(
   <CustomThemeProvider>
     <CssBaseline />
     <App />
-  </CustomThemeProvider>
+  </CustomThemeProvider>,
 );

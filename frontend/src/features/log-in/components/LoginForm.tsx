@@ -6,6 +6,7 @@ import { useCreateLoginRequestMutation } from '../hooks/useLoginQueries.tsx';
 import type { LoginRequest } from '../types/types.local.ts';
 import { LoginButton } from './LoginButton.tsx';
 import { ShowPasswordButton } from './ShowPasswordButton.tsx';
+import type { AxiosError } from 'axios';
 
 export const LogInForm = () => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -15,11 +16,11 @@ export const LogInForm = () => {
     mutate: createLoginRequest,
     isPending,
     isError,
+    error,
   } = useCreateLoginRequestMutation();
 
   const form = useForm({
     onSubmit: async ({ value }) => {
-      console.info(value);
       createLoginRequest(value);
     },
     defaultValues: {
@@ -34,18 +35,34 @@ export const LogInForm = () => {
     form.handleSubmit();
   };
 
-  // Stringa per gestire il tipo di input in base al valore di `showPassword`.
+  // Variabile per gestire il tipo di input in base al valore di `showPassword`.
   const inpuType = showPassword ? 'text' : 'password';
+
+  // Variabile per estrarre il codice di errore di axios per determinare il tipo di problema.
+  let errorStatus = undefined;
+  if (error) {
+    const axiosError = error as AxiosError;
+    errorStatus = axiosError.code;
+  }
 
   return (
     <Paper
       elevation={1}
-      sx={{ borderRadius: 8, p: 4, mb: 6 }}
+      sx={{
+        borderRadius: 8,
+        p: 2,
+        mb: 6,
+        background: 'rgba(255, 255, 255, 0.1)',
+        backdropFilter: 'blur(20px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+        border: '1px solid rgba(255, 255, 255, 0.25)',
+        boxShadow: '0 4px 30px rgba(0, 0, 0, 0.1)',
+      }}
     >
       <Stack
         direction="column"
         alignItems="center"
-        gap={4}
+        gap={3}
       >
         <Stack
           direction="column"
@@ -59,10 +76,11 @@ export const LogInForm = () => {
             className="max-h-16"
           />
           <Typography
-            variant="body1"
+            component="h2"
+            variant="h6"
             fontWeight={600}
           >
-            Accedi per continuare
+            Accedi per continuare{' '}
           </Typography>
         </Stack>
         <Stack
@@ -84,7 +102,7 @@ export const LogInForm = () => {
                     fullWidth
                     error={isError}
                     id="username"
-                    label="Username"
+                    label="Nome utente"
                     name="username"
                     autoComplete="username"
                     autoFocus
@@ -135,7 +153,7 @@ export const LogInForm = () => {
                   fontWeight={500}
                   sx={{ ':hover': { textDecoration: 'underline' } }}
                 >
-                  Non ricordi la password?
+                  Hai dimenticato la password?
                 </Typography>
               </Link>
             </Stack>
@@ -144,7 +162,9 @@ export const LogInForm = () => {
                 variant="filled"
                 severity="error"
               >
-                Username o password errati
+                {errorStatus === 'ERR_NETWORK'
+                  ? 'Errore del server'
+                  : 'Nome utente o password non validi'}
               </Alert>
             )}
           </Stack>

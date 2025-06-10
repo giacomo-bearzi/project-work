@@ -1,5 +1,5 @@
 import { IconButton, Tooltip } from '@mui/material';
-import { useThemeMode } from '../../../context/ThemeContext.tsx';
+import { useThemeMode } from '../context/ThemeContext.tsx';
 import { DarkMode, LightMode } from '@mui/icons-material';
 
 export const ToggleThemeModeButton = () => {

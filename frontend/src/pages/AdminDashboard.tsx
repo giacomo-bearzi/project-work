@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState } from 'react';
 import {
   Container,
   Typography,
@@ -19,33 +19,33 @@ import {
   Dialog,
   DialogTitle,
   DialogActions,
-} from "@mui/material";
-import { useAuth } from "../context/AuthContext";
-import Navbar from "../components/Navbar";
-import axios from "axios";
+} from '@mui/material';
+import { useAuth } from '../features/log-in/context/AuthContext';
+import Navbar from '../components/Navbar';
+import axios from 'axios';
 import {
   Edit as EditIcon,
   Save as SaveIcon,
   Close as CancelIcon,
-} from "@mui/icons-material";
-import AddIcon from "@mui/icons-material/Add";
-import type { User } from "../components/Login";
+} from '@mui/icons-material';
+import AddIcon from '@mui/icons-material/Add';
+import type { User } from '../components/Login';
 
 const AdminDashboard = () => {
   const { user, logout, token } = useAuth(); // assicurati che accessToken sia disponibile
   const [users, setUsers] = useState([]);
   const [editingUserId, setEditingUserId] = useState<string | null>(null);
   const [editValues, setEditValues] = useState({
-    fullName: "",
-    username: "",
-    role: "",
+    fullName: '',
+    username: '',
+    role: '',
   });
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [newUser, setNewUser] = useState({
-    fullName: "",
-    username: "",
-    password: "",
-    role: "operator",
+    fullName: '',
+    username: '',
+    password: '',
+    role: 'operator',
   });
 
   if (!user) {
@@ -53,10 +53,10 @@ const AdminDashboard = () => {
   }
   const handleOpenAddDialog = () => {
     setNewUser({
-      fullName: "",
-      username: "",
-      password: "",
-      role: "operator",
+      fullName: '',
+      username: '',
+      password: '',
+      role: 'operator',
     });
     setAddDialogOpen(true);
   };
@@ -66,7 +66,7 @@ const AdminDashboard = () => {
   };
 
   const handleNewUserChange = (
-    e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>
+    e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>,
   ) => {
     const { name, value } = e.target;
     setNewUser((prev) => ({
@@ -77,7 +77,7 @@ const AdminDashboard = () => {
 
   const handleAddUser = async () => {
     try {
-      const res = await axios.post("http://localhost:5000/api/users", newUser, {
+      const res = await axios.post('http://localhost:5000/api/users', newUser, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -88,7 +88,7 @@ const AdminDashboard = () => {
     } catch (err: any) {
       console.error(
         "Errore durante la creazione dell'utente:",
-        err.response?.data || err
+        err.response?.data || err,
       );
     }
   };
@@ -102,7 +102,7 @@ const AdminDashboard = () => {
       });
       setUsers(res.data);
     } catch (err) {
-      console.error("Errore nel recupero degli utenti:", err);
+      console.error('Errore nel recupero degli utenti:', err);
     }
   };
 
@@ -117,11 +117,11 @@ const AdminDashboard = () => {
 
   const handleCancelEdit = () => {
     setEditingUserId(null);
-    setEditValues({ fullName: "", username: "", role: "" });
+    setEditValues({ fullName: '', username: '', role: '' });
   };
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>
+    e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>,
   ) => {
     const { name, value } = e.target;
     setEditValues((prev) => ({
@@ -139,12 +139,12 @@ const AdminDashboard = () => {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       // aggiorna localmente
       setUsers((prev) =>
-        prev.map((u) => (u._id === id ? { ...u, ...editValues } : u))
+        prev.map((u) => (u._id === id ? { ...u, ...editValues } : u)),
       );
 
       handleCancelEdit();
@@ -162,7 +162,10 @@ const AdminDashboard = () => {
       />
       <Container>
         <Paper sx={{ p: 3 }}>
-          <Typography variant="h5" gutterBottom>
+          <Typography
+            variant="h5"
+            gutterBottom
+          >
             Benvenuto, {user?.fullName}
           </Typography>
           <Box sx={{ my: 2 }}>
@@ -174,10 +177,17 @@ const AdminDashboard = () => {
             >
               Gestisci Utenti
             </Button>
-            <Button variant="contained" color="primary" sx={{ mr: 2 }}>
+            <Button
+              variant="contained"
+              color="primary"
+              sx={{ mr: 2 }}
+            >
               Gestisci Prodotti
             </Button>
-            <Button variant="contained" color="primary">
+            <Button
+              variant="contained"
+              color="primary"
+            >
               Visualizza Statistiche
             </Button>
           </Box>
@@ -191,8 +201,14 @@ const AdminDashboard = () => {
           </Button>
 
           {users.length > 0 && (
-            <TableContainer component={Paper} sx={{ maxHeight: 500 }}>
-              <Table stickyHeader aria-label="sticky table">
+            <TableContainer
+              component={Paper}
+              sx={{ maxHeight: 500 }}
+            >
+              <Table
+                stickyHeader
+                aria-label="sticky table"
+              >
                 <TableHead>
                   <TableRow>
                     <TableCell>Full Name</TableCell>
@@ -208,7 +224,7 @@ const AdminDashboard = () => {
                     return (
                       <TableRow
                         key={u._id}
-                        sx={isEditing ? { backgroundColor: "#FFC7D6" } : {}}
+                        sx={isEditing ? { backgroundColor: '#FFC7D6' } : {}}
                       >
                         <TableCell>
                           {isEditing ? (
@@ -282,7 +298,11 @@ const AdminDashboard = () => {
               </Table>
             </TableContainer>
           )}
-          <Dialog open={addDialogOpen} onClose={handleCloseAddDialog} fullWidth>
+          <Dialog
+            open={addDialogOpen}
+            onClose={handleCloseAddDialog}
+            fullWidth
+          >
             <DialogTitle>Nuovo Utente</DialogTitle>
             <DialogContent>
               <TextField
@@ -327,7 +347,10 @@ const AdminDashboard = () => {
             </DialogContent>
             <DialogActions>
               <Button onClick={handleCloseAddDialog}>Annulla</Button>
-              <Button variant="contained" onClick={handleAddUser}>
+              <Button
+                variant="contained"
+                onClick={handleAddUser}
+              >
                 Salva
               </Button>
             </DialogActions>

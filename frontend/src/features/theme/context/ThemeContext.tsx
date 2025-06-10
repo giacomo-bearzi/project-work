@@ -55,8 +55,8 @@ export const CustomThemeProvider = ({
               body: {
                 backgroundImage:
                   mode === 'light'
-                    ? 'url(/background-light.svg)'
-                    : 'url(/background-dark.svg)',
+                    ? 'url(/background-light-2.svg)'
+                    : 'url(/background-dark-2.svg)',
                 backgroundRepeat: 'no-repeat',
                 backgroundSize: 'cover',
                 backgroundAttachment: 'fixed',
