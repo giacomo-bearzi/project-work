@@ -150,7 +150,6 @@ export const GestioneUtenti = () => {
     );
   });
 
-
   const handleCloseAddDialog = () => {
     setAddDialogOpen(false);
   };
@@ -264,6 +263,11 @@ export const GestioneUtenti = () => {
                       boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
                       display: "flex",
                       maxHeight: "650px",
+                      overflowY: "scroll", // o 'auto'
+                      scrollbarWidth: "none", // Firefox
+                      "&::-webkit-scrollbar": {
+                        display: "none", // Chrome, Safari, Edge
+                      },
                     }}
                   >
                     <Table stickyHeader aria-label="sticky table">
