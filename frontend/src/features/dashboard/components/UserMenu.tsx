@@ -2,7 +2,7 @@ import {
   InboxRounded,
   KeyboardArrowDownRounded,
   NotificationsRounded,
-} from "@mui/icons-material";
+} from '@mui/icons-material';
 import {
   Avatar,
   Badge,
@@ -10,12 +10,23 @@ import {
   IconButton,
   Paper,
   Typography,
-} from "@mui/material";
-import { ToggleThemeModeButton } from "../../theme/components/ToggleThemeModeButton";
+} from '@mui/material';
+import { ToggleThemeModeButton } from '../../theme/components/ToggleThemeModeButton';
+import { useAuth } from '../../log-in/context/AuthContext.tsx';
 
 export const UserMenu = () => {
+  const { user } = useAuth();
+
+  if (!user) {
+    return <></>;
+  }
+
   return (
-    <Box gap={2} display={"flex"} alignItems={"center"}>
+    <Box
+      gap={2}
+      display={'flex'}
+      alignItems={'center'}
+    >
       <Box gap={1}>
         <IconButton>
           <InboxRounded />
@@ -26,8 +37,8 @@ export const UserMenu = () => {
             color="primary"
             overlap="circular"
             anchorOrigin={{
-              vertical: "top",
-              horizontal: "right",
+              vertical: 'top',
+              horizontal: 'right',
             }}
           >
             <NotificationsRounded />
@@ -37,36 +48,43 @@ export const UserMenu = () => {
       </Box>
       <Paper
         sx={{
-          background: "rgba(255, 255, 255, 0.07)",
-          backdropFilter: "blur(20px) saturate(180%)",
-          WebkitBackdropFilter: "blur(20px) saturate(180%)",
-          boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
+          background: 'rgba(255, 255, 255, 0.07)',
+          backdropFilter: 'blur(20px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+          boxShadow: '0 4px 30px rgba(0, 0, 0, 0.1)',
           borderRadius: 8,
         }}
       >
         <Box
           p={1}
           gap={4}
-          display={"flex"}
-          alignItems={"center"}
-          flexDirection={"row"}
+          display={'flex'}
+          alignItems={'center'}
+          flexDirection={'row'}
         >
-          <Box gap={2} display={"flex"} flexDirection={"row"}>
-            <Avatar>G</Avatar>
-            <Box flexDirection={"column"} display={"flex"}>
+          <Box
+            gap={2}
+            display={'flex'}
+            flexDirection={'row'}
+          >
+            <Avatar>{user.fullName[0]}</Avatar>
+            <Box
+              flexDirection={'column'}
+              display={'flex'}
+            >
               <Typography
                 component="span"
                 variant="body2"
                 sx={{ fontWeight: 600 }}
               >
-                Giacomo Bearzi
+                {user.fullName}
               </Typography>
               <Typography
                 component="span"
                 variant="body2"
-                sx={{ fontWeight: 500, opacity: "80%" }}
+                sx={{ fontWeight: 500, opacity: '80%' }}
               >
-                Operatore
+                {user.role}
               </Typography>
             </Box>
           </Box>
