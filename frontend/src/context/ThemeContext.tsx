@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { createContext, useContext, useMemo, useState } from 'react';
 import { createTheme, ThemeProvider } from '@mui/material';
 import type { Theme } from '@mui/material';
-import { blue, pink } from '@mui/material/colors';
+import { getThemeOptions } from '../theme/CandyTheme';
 
 type ThemeMode = 'light' | 'dark';
 
@@ -40,40 +40,7 @@ export const CustomThemeProvider = ({
 
   const theme: Theme = useMemo(
     () =>
-      createTheme({
-        palette: {
-          mode,
-          primary: blue,
-          secondary: pink,
-        },
-        typography: {
-          fontFamily: 'Montserrat, Arial, Helvetica, sans-serif',
-        },
-        components: {
-          MuiCssBaseline: {
-            styleOverrides: {
-              body: {
-                backgroundImage:
-                  mode === 'light'
-                    ? 'url(/background-light.svg)'
-                    : 'url(/background-dark.svg)',
-                backgroundRepeat: 'no-repeat',
-                backgroundSize: 'cover',
-                backgroundAttachment: 'fixed',
-                backgroundPosition: 'bottom',
-                minHeight: '100vh',
-              },
-            },
-          },
-          MuiOutlinedInput: {
-            styleOverrides: {
-              root: {
-                borderRadius: '8px',
-              },
-            },
-          },
-        },
-      }),
+      createTheme(getThemeOptions(mode)),
     [mode],
   );
 
