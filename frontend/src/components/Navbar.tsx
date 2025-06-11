@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState } from 'react';
 import {
   AppBar,
   Toolbar,
@@ -7,10 +7,10 @@ import {
   Menu,
   MenuItem,
   Button,
-} from "@mui/material";
-import AccountCircle from "@mui/icons-material/AccountCircle";
-import { Brightness4, Brightness7 } from "@mui/icons-material";
-import { useThemeMode } from "../context/ThemeContext";
+} from '@mui/material';
+import AccountCircle from '@mui/icons-material/AccountCircle';
+import { Brightness4, Brightness7 } from '@mui/icons-material';
+import { useThemeMode } from '../features/theme/context/ThemeContext';
 
 interface NavbarProps {
   title: string;
@@ -20,7 +20,7 @@ interface NavbarProps {
 
 const Navbar = ({ title, userFullName, onLogout }: NavbarProps) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-   const { mode, toggleTheme } = useThemeMode();
+  const { mode, toggleTheme } = useThemeMode();
 
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -33,14 +33,25 @@ const Navbar = ({ title, userFullName, onLogout }: NavbarProps) => {
   return (
     <AppBar position="static">
       <Toolbar>
-        <Typography variant="h6" sx={{ flexGrow: 1 }}>
+        <Typography
+          variant="h6"
+          sx={{ flexGrow: 1 }}
+        >
           {title}
         </Typography>
         <Typography sx={{ mr: 1 }}>{userFullName}</Typography>
-         <Button color="inherit" onClick={toggleTheme} className="mr-2">
-            {mode === "dark" ? <Brightness7 /> : <Brightness4 />}
-          </Button>
-        <IconButton size="large" color="inherit" onClick={handleMenu}>
+        <Button
+          color="inherit"
+          onClick={toggleTheme}
+          className="mr-2"
+        >
+          {mode === 'dark' ? <Brightness7 /> : <Brightness4 />}
+        </Button>
+        <IconButton
+          size="large"
+          color="inherit"
+          onClick={handleMenu}
+        >
           <AccountCircle />
         </IconButton>
         <Menu
@@ -48,12 +59,12 @@ const Navbar = ({ title, userFullName, onLogout }: NavbarProps) => {
           open={Boolean(anchorEl)}
           onClose={handleClose}
           anchorOrigin={{
-            vertical: "bottom",
-            horizontal: "right",
+            vertical: 'bottom',
+            horizontal: 'right',
           }}
           transformOrigin={{
-            vertical: "top",
-            horizontal: "right",
+            vertical: 'top',
+            horizontal: 'right',
           }}
         >
           <MenuItem

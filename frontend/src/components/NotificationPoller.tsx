@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState } from "react";
-import axios from "axios";
-import Snackbar from "@mui/material/Snackbar";
-import Alert from "@mui/material/Alert";
-import { useAuth } from "../context/AuthContext";
+import { useEffect, useRef, useState } from 'react';
+import axios from 'axios';
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
+import { useAuth } from '../features/log-in/context/AuthContext';
 
 // ✅ Tipo per una issue
 interface Issue {
@@ -20,7 +20,7 @@ interface Issue {
 }
 
 const NotificationPoller: React.FC = () => {
-   const { token } = useAuth();
+  const { token } = useAuth();
   const [newIssues, setNewIssues] = useState<Issue[]>([]);
   const [open, setOpen] = useState<boolean>(false);
   const [latestIssue, setLatestIssue] = useState<Issue | null>(null);
@@ -30,18 +30,18 @@ const NotificationPoller: React.FC = () => {
     const fetchIssues = async () => {
       try {
         const res = await axios.get<Issue[]>(
-          "http://localhost:5000/api/issues",
+          'http://localhost:5000/api/issues',
           {
             headers: {
               Authorization: `Bearer ${token}`,
             },
-          }
+          },
         );
         const issues = res.data;
 
         const currentIds = new Set(issues.map((issue) => issue._id));
         const newOnes = issues.filter(
-          (issue) => !previousIdsRef.current.has(issue._id)
+          (issue) => !previousIdsRef.current.has(issue._id),
         );
 
         if (newOnes.length > 0) {
@@ -52,7 +52,7 @@ const NotificationPoller: React.FC = () => {
 
         previousIdsRef.current = currentIds;
       } catch (err) {
-        console.error("Errore durante il polling delle issues:", err);
+        console.error('Errore durante il polling delle issues:', err);
       }
     };
 
@@ -69,9 +69,17 @@ const NotificationPoller: React.FC = () => {
   return (
     <div>
       {/* Notifica MUI */}
-      <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
+      <Snackbar
+        open={open}
+        autoHideDuration={6000}
+        onClose={handleClose}
+      >
         {(latestIssue && (
-          <Alert onClose={handleClose} severity="info" sx={{ width: "100%" }}>
+          <Alert
+            onClose={handleClose}
+            severity="info"
+            sx={{ width: '100%' }}
+          >
             <div className="font-semibold">
               Nuova issue: {latestIssue.description}
             </div>

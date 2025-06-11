@@ -17,11 +17,11 @@ import {
   TableCell,
   TableBody,
   CircularProgress,
-  useTheme
+  useTheme,
 } from '@mui/material';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../features/log-in/context/AuthContext';
 import Navbar from '../components/Navbar';
 import api from '../utils/axios'; // Import the axios instance
 import moment from 'moment'; // To format dates
@@ -75,7 +75,6 @@ const OperatorDashboard = () => {
     // Optional: Set up polling for real-time updates (e.g., every 30 seconds)
     // const pollingInterval = setInterval(fetchIssues, 30000); // Poll every 30 seconds
     // return () => clearInterval(pollingInterval); // Cleanup interval on component unmount
-
   }, [theme.palette.mode]); // Rerun effect if theme mode changes
 
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
@@ -95,7 +94,14 @@ const OperatorDashboard = () => {
   if (!user || loading) {
     // You might want a dedicated loading page or spinner component
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh',
+        }}
+      >
         <CircularProgress size={80} />
       </Box>
     );
@@ -146,13 +152,22 @@ const OperatorDashboard = () => {
               backgroundColor: theme.palette.background.paper, // Use paper background color
             }}
           >
-            <Typography variant="h5" gutterBottom>
+            <Typography
+              variant="h5"
+              gutterBottom
+            >
               Issues Segnalate
             </Typography>
 
             {issues.length > 0 ? (
-              <TableContainer component={Paper} sx={{ mt: 2 }}>
-                <Table sx={{ minWidth: 650 }} aria-label="issues table">
+              <TableContainer
+                component={Paper}
+                sx={{ mt: 2 }}
+              >
+                <Table
+                  sx={{ minWidth: 650 }}
+                  aria-label="issues table"
+                >
                   <TableHead>
                     <TableRow>
                       <TableCell>Linea</TableCell>
@@ -169,28 +184,49 @@ const OperatorDashboard = () => {
                   <TableBody>
                     {issues.map((issue) => (
                       <TableRow key={issue._id}>
-                        <TableCell component="th" scope="row">
+                        <TableCell
+                          component="th"
+                          scope="row"
+                        >
                           {issue.lineId}
                         </TableCell>
                         <TableCell>{issue.type}</TableCell>
                         <TableCell>{issue.priority}</TableCell>
                         <TableCell>{issue.status}</TableCell>
                         <TableCell>{issue.description}</TableCell>
-                        <TableCell>{issue.reportedBy?.fullName || issue.reportedBy?.username || 'N/A'}</TableCell>
-                        <TableCell>{issue.assignedTo?.fullName || issue.assignedTo?.username || 'N/A'}</TableCell>
-                        <TableCell>{moment(issue.createdAt).format('YYYY-MM-DD HH:mm')}</TableCell>
-                        <TableCell>{issue.resolvedAt ? moment(issue.resolvedAt).format('YYYY-MM-DD HH:mm') : '-'}</TableCell>
+                        <TableCell>
+                          {issue.reportedBy?.fullName ||
+                            issue.reportedBy?.username ||
+                            'N/A'}
+                        </TableCell>
+                        <TableCell>
+                          {issue.assignedTo?.fullName ||
+                            issue.assignedTo?.username ||
+                            'N/A'}
+                        </TableCell>
+                        <TableCell>
+                          {moment(issue.createdAt).format('YYYY-MM-DD HH:mm')}
+                        </TableCell>
+                        <TableCell>
+                          {issue.resolvedAt
+                            ? moment(issue.resolvedAt).format(
+                                'YYYY-MM-DD HH:mm',
+                              )
+                            : '-'}
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
                 </Table>
               </TableContainer>
             ) : (
-              <Typography variant="body1" sx={{ mt: 2 }}>
+              <Typography
+                variant="body1"
+                sx={{ mt: 2 }}
+              >
                 Nessuna issue trovata.
               </Typography>
             )}
-
           </Paper>
         </Box>
       </Container>
