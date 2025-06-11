@@ -1,3 +1,0 @@
-export const ManagerDashboard = () => {
-  return <></>;
-};

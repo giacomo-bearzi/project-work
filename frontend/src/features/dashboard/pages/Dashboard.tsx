@@ -2,7 +2,7 @@ import { Box, Paper, Stack } from '@mui/material';
 import { Header } from '../components/Header.tsx';
 import { DashboardOverview } from '../../dashboard-overview/layouts/DashboardOverview.tsx';
 
-export const OperatorDashboard = () => {
+export const Dashboard = () => {
   return (
     <Box
       p={1}

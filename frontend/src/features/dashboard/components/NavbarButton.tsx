@@ -1,6 +1,6 @@
-import { Typography } from '@mui/material';
+import { Button } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 import type { ReactNode } from 'react';
-import { Link } from 'react-router-dom';
 
 interface NavbarButtonProps {
   path: string;
@@ -8,18 +8,10 @@ interface NavbarButtonProps {
 }
 
 export const NavbarButton = ({ path, children }: NavbarButtonProps) => {
+  const navigate = useNavigate();
   return (
-    <Link
-      to={path}
-      className="p-4"
-    >
-      <Typography
-        component="span"
-        variant="body2"
-        fontWeight={500}
-      >
-        {children}
-      </Typography>
-    </Link>
+    <Button variant="text" color="inherit" onClick={() => navigate(path)}>
+      {children}
+    </Button>
   );
 };

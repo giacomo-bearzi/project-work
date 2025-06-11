@@ -1,7 +1,10 @@
 import { Paper, Stack } from '@mui/material';
 import { NavbarButton } from './NavbarButton.tsx';
+import { useAuth } from '../../log-in/context/AuthContext.tsx';
 
 export const Navbar = () => {
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'admin';
   return (
     <Paper
       sx={{
@@ -19,10 +22,11 @@ export const Navbar = () => {
         direction="row"
         gap={2}
       >
-        <NavbarButton path="/">Panoramica</NavbarButton>
-        <NavbarButton path="/">Monitoraggio produzione</NavbarButton>
-        <NavbarButton path="/">Segnalazioni e problemi</NavbarButton>
-        <NavbarButton path="/">Pianificazione attività</NavbarButton>
+        <NavbarButton path="/dashboard">Dashboard</NavbarButton>
+        <NavbarButton path="/issues">Segnalazioni</NavbarButton>
+        <NavbarButton path="/tasks">Attività</NavbarButton>
+        <NavbarButton path="/planning">Pianificazione attività</NavbarButton>
+        {isAdmin && <NavbarButton path="/gestione-utenti">Gestione Utenti</NavbarButton>}
       </Stack>
     </Paper>
   );
