@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 import authRoutes from './routes/auth';
 import userRoutes from './routes/users';
 import issueRoutes from './routes/issues';
-
+import productionLineRoutes from './routes/productionLines';
 dotenv.config();
 
 const app = express();
@@ -21,7 +21,7 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/issues', issueRoutes);
-
+app.use('/api/productionlines', productionLineRoutes);
 // MongoDB connection
 console.log('Attempting to connect to MongoDB...');
 console.log('MongoDB URI:', process.env.MONGO_URI);
