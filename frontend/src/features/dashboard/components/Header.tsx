@@ -1,7 +1,7 @@
 import { Stack } from '@mui/material';
 
 import { Navbar } from './Navbar.tsx';
-import { LogoAndDashboard } from './LogoAndDashboard.tsx';
+import { Logo } from './Logo.tsx';
 import { UserMenu } from './UserMenu.tsx';
 
 export const Header = () => {
@@ -12,7 +12,7 @@ export const Header = () => {
       direction={'row'}
       px={1}
     >
-      <LogoAndDashboard />
+      <Logo />
       <Navbar />
       <UserMenu />
     </Stack>
