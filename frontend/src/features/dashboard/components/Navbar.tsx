@@ -25,7 +25,7 @@ export const Navbar = () => {
         <NavbarButton path="/dashboard">Dashboard</NavbarButton>
         <NavbarButton path="/issues">Segnalazioni</NavbarButton>
         <NavbarButton path="/tasks">Attività</NavbarButton>
-        <NavbarButton path="/planning">Pianificazione attività</NavbarButton>
+        <NavbarButton path="/planning">Monitoraggio attività</NavbarButton>
         {isAdmin && <NavbarButton path="/gestione-utenti">Gestione Utenti</NavbarButton>}
       </Stack>
     </Paper>

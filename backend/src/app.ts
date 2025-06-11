@@ -7,6 +7,9 @@ import userRoutes from './routes/users';
 import issueRoutes from './routes/issues';
 import productionLineRoutes from './routes/productionLines';
 import taskRoutes from './routes/tasks';
+import { graphqlHTTP } from 'express-graphql';
+import schema from './graphql/schema';
+import resolvers from './graphql/resolvers';
 dotenv.config();
 
 const app = express();
@@ -19,11 +22,18 @@ app.use(cors({
 app.use(express.json());
 
 // Routes
+app.use('/api/graphql', graphqlHTTP({
+    schema: schema,
+    rootValue: resolvers,
+    graphiql: true, // Abilita l'interfaccia GraphiQL per testare le query
+}));
+
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/issues', issueRoutes);
 app.use('/api/production-lines', productionLineRoutes);
 app.use('/api/tasks', taskRoutes);
+
 // MongoDB connection
 console.log('Attempting to connect to MongoDB...');
 console.log('MongoDB URI:', process.env.MONGO_URI);
@@ -50,3 +60,5 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
+
+export default app;
