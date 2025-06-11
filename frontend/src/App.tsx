@@ -47,7 +47,7 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <Router>
       <AuthProvider>
-        <NotificationPoller />
+        {/* <NotificationPoller /> */}
         <AppContent />
       </AuthProvider>
     </Router>
