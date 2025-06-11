@@ -23,12 +23,19 @@ export const useCreateLoginRequestMutation = () => {
     }
   };
 
+  const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
+
   const createLoginRequestMutation = useMutation({
-    mutationFn: async (data: LoginRequest) => createLoginRequest(data),
-    onSuccess: async (response) => {
+    mutationFn: async (data: LoginRequest) => {
+      const [response] = await Promise.all([
+        createLoginRequest(data),
+        delay(500),
+      ]);
+      return response;
+    },
+    onSuccess: (response) => {
       const { user, token } = response.data;
       login(user, token);
-
       navigateToPage(user.role);
     },
     onError: (error) => console.error(error),
