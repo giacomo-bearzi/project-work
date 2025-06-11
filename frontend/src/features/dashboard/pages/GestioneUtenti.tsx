@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -18,6 +19,7 @@ import {
   TableHead,
   TableRow,
   TextField,
+  Typography,
 } from "@mui/material";
 import { Header } from "../components/Header.tsx";
 import { useAuth } from "../../log-in/context/AuthContext.tsx";
@@ -40,6 +42,7 @@ export const GestioneUtenti = () => {
   const [editingUserId, setEditingUserId] = useState<string | null>(null);
   const [editedUser, setEditedUser] = useState<Partial<User>>({});
   const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const [newUser, setNewUser] = useState({
     fullName: "",
@@ -165,6 +168,7 @@ export const GestioneUtenti = () => {
   };
 
   const fetchUsers = async () => {
+    setLoading(true);
     try {
       const res = await axios.get(`${import.meta.env.VITE_API_URL}/users`, {
         headers: {
@@ -174,11 +178,17 @@ export const GestioneUtenti = () => {
       setUsers(res.data);
     } catch (err) {
       console.error("Errore nel recupero degli utenti:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchUsers();
+    const timeoutId = setTimeout(() => {
+      fetchUsers();
+    }, 1000); // 500ms di ritardo
+
+    return () => clearTimeout(timeoutId);
   }, []);
 
   return (
@@ -253,7 +263,18 @@ export const GestioneUtenti = () => {
                     Aggiungi Utente
                   </Button>
                 </div>
-                {users.length > 0 && (
+
+                {loading ? (
+                  <Box
+                    display="flex"
+                    justifyContent="center"
+                    alignItems="center"
+                    height="400px"
+                    width="100%"
+                  >
+                    <CircularProgress size='3rem' color="secondary" />
+                  </Box>
+                ) : (
                   <TableContainer
                     component={Paper}
                     sx={{
@@ -264,10 +285,10 @@ export const GestioneUtenti = () => {
                       boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
                       display: "flex",
                       maxHeight: "650px",
-                      overflowY: "scroll", // o 'auto'
-                      scrollbarWidth: "none", // Firefox
+                      overflowY: "scroll",
+                      scrollbarWidth: "none",
                       "&::-webkit-scrollbar": {
-                        display: "none", // Chrome, Safari, Edge
+                        display: "none",
                       },
                     }}
                   >
@@ -331,8 +352,6 @@ export const GestioneUtenti = () => {
                                   u.role
                                 )}
                               </TableCell>
-
-                              {/* ✅ Ultima colonna: Actions */}
                               <TableCell align="right">
                                 {isEditing ? (
                                   <>
@@ -344,13 +363,13 @@ export const GestioneUtenti = () => {
                                     >
                                       <SaveIcon />
                                     </Button>
-                                    <Button
+                                    <IconButton
                                       onClick={cancelEditing}
-                                      variant="text"
+                                      // variant="text"
                                       size="small"
                                     >
                                       <ClearIcon />
-                                    </Button>
+                                    </IconButton>
                                   </>
                                 ) : (
                                   <>
@@ -360,16 +379,14 @@ export const GestioneUtenti = () => {
                                       sx={{ mr: 1 }}
                                     >
                                       <EditIcon />
-                                      {/* Modifica */}
                                     </IconButton>
-                                    <Button
-                                      variant="text"
+                                    <IconButton
+                                      // variant="text"
                                       size="small"
                                       onClick={() => openConfirmDialog(u)}
                                     >
                                       <Delete />
-                                      {/* Elimina */}
-                                    </Button>
+                                    </IconButton>
                                   </>
                                 )}
                               </TableCell>
@@ -380,6 +397,7 @@ export const GestioneUtenti = () => {
                     </Table>
                   </TableContainer>
                 )}
+
                 <Dialog
                   open={addDialogOpen}
                   onClose={handleCloseAddDialog}
