@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { createContext, useContext, useMemo, useState } from 'react';
 import { createTheme, ThemeProvider } from '@mui/material';
 import type { Theme } from '@mui/material';
-import { getThemeOptions } from '../theme/CandyTheme';
+import { getThemeOptions } from './CandyTheme.ts';
 
 type ThemeMode = 'light' | 'dark';
 
