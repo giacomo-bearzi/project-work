@@ -61,7 +61,7 @@ export const Tasks = () => {
         lineId: '',
     });
     const [saving, setSaving] = useState(false);
-    const { token } = useAuth();
+    const { token, user } = useAuth();
     const [searchQuery, setSearchQuery] = useState('');
 
     // State to hold the currently selected user object for Autocomplete display
@@ -69,6 +69,11 @@ export const Tasks = () => {
 
     // Nuovo stato per la task in modifica
     const [editingTask, setEditingTask] = useState<Task | null>(null);
+
+    // Funzione per verificare se l'utente ha i permessi necessari
+    const canManageTasks = () => {
+        return user?.role === 'manager' || user?.role === 'admin';
+    };
 
     // Colori dinamici
     const isDark = theme.palette.mode === 'dark';
@@ -361,9 +366,11 @@ export const Tasks = () => {
                     <Header />
                     <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 2, mt: 1 }}>
                         <Typography variant="h5" sx={{ fontWeight: 700 }}>ATTIVITÁ</Typography>
-                        <Button variant="contained" sx={{ borderRadius: 8, background: '#FF4F8B', fontWeight: 700, textTransform: 'none', px: 3 }} onClick={handleOpen}>
-                            AGGIUNGI ATTIVITÁ
-                        </Button>
+                        {canManageTasks() && (
+                            <Button variant="contained" sx={{ borderRadius: 8, background: '#FF4F8B', fontWeight: 700, textTransform: 'none', px: 3 }} onClick={handleOpen}>
+                                AGGIUNGI ATTIVITÁ
+                            </Button>
+                        )}
                     </Stack>
                     {loading ? (
                         <Typography>Caricamento...</Typography>
