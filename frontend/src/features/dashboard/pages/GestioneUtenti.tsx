@@ -38,6 +38,7 @@ export const GestioneUtenti = () => {
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
   const [editingUserId, setEditingUserId] = useState<string | null>(null);
   const [editedUser, setEditedUser] = useState<Partial<User>>({});
+  const [searchTerm, setSearchTerm] = useState("");
 
   const [newUser, setNewUser] = useState({
     fullName: "",
@@ -140,6 +141,16 @@ export const GestioneUtenti = () => {
     }));
   };
 
+  const filteredUsers = users.filter((u: User) => {
+    const term = searchTerm.toLowerCase();
+    return (
+      u.fullName.toLowerCase().includes(term) ||
+      u.username.toLowerCase().includes(term) ||
+      u.role.toLowerCase().includes(term)
+    );
+  });
+
+
   const handleCloseAddDialog = () => {
     setAddDialogOpen(false);
   };
@@ -225,14 +236,22 @@ export const GestioneUtenti = () => {
                   flexDirection: "column",
                 }}
               >
-                <div>
+                <div className="flex justify-between mb-2 mt-2">
+                  <TextField
+                    label="Cerca utente"
+                    variant="outlined"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    size="small"
+                    sx={{ width: 300 }}
+                  />
                   <Button
                     variant="contained"
                     onClick={handleOpenAddDialog}
                     startIcon={<AddIcon />}
                   >
                     Aggiungi User
-                  </Button>{" "}
+                  </Button>
                 </div>
                 {users.length > 0 && (
                   <TableContainer
@@ -244,7 +263,7 @@ export const GestioneUtenti = () => {
                       WebkitBackdropFilter: "blur(20px) saturate(180%)",
                       boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
                       display: "flex",
-                      maxHeight: "700px",
+                      maxHeight: "650px",
                     }}
                   >
                     <Table stickyHeader aria-label="sticky table">
@@ -257,105 +276,104 @@ export const GestioneUtenti = () => {
                         </TableRow>
                       </TableHead>
                       <TableBody>
-  {users.map((u: User) => {
-    const isEditing = editingUserId === u._id;
+                        {filteredUsers.map((u: User) => {
+                          const isEditing = editingUserId === u._id;
 
-    return (
-      <TableRow key={u._id}>
-        <TableCell>
-          {isEditing ? (
-            <TextField
-              name="fullName"
-              value={editedUser.fullName || ""}
-              onChange={handleEditChange}
-              size="small"
-              fullWidth
-            />
-          ) : (
-            u.fullName
-          )}
-        </TableCell>
-        <TableCell>
-          {isEditing ? (
-            <TextField
-              name="username"
-              value={editedUser.username || ""}
-              onChange={handleEditChange}
-              size="small"
-              fullWidth
-            />
-          ) : (
-            u.username
-          )}
-        </TableCell>
-        <TableCell>
-          {isEditing ? (
-            <Select
-              name="role"
-              value={editedUser.role || ""}
-              onChange={handleEditChange}
-              size="small"
-              fullWidth
-            >
-              <MenuItem value="admin">admin</MenuItem>
-              <MenuItem value="manager">manager</MenuItem>
-              <MenuItem value="operator">operator</MenuItem>
-            </Select>
-          ) : (
-            u.role
-          )}
-        </TableCell>
+                          return (
+                            <TableRow key={u._id}>
+                              <TableCell>
+                                {isEditing ? (
+                                  <TextField
+                                    name="fullName"
+                                    value={editedUser.fullName || ""}
+                                    onChange={handleEditChange}
+                                    size="small"
+                                    fullWidth
+                                  />
+                                ) : (
+                                  u.fullName
+                                )}
+                              </TableCell>
+                              <TableCell>
+                                {isEditing ? (
+                                  <TextField
+                                    name="username"
+                                    value={editedUser.username || ""}
+                                    onChange={handleEditChange}
+                                    size="small"
+                                    fullWidth
+                                  />
+                                ) : (
+                                  u.username
+                                )}
+                              </TableCell>
+                              <TableCell>
+                                {isEditing ? (
+                                  <Select
+                                    name="role"
+                                    value={editedUser.role || ""}
+                                    onChange={handleEditChange}
+                                    size="small"
+                                    fullWidth
+                                  >
+                                    <MenuItem value="admin">admin</MenuItem>
+                                    <MenuItem value="manager">manager</MenuItem>
+                                    <MenuItem value="operator">
+                                      operator
+                                    </MenuItem>
+                                  </Select>
+                                ) : (
+                                  u.role
+                                )}
+                              </TableCell>
 
-        {/* ✅ Ultima colonna: Actions */}
-        <TableCell align="right">
-          {isEditing ? (
-            <>
-              <Button
-                onClick={saveEdit}
-                startIcon={<SaveIcon />}
-                variant="contained"
-                color="success"
-                size="small"
-                sx={{ mr: 1 }}
-              >
-                Salva
-              </Button>
-              <Button
-                onClick={cancelEditing}
-                startIcon={<Delete />}
-                variant="outlined"
-                size="small"
-              >
-                Annulla
-              </Button>
-            </>
-          ) : (
-            <>
-              <Button
-                onClick={() => startEditing(u)}
-                startIcon={<EditIcon />}
-                variant="outlined"
-                size="small"
-                sx={{ mr: 1 }}
-              >
-                Modifica
-              </Button>
-              <Button
-                variant="outlined"
-                color="error"
-                size="small"
-                onClick={() => openConfirmDialog(u)}
-              >
-                Elimina
-              </Button>
-            </>
-          )}
-        </TableCell>
-      </TableRow>
-    );
-  })}
-</TableBody>
-
+                              {/* ✅ Ultima colonna: Actions */}
+                              <TableCell align="right">
+                                {isEditing ? (
+                                  <>
+                                    <Button
+                                      onClick={saveEdit}
+                                      variant="contained"
+                                      size="small"
+                                      sx={{ mr: 1 }}
+                                    >
+                                      <SaveIcon />
+                                    </Button>
+                                    <Button
+                                      onClick={cancelEditing}
+                                      variant="outlined"
+                                      size="small"
+                                    >
+                                      <ClearIcon />
+                                    </Button>
+                                  </>
+                                ) : (
+                                  <>
+                                    <Button
+                                      onClick={() => startEditing(u)}
+                                      variant="outlined"
+                                      size="small"
+                                      sx={{ mr: 1 }}
+                                    >
+                                      <EditIcon />
+                                      {/* Modifica */}
+                                    </Button>
+                                    <Button
+                                      variant="outlined"
+                                      color="error"
+                                      size="small"
+                                      onClick={() => openConfirmDialog(u)}
+                                    >
+                                      <Delete />
+                                      {/* Elimina */}
+                                    </Button>
+                                  </>
+                                )}
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
                     </Table>
                   </TableContainer>
                 )}
