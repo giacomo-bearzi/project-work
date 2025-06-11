@@ -11,8 +11,9 @@ import { LogInPage } from './features/log-in/pages/LoginPage.tsx';
 import './index.css';
 import AdminDashboard from './pages/AdminDashboard';
 import ManagerDashboard from './pages/ManagerDashboard';
-import OperatorDashboard from './pages/OperatorDashboard';
+
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { OperatorDashboard } from './features/dashboard/pages/OperatorDashboard.tsx';
 
 const queryClient = new QueryClient();
 

@@ -39,8 +39,7 @@ export const CustomThemeProvider = ({
   }, [mode]);
 
   const theme: Theme = useMemo(
-    () =>
-      createTheme(getThemeOptions(mode)),
+    () => createTheme(getThemeOptions(mode)),
     [mode],
   );
 
