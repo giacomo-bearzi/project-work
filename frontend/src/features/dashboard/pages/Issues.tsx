@@ -54,7 +54,7 @@ export const Issues = () => {
     const [selectedLine, setSelectedLine] = useState<string[]>([]);
     const [selectedType, setSelectedType] = useState<string[]>([]);
     const [searchId, setSearchId] = useState('');
-    
+
     const statusOptions = ['Aperta', 'Risolta', 'Chiusa'];
     const priorityOptions = ['Bassa', 'Media', 'Alta'];
     const lineOptions = ['Linea 1', 'Linea 2', 'Linea 3'];
@@ -67,7 +67,7 @@ export const Issues = () => {
         } else {
           setThemeMode('/background-dark.svg');
         }
-    
+
         const fetchIssues = async () => {
           try {
             const response = await api.get<Issue[]>('/issues');
@@ -79,14 +79,14 @@ export const Issues = () => {
             setLoading(false);
           }
         };
-    
+
         fetchIssues();
-    
+
         // Optional: Set up polling for real-time updates (e.g., every 30 seconds)
         // const pollingInterval = setInterval(fetchIssues, 30000); // Poll every 30 seconds
         // return () => clearInterval(pollingInterval); // Cleanup interval on component unmount
       }, [theme.palette.mode]); // Rerun effect if theme mode changes
-        
+
       if (!user || loading) {
         // You might want a dedicated loading page or spinner component
         return (
@@ -271,7 +271,7 @@ export const Issues = () => {
                       Segnala
                     </Button>
                   </Stack>
-                </Stack>            
+                </Stack>
                 {/* Tabella delle issues */}
                 <TableContainer component={Paper} sx={{ mt: 2, boxShadow: 'none', background: 'transparent' }}>
                   <Table
@@ -291,7 +291,7 @@ export const Issues = () => {
                           },
                         }}
                       >
-                        <TableCell>Id</TableCell>
+                        {/* <TableCell>Id</TableCell> */}
                         <TableCell>Descrizione</TableCell>
                         <TableCell>Linea</TableCell>
                         <TableCell>Tipo</TableCell>
@@ -306,7 +306,7 @@ export const Issues = () => {
                     <TableBody>
                       {filteredIssues.map((issue, idx) => (
                         <TableRow key={issue._id}>
-                          <TableCell>{`#${String(idx + 1).padStart(3, '0')}`}</TableCell>
+                          {/* <TableCell>{`#${String(idx + 1).padStart(3, '0')}`}</TableCell> */}
                           <TableCell>{issue.description}</TableCell>
                           <TableCell>{issue.lineId}</TableCell>
                           <TableCell>{issue.type}</TableCell>
