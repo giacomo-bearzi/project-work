@@ -1,7 +1,11 @@
 import {
   Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   Grid,
-  IconButton,
   MenuItem,
   Paper,
   Select,
@@ -18,36 +22,136 @@ import { Header } from "../components/Header.tsx";
 import { useAuth } from "../../log-in/context/AuthContext.tsx";
 import { useEffect, useState } from "react";
 import type { User } from "../../../components/Login.tsx";
-import {
-  Edit as EditIcon,
-  Save as SaveIcon,
-  Close as CancelIcon,
-} from "@mui/icons-material";
+import AddIcon from "@mui/icons-material/Add";
+import { Delete } from "@mui/icons-material";
+import SaveIcon from "@mui/icons-material/Save";
+import ClearIcon from "@mui/icons-material/Clear";
+import EditIcon from "@mui/icons-material/Edit";
+
 import axios from "axios";
 
 export const GestioneUtenti = () => {
-  const { user, logout, token } = useAuth(); // assicurati che accessToken sia disponibile
+  const { token } = useAuth();
   const [users, setUsers] = useState([]);
-  // const [editingUserId, setEditingUserId] = useState<string | null>(null);
+  const [addDialogOpen, setAddDialogOpen] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<User | null>(null);
+  const [editingUserId, setEditingUserId] = useState<string | null>(null);
+  const [editedUser, setEditedUser] = useState<Partial<User>>({});
 
-  //   const [editValues, setEditValues] = useState({
-  //     fullName: "",
-  //     username: "",
-  //     role: "",
-  //   });
+  const [newUser, setNewUser] = useState({
+    fullName: "",
+    username: "",
+    password: "",
+    role: "operator",
+  });
 
-  //   const handleShowUsers = async () => {
-  //     try {
-  //       const res = await axios.get(`${import.meta.env.VITE_API_URL}/users`, {
-  //         headers: {
-  //           Authorization: `Bearer ${token}`,
-  //         },
-  //       });
-  //       setUsers(res.data);
-  //     } catch (err) {
-  //       console.error("Errore nel recupero degli utenti:", err);
-  //     }
-  //   };
+  const openConfirmDialog = (user: User) => {
+    setUserToDelete(user);
+    setConfirmOpen(true);
+  };
+
+  const closeConfirmDialog = () => {
+    setConfirmOpen(false);
+    setUserToDelete(null);
+  };
+
+  const startEditing = (user: User) => {
+    setEditingUserId(user._id);
+    setEditedUser(user);
+  };
+
+  const cancelEditing = () => {
+    setEditingUserId(null);
+    setEditedUser({});
+  };
+
+  const handleEditChange = (
+    e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>
+  ) => {
+    const { name, value } = e.target;
+    setEditedUser((prev) => ({
+      ...prev,
+      [name!]: value,
+    }));
+  };
+
+  const saveEdit = async () => {
+    try {
+      await axios.put(
+        `${import.meta.env.VITE_API_URL}/users/${editingUserId}`,
+        editedUser,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setEditingUserId(null);
+      setEditedUser({});
+      await fetchUsers();
+    } catch (err) {
+      console.error("Errore durante l'aggiornamento dell'utente:", err);
+    }
+  };
+
+  const handleAddUser = async () => {
+    try {
+      await axios.post("http://localhost:5000/api/users", newUser, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      await fetchUsers(); // <-- aggiorna la lista dopo l'aggiunta
+      handleCloseAddDialog(); // chiudi il dialog
+    } catch (err: any) {
+      console.error(
+        "Errore durante la creazione dell'utente:",
+        err.response?.data || err
+      );
+    }
+  };
+
+  const handleDeleteUser = async () => {
+    if (!userToDelete) return;
+    try {
+      await axios.delete(
+        `${import.meta.env.VITE_API_URL}/users/${userToDelete._id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      closeConfirmDialog();
+      await fetchUsers(); // aggiorna la lista
+    } catch (err) {
+      console.error("Errore durante l'eliminazione dell'utente:", err);
+    }
+  };
+
+  const handleNewUserChange = (
+    e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>
+  ) => {
+    const { name, value } = e.target;
+    setNewUser((prev) => ({
+      ...prev,
+      [name!]: value,
+    }));
+  };
+
+  const handleCloseAddDialog = () => {
+    setAddDialogOpen(false);
+  };
+  const handleOpenAddDialog = () => {
+    setNewUser({
+      fullName: "",
+      username: "",
+      password: "",
+      role: "operator",
+    });
+    setAddDialogOpen(true);
+  };
 
   const fetchUsers = async () => {
     try {
@@ -56,145 +160,279 @@ export const GestioneUtenti = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-      console.log(res.data);
       setUsers(res.data);
     } catch (err) {
       console.error("Errore nel recupero degli utenti:", err);
     }
   };
 
-    useEffect(() => {
-        fetchUsers();
-    }, []);
+  useEffect(() => {
+    fetchUsers();
+  }, []);
 
-    return (
-        <Box p={1} height={"100dvh"}>
-            <Paper
+  return (
+    <Box p={1} height={"100dvh"}>
+      <Paper
+        elevation={1}
+        sx={{
+          borderRadius: 11,
+          p: 1,
+          background: "rgba(255, 255, 255, 0.07)",
+          backdropFilter: "blur(20px) saturate(180%)",
+          WebkitBackdropFilter: "blur(20px) saturate(180%)",
+          boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
+          height: "100%",
+        }}
+      >
+        <Stack direction="column" gap={1} sx={{ height: "100%" }}>
+          <Header />
+
+          <Grid
+            container
+            spacing={1}
+            sx={{
+              height: "100%",
+            }}
+          >
+            <Grid size={2}>
+              <Paper
                 elevation={1}
                 sx={{
-                    borderRadius: 11,
-                    p: 1,
-                    background: "rgba(255, 255, 255, 0.07)",
-                    backdropFilter: "blur(20px) saturate(180%)",
-                    WebkitBackdropFilter: "blur(20px) saturate(180%)",
-                    boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
-                    height: "100%",
+                  borderRadius: 11,
+                  p: 1,
+                  background: "rgba(255, 255, 255, 0.07)",
+                  backdropFilter: "blur(20px) saturate(180%)",
+                  WebkitBackdropFilter: "blur(20px) saturate(180%)",
+                  boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
+                  height: "100%",
                 }}
+              >
+                {" "}
+              </Paper>
+            </Grid>
+            <Grid size={10}>
+              <Paper
+                elevation={1}
+                sx={{
+                  borderRadius: 11,
+                  p: 1,
+                  background: "rgba(255, 255, 255, 0.07)",
+                  backdropFilter: "blur(20px) saturate(180%)",
+                  WebkitBackdropFilter: "blur(20px) saturate(180%)",
+                  boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
+                  height: "100%",
+                  display: "flex",
+                  flexDirection: "column",
+                }}
+              >
+                <div>
+                  <Button
+                    variant="contained"
+                    onClick={handleOpenAddDialog}
+                    startIcon={<AddIcon />}
+                  >
+                    Aggiungi User
+                  </Button>{" "}
+                </div>
+                {users.length > 0 && (
+                  <TableContainer
+                    component={Paper}
+                    sx={{
+                      borderRadius: 11,
+                      background: "rgba(255, 255, 255, 0.07)",
+                      backdropFilter: "blur(20px) saturate(180%)",
+                      WebkitBackdropFilter: "blur(20px) saturate(180%)",
+                      boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
+                      display: "flex",
+                      maxHeight: "700px",
+                    }}
+                  >
+                    <Table stickyHeader aria-label="sticky table">
+                      <TableHead>
+                        <TableRow>
+                          <TableCell>Full Name</TableCell>
+                          <TableCell>Username</TableCell>
+                          <TableCell>Ruolo</TableCell>
+                          <TableCell align="right">Actions</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+  {users.map((u: User) => {
+    const isEditing = editingUserId === u._id;
+
+    return (
+      <TableRow key={u._id}>
+        <TableCell>
+          {isEditing ? (
+            <TextField
+              name="fullName"
+              value={editedUser.fullName || ""}
+              onChange={handleEditChange}
+              size="small"
+              fullWidth
+            />
+          ) : (
+            u.fullName
+          )}
+        </TableCell>
+        <TableCell>
+          {isEditing ? (
+            <TextField
+              name="username"
+              value={editedUser.username || ""}
+              onChange={handleEditChange}
+              size="small"
+              fullWidth
+            />
+          ) : (
+            u.username
+          )}
+        </TableCell>
+        <TableCell>
+          {isEditing ? (
+            <Select
+              name="role"
+              value={editedUser.role || ""}
+              onChange={handleEditChange}
+              size="small"
+              fullWidth
             >
-                <Stack direction="column" gap={1} sx={{ height: "100%" }}>
-                    <Header />
+              <MenuItem value="admin">admin</MenuItem>
+              <MenuItem value="manager">manager</MenuItem>
+              <MenuItem value="operator">operator</MenuItem>
+            </Select>
+          ) : (
+            u.role
+          )}
+        </TableCell>
 
-         <Grid
-      container
-      spacing={1}
-      gridRow={2}
-      sx={{
-        height: '100%',
-      }}
-    >
-      <Grid size={3}>
-        <Paper
-          elevation={1}
-          sx={{
-            borderRadius: 11,
-            p: 1,
-            background: 'rgba(255, 255, 255, 0.07)',
-            backdropFilter: 'blur(20px) saturate(180%)',
-            WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-            boxShadow: '0 4px 30px rgba(0, 0, 0, 0.1)',
-            height: '100%',
-            display: 'flex',
-          }}
-        ></Paper>
-      </Grid>
-      <Grid size={9}>
-        <Stack
-          gap={1}
-          sx={{ height: '100%', display: 'flex' }}
-        >
-          <Paper
-            elevation={1}
-            sx={{
-              borderRadius: 11,
-              p: 1,
-              background: 'rgba(255, 255, 255, 0.07)',
-              backdropFilter: 'blur(20px) saturate(180%)',
-              WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-              boxShadow: '0 4px 30px rgba(0, 0, 0, 0.1)',
-              height: '100%',
-              display: 'flex',
-            }}
-          > {users.length > 0 && (
-            <TableContainer component={Paper} sx={{ maxHeight: 500 }}>
-              <Table stickyHeader aria-label="sticky table">
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Full Name</TableCell>
-                    <TableCell>Username</TableCell>
-                    <TableCell>Ruolo</TableCell>
-                    <TableCell align="right">Azioni</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {users.map((u: User) => {
-                    //   const isEditing = editingUserId === u._id;
+        {/* ✅ Ultima colonna: Actions */}
+        <TableCell align="right">
+          {isEditing ? (
+            <>
+              <Button
+                onClick={saveEdit}
+                startIcon={<SaveIcon />}
+                variant="contained"
+                color="success"
+                size="small"
+                sx={{ mr: 1 }}
+              >
+                Salva
+              </Button>
+              <Button
+                onClick={cancelEditing}
+                startIcon={<Delete />}
+                variant="outlined"
+                size="small"
+              >
+                Annulla
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button
+                onClick={() => startEditing(u)}
+                startIcon={<EditIcon />}
+                variant="outlined"
+                size="small"
+                sx={{ mr: 1 }}
+              >
+                Modifica
+              </Button>
+              <Button
+                variant="outlined"
+                color="error"
+                size="small"
+                onClick={() => openConfirmDialog(u)}
+              >
+                Elimina
+              </Button>
+            </>
+          )}
+        </TableCell>
+      </TableRow>
+    );
+  })}
+</TableBody>
 
-                    return (
-                      <TableRow
-                        key={u._id}
-                        //   sx={isEditing ? { backgroundColor: "#FFC7D6" } : {}}
-                      >
-                        <TableCell>{u.fullName}</TableCell>
-                        <TableCell>{u.username}</TableCell>
-                        <TableCell>{u.role}</TableCell>
-                        {/* <TableCell align="right">
-                        {isEditing ? (
-                          <>
-                            <IconButton
-                              //   onClick={() => handleSaveEdit(u._id)}
-                              className="no-focus-ring"
-                            >
-                              <SaveIcon />
-                            </IconButton>
-                            <IconButton
-                              //   onClick={handleCancelEdit}
-                              className="no-focus-ring"
-                            >
-                              <CancelIcon />
-                            </IconButton>
-                          </>
-                        ) : (
-                          <IconButton
-                            // onClick={() => handleEditClick(u)}
-                            className="no-focus-ring"
-                          >
-                            <EditIcon />
-                          </IconButton>
-                        )}
-                      </TableCell> */}
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          )}</Paper>
-          <Paper
-            elevation={1}
-            sx={{
-              borderRadius: 11,
-              p: 1,
-              background: 'rgba(255, 255, 255, 0.07)',
-              backdropFilter: 'blur(20px) saturate(180%)',
-              WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-              boxShadow: '0 4px 30px rgba(0, 0, 0, 0.1)',
-              height: '100%',
-              display: 'flex',
-            }}
-          ></Paper>
-        </Stack>
-      </Grid>
-    </Grid>
+                    </Table>
+                  </TableContainer>
+                )}
+                <Dialog
+                  open={addDialogOpen}
+                  onClose={handleCloseAddDialog}
+                  fullWidth
+                >
+                  <DialogTitle>Nuovo Utente</DialogTitle>
+                  <DialogContent>
+                    <TextField
+                      autoFocus
+                      margin="dense"
+                      name="fullName"
+                      label="Full Name"
+                      fullWidth
+                      value={newUser.fullName}
+                      onChange={handleNewUserChange}
+                    />
+                    <TextField
+                      margin="dense"
+                      name="username"
+                      label="Username"
+                      fullWidth
+                      value={newUser.username}
+                      onChange={handleNewUserChange}
+                      autoComplete="off"
+                    />
+                    <TextField
+                      margin="dense"
+                      name="password"
+                      label="Password"
+                      type="password"
+                      fullWidth
+                      value={newUser.password}
+                      onChange={handleNewUserChange}
+                      autoComplete="new-password"
+                    />
+                    <Select
+                      name="role"
+                      value={newUser.role}
+                      onChange={handleNewUserChange}
+                      fullWidth
+                      sx={{ mt: 2 }}
+                    >
+                      <MenuItem value="admin">admin</MenuItem>
+                      <MenuItem value="manager">manager</MenuItem>
+                      <MenuItem value="operator">operator</MenuItem>
+                    </Select>
+                  </DialogContent>
+                  <DialogActions>
+                    <Button onClick={handleCloseAddDialog}>Annulla</Button>
+                    <Button variant="contained" onClick={handleAddUser}>
+                      Salva
+                    </Button>
+                  </DialogActions>
+                </Dialog>
+                <Dialog open={confirmOpen} onClose={closeConfirmDialog}>
+                  <DialogTitle>Conferma Eliminazione</DialogTitle>
+                  <DialogContent>
+                    Sei sicuro di voler eliminare l’utente{" "}
+                    <strong>{userToDelete?.fullName}</strong>?
+                  </DialogContent>
+                  <DialogActions>
+                    <Button onClick={closeConfirmDialog}>Annulla</Button>
+                    <Button
+                      onClick={handleDeleteUser}
+                      color="error"
+                      variant="contained"
+                    >
+                      Elimina
+                    </Button>
+                  </DialogActions>
+                </Dialog>
+              </Paper>
+            </Grid>
+          </Grid>
         </Stack>
       </Paper>
     </Box>
