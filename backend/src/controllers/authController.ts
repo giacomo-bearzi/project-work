@@ -33,7 +33,9 @@ export const login = async (req: Request, res: Response) => {
         const token = jwt.sign(
             { userId: user._id, role: user.role },
             process.env.JWT_SECRET || 'your-secret-key',
-            { expiresIn: '24h' }
+            { expiresIn: '24h'
+                //Qua si può modificare la durata del token
+             }
         );
 
         console.log('Login successful for user:', username);
