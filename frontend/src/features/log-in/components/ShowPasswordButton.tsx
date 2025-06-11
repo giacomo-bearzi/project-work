@@ -17,15 +17,19 @@ export const ShowPasswordButton = ({
     <VisibilityRounded />
   );
 
-  const handlePasswordButtonClick = () => {
-    setShowPassword(!showPassword);
-  };
-
   return (
     <IconButton
       edge="end"
       aria-label="Mostra o nascondi password"
-      onClick={handlePasswordButtonClick}
+      onMouseDown={() => {
+        setShowPassword(true);
+      }}
+      onMouseUp={() => {
+        setShowPassword(false);
+      }}
+      onMouseLeave={() => {
+        setShowPassword(false);
+      }}
     >
       {InputAdornmentIcon}
     </IconButton>
