@@ -59,6 +59,17 @@ export const getThemeOptions = (mode: "light" | "dark"): ThemeOptions => ({
         },
       },
     },
+   MuiCheckbox: {
+  styleOverrides: {
+    root: {
+      color: "#FB4376",
+      '&.Mui-checked': {
+        color: "#FB4376",
+      },
+    },
+  },
+},
+
 
     // MuiToolbar: {
     //   styleOverrides: {
