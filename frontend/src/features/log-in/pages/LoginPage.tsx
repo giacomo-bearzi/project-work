@@ -1,4 +1,4 @@
-import { Box, CircularProgress, Container, Typography } from '@mui/material';
+import { Alert, Box, CircularProgress, Container, Typography } from '@mui/material';
 import { LogoAndCompanyName } from '../components/LogoAndCompanyName.tsx';
 import { ToggleThemeModeButton } from '../../theme/components/ToggleThemeModeButton.tsx';
 import { LogInForm } from '../components/LoginForm.tsx';
@@ -38,44 +38,44 @@ export const LogInPage = () => {
   }
 
   return (
-      <Container
-        maxWidth="xl"
+    <Container
+      maxWidth="xl"
+      sx={{
+        height: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
+      <Box display="flex" alignItems="center" justifyContent="end" py={2}>
+        <ToggleThemeModeButton />
+      </Box>
+
+      <Box
         sx={{
-          height: '100vh',
+          flex: 1,
           display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
           flexDirection: 'column',
         }}
       >
-        <Box display="flex" alignItems="center" justifyContent="end" py={2}>
-          <ToggleThemeModeButton />
-        </Box>
+        <Container maxWidth="xs">
+          {sessionExpired && (
+            <Alert
+              variant="filled"
+              severity="warning"
+              sx={{ display: "flex", alignItems: "center", mb: 2 }}
+            >
+              La tua sessione è scaduta. Per favore, effettua nuovamente il login.
+            </Alert>
+          )}
+          <LogInForm />
+        </Container>
+      </Box>
 
-        <Box
-          sx={{
-            flex: 1,
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            flexDirection: 'column',
-          }}
-        >
-          <Container maxWidth="xs">
-            {sessionExpired && (
-              <Typography
-                variant="body1"
-                color="error"
-                sx={{ mb: 2, textAlign: 'center' }}
-              >
-                La sessione è scaduta, effettua nuovamente il login.
-              </Typography>
-            )}
-            <LogInForm />
-          </Container>
-        </Box>
-
-        <Box display="flex" justifyContent="start" py={2}>
-          <LogoAndCompanyName />
-        </Box>
-      </Container>
+      <Box display="flex" justifyContent="start" py={2}>
+        <LogoAndCompanyName />
+      </Box>
+    </Container>
   );
 };
