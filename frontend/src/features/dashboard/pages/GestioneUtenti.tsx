@@ -6,6 +6,7 @@ import {
   DialogContent,
   DialogTitle,
   Grid,
+  IconButton,
   MenuItem,
   Paper,
   Select,
@@ -235,7 +236,7 @@ export const GestioneUtenti = () => {
                   flexDirection: "column",
                 }}
               >
-                <div className="flex justify-between mb-2 mt-2">
+                <div className="flex justify-between mb-2 mt-2 p-2">
                   <TextField
                     label="Cerca utente"
                     variant="outlined"
@@ -249,14 +250,14 @@ export const GestioneUtenti = () => {
                     onClick={handleOpenAddDialog}
                     startIcon={<AddIcon />}
                   >
-                    Aggiungi User
+                    Aggiungi Utente
                   </Button>
                 </div>
                 {users.length > 0 && (
                   <TableContainer
                     component={Paper}
                     sx={{
-                      borderRadius: 11,
+                      borderRadius: 8,
                       background: "rgba(255, 255, 255, 0.07)",
                       backdropFilter: "blur(20px) saturate(180%)",
                       WebkitBackdropFilter: "blur(20px) saturate(180%)",
@@ -345,7 +346,7 @@ export const GestioneUtenti = () => {
                                     </Button>
                                     <Button
                                       onClick={cancelEditing}
-                                      variant="outlined"
+                                      variant="text"
                                       size="small"
                                     >
                                       <ClearIcon />
@@ -353,18 +354,16 @@ export const GestioneUtenti = () => {
                                   </>
                                 ) : (
                                   <>
-                                    <Button
+                                    <IconButton
                                       onClick={() => startEditing(u)}
-                                      variant="outlined"
                                       size="small"
                                       sx={{ mr: 1 }}
                                     >
                                       <EditIcon />
                                       {/* Modifica */}
-                                    </Button>
+                                    </IconButton>
                                     <Button
-                                      variant="outlined"
-                                      color="error"
+                                      variant="text"
                                       size="small"
                                       onClick={() => openConfirmDialog(u)}
                                     >
