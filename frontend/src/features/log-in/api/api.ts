@@ -5,5 +5,5 @@ import type { LoginRequest } from '../types/types.local.ts';
 const ENDPOINT = '/auth/login';
 
 export const createLoginRequest = (data: LoginRequest) => {
-  return api.post<ApiLoginResponse>(`${ENDPOINT}`, data);
+  return api.post<ApiLoginResponse>(ENDPOINT, data);
 };

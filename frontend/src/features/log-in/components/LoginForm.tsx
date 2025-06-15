@@ -1,7 +1,7 @@
 import { Alert, Paper, Stack, TextField, Typography } from '@mui/material';
 import { useForm } from '@tanstack/react-form';
 import { useState, type FormEvent } from 'react';
-import { Link } from 'react-router-dom';
+// import { Link } from 'react-router-dom';
 import { useCreateLoginRequestMutation } from '../hooks/useLoginQueries.tsx';
 import type { LoginRequest } from '../types/types.local.ts';
 import { LoginButton } from './LoginButton.tsx';
@@ -53,8 +53,8 @@ export const LogInForm = () => {
         p: 2,
         mb: 6,
         background: 'rgba(255, 255, 255, 0.07)',
-        backdropFilter: 'blur(20px) saturate(180%)',
-        WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
         boxShadow: '0 4px 30px rgba(0, 0, 0, 0.1)',
       }}
     >
@@ -72,7 +72,7 @@ export const LogInForm = () => {
           <img
             src="/logo.png"
             alt="Logo TechManufacturing S.p.A."
-            className="max-h-16"
+            className="max-h-14"
           />
           <Typography
             component="h2"
@@ -146,7 +146,7 @@ export const LogInForm = () => {
                   </>
                 )}
               />
-              <Link to="/reset-password">
+              {/* <Link to="/reset-password">
                 <Typography
                   variant="body2"
                   fontWeight={500}
@@ -154,7 +154,7 @@ export const LogInForm = () => {
                 >
                   Hai dimenticato la password?
                 </Typography>
-              </Link>
+              </Link> */}
             </Stack>
             {isError && (
               <Alert
