@@ -1,13 +1,11 @@
-import type { User } from '../../../components/Login.tsx';
-
 export interface ApiUser {
   _id: string;
   username: string;
-  role: string;
+  role: 'operator' | 'manager' | 'admin';
   fullName: string;
 }
 
 export interface ApiLoginResponse {
   token: string;
-  user: User;
+  user: ApiUser;
 }
