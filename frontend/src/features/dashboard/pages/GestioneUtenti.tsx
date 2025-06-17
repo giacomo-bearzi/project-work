@@ -6,6 +6,7 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  Divider,
   Grid,
   IconButton,
   MenuItem,
@@ -32,6 +33,41 @@ import ClearIcon from "@mui/icons-material/Clear";
 import EditIcon from "@mui/icons-material/Edit";
 
 import axios from "axios";
+import api from "../../../utils/axios.ts";
+import { useNavigate } from "react-router-dom";
+
+interface Issue {
+  _id: string;
+  lineId: string;
+  type: string;
+  priority: string;
+  status: string;
+  description: string;
+  reportedBy: { username: string; fullName: string; role: string };
+  assignedTo?: { username: string; fullName: string; role: string };
+  createdAt: string;
+  updatedAt: string;
+  resolvedAt?: string;
+}
+
+interface Task {
+  _id: string;
+  date: string; // es: "2025-06-12"
+  lineId: string;
+  description: string;
+  assignedTo: {
+    _id: string;
+    username: string;
+    fullName: string;
+    role: string;
+  };
+  estimatedMinutes: number;
+  status: "in_corso" | "completata" | "da_fare" | string; // puoi estendere i possibili valori
+  checklist: {
+    title: string;
+    completed: boolean;
+  }[];
+}
 
 export const GestioneUtenti = () => {
   const { token } = useAuth();
@@ -43,6 +79,10 @@ export const GestioneUtenti = () => {
   const [editedUser, setEditedUser] = useState<Partial<User>>({});
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [issues, setIssues] = useState<Issue[]>([]);
+  const [tasks, setTasks] = useState<any[]>([]);
+  const navigate = useNavigate();
 
   const [newUser, setNewUser] = useState({
     fullName: "",
@@ -117,6 +157,37 @@ export const GestioneUtenti = () => {
     }
   };
 
+  const handleGetIssues = async (username: string) => {
+    try {
+      const response = await api.get<Issue[]>("/issues");
+      const filtered = response.data.filter(
+        (issue) => issue.reportedBy.username === username
+      );
+      // console.log(filtered);
+
+      setIssues(filtered);
+    } catch (err) {
+      console.error("Error fetching issues:", err);
+    } finally {
+      // setLoading(false);
+    }
+  };
+
+  const handleGetTasks = async (username: string) => {
+    try {
+      const response = await api.get("/tasks");
+      const filtered = response.data.filter(
+        (task: Task) => task.assignedTo.username === username
+      );
+      console.log(filtered);
+      setTasks(filtered);
+    } catch (err) {
+      console.error("Error fetching tasks:", err);
+    } finally {
+      // setLoading(false);
+    }
+  };
+
   const handleDeleteUser = async () => {
     if (!userToDelete) return;
     try {
@@ -167,28 +238,33 @@ export const GestioneUtenti = () => {
     setAddDialogOpen(true);
   };
 
+  const handleShowInfo = (user: User) => {
+    setSelectedUser(user);
+    handleGetIssues(user.username);
+    handleGetTasks(user.username);
+  };
+
   const fetchUsers = async () => {
     setLoading(true);
-    try {
-      const res = await axios.get(`${import.meta.env.VITE_API_URL}/users`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      setUsers(res.data);
-    } catch (err) {
-      console.error("Errore nel recupero degli utenti:", err);
-    } finally {
-      setLoading(false);
-    }
+
+    setTimeout(async () => {
+      try {
+        const res = await axios.get(`${import.meta.env.VITE_API_URL}/users`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setUsers(res.data);
+      } catch (err) {
+        console.error("Errore nel recupero degli utenti:", err);
+      } finally {
+        setLoading(false);
+      }
+    }, 1000); // Ritardo di 1 secondo
   };
 
   useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      fetchUsers();
-    }, 1000); // 500ms di ritardo
-
-    return () => clearTimeout(timeoutId);
+    fetchUsers();
   }, []);
 
   return (
@@ -215,7 +291,7 @@ export const GestioneUtenti = () => {
               height: "100%",
             }}
           >
-            <Grid size={2}>
+            <Grid size={3}>
               <Paper
                 elevation={1}
                 sx={{
@@ -225,13 +301,112 @@ export const GestioneUtenti = () => {
                   backdropFilter: "blur(20px) saturate(180%)",
                   WebkitBackdropFilter: "blur(20px) saturate(180%)",
                   boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
-                  height: "100%",
+                  maxHeight: "600px",
+                  overflowY: "scroll",
+                  scrollbarWidth: "none",
+                  "&::-webkit-scrollbar": {
+                    display: "none",
+                  },
                 }}
               >
-                {" "}
+                {selectedUser ? (
+                  <>
+                    <Typography sx={{ m: 1 }}>
+                      {selectedUser.fullName} - {selectedUser.role}
+                    </Typography>
+
+                    <Divider sx={{ my: 2 }} />
+
+                    <div className="flex justify-between">
+                      {" "}
+                      <Typography variant="h6" gutterBottom>
+                        Issues segnalate
+                      </Typography>
+                      <Button
+                        variant="contained"
+                        onClick={() => navigate("/issues")}
+                      >
+                        Issues
+                      </Button>
+                    </div>
+
+                    {loading ? (
+                      <Typography variant="body2">
+                        Caricamento issues...
+                      </Typography>
+                    ) : issues.length > 0 ? (
+                      <ul style={{ paddingLeft: "1rem" }}>
+                        {issues.map((issue) => (
+                          <li key={issue._id}>
+                            <Typography variant="body2">
+                              <strong>Descrizione:</strong> {issue.description}{" "}
+                              <br />
+                              <strong>Stato:</strong> {issue.status}
+                            </Typography>
+                            <Divider sx={{ my: 1 }} />
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <Typography variant="body2">
+                        Nessuna issue trovata per questo utente.
+                      </Typography>
+                    )}
+                    <div className="flex justify-between">
+                      <Typography variant="h6" gutterBottom>
+                        Tasks segnalate
+                      </Typography>
+                      <Button
+                        variant="contained"
+                        onClick={() => navigate("/tasks")}
+                      >
+                        Tasks
+                      </Button>
+                    </div>
+                    <ul style={{ paddingLeft: "1rem" }}>
+                      {tasks.map((task) => (
+                        <li key={task._id}>
+                          <Typography variant="body2">
+                            <strong>Data:</strong> {task.date} <br />
+                            <strong>Linea:</strong> {task.lineId} <br />
+                            <strong>Descrizione:</strong> {task.description}{" "}
+                            <br />
+                            <strong>Stima:</strong> {task.estimatedMinutes}{" "}
+                            minuti <br />
+                            <strong>Stato:</strong> {task.status}
+                          </Typography>
+                          {task.checklist?.length > 0 && (
+                            <Box ml={2} mt={1}>
+                              <Typography variant="subtitle2">
+                                Checklist:
+                              </Typography>
+                              <ul style={{ marginTop: 0, paddingLeft: "1rem" }}>
+                                {task.checklist.map((item, index) => (
+                                  <li key={index}>
+                                    <Typography variant="body2">
+                                      {item.title} -{" "}
+                                      {item.completed
+                                        ? "✅ Completato"
+                                        : "⏳ In sospeso"}
+                                    </Typography>
+                                  </li>
+                                ))}
+                              </ul>
+                            </Box>
+                          )}
+                          <Divider sx={{ my: 1 }} />
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                ) : (
+                  <Typography variant="body2" color="textSecondary">
+                    Seleziona un utente per visualizzare i dettagli.
+                  </Typography>
+                )}
               </Paper>
             </Grid>
-            <Grid size={10}>
+            <Grid size={9}>
               <Paper
                 elevation={1}
                 sx={{
@@ -272,7 +447,7 @@ export const GestioneUtenti = () => {
                     height="400px"
                     width="100%"
                   >
-                    <CircularProgress size='3rem' color="secondary" />
+                    <CircularProgress size="3rem" color="secondary" />
                   </Box>
                 ) : (
                   <TableContainer
@@ -306,7 +481,12 @@ export const GestioneUtenti = () => {
                           const isEditing = editingUserId === u._id;
 
                           return (
-                            <TableRow key={u._id}>
+                            <TableRow
+                              key={u._id}
+                              hover
+                              onClick={() => handleShowInfo(u)}
+                              sx={{ cursor: "pointer" }}
+                            >
                               <TableCell>
                                 {isEditing ? (
                                   <TextField
