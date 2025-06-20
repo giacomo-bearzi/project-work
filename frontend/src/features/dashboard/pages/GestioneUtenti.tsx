@@ -232,7 +232,7 @@ export const GestioneUtenti = () => {
 
   return (
     <Box p={1} height={"100dvh"}>
-      <Paper
+      {/* <Paper
         elevation={1}
         sx={{
           borderRadius: 11,
@@ -244,6 +244,7 @@ export const GestioneUtenti = () => {
           height: "100%",
         }}
       >
+      </Paper> */}
         <Stack direction="column" gap={1} sx={{ height: "100%" }}>
           <Header />
 
@@ -273,6 +274,7 @@ export const GestioneUtenti = () => {
                     },
                   }}
                 >
+
                   {selectedUser ? (
                     <UserDetails
                       user={selectedUser}
@@ -385,7 +387,6 @@ export const GestioneUtenti = () => {
             </Grid>
           </Grid>
         </Stack>
-      </Paper>
     </Box>
   );
 };
