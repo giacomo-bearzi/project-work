@@ -45,6 +45,12 @@ interface IssueModalProps {
   };
 }
 
+const statusOptions = [
+  { value: 'aperta', label: 'Aperta' },
+  { value: 'in lavorazione', label: 'In lavorazione' },
+  { value: 'risolta', label: 'Risolta' }
+];
+
 export const IssueModal: React.FC<IssueModalProps> = ({ open, onClose, onSave, lineOptions, typeOptions, priorityOptions, statusOptions, currentUser }) => {
   const [description, setDescription] = useState('');
   const [line, setLine] = useState('');
@@ -113,18 +119,23 @@ export const IssueModal: React.FC<IssueModalProps> = ({ open, onClose, onSave, l
     fetchUsers(searchReported);
   }, [searchReported]);
 
-  const handleSave = () => {
-    onSave({
-      description,
-      lineId: line,
-      type,
-      priority,
-      status,
-      assignedTo: assignedTo ? { _id: assignedTo._id, fullName: assignedTo.fullName } : null,
-      reportedBy: reportedBy ? { _id: reportedBy._id, fullName: reportedBy.fullName } : null,
-      createdAt,
-      resolvedAt: resolvedAt ? resolvedAt : null,
-    });
+  const handleSave = async () => {
+    try {
+      const payload = {
+        description,
+        lineId: line,
+        type,
+        priority,
+        status,
+        assignedTo: assignedTo ? assignedTo._id : null,
+        resolvedAt: resolvedAt ? resolvedAt : null,
+        // reportedBy viene gestito dal backend
+      };
+      await api.post('/issues', payload);
+      onClose();
+    } catch (err) {
+      alert('Errore nella creazione della issue');
+    }
   };
 
   return (

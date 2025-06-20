@@ -31,7 +31,7 @@ import Select from '@mui/material/Select';
 import Checkbox from '@mui/material/Checkbox';
 import ListItemText from '@mui/material/ListItemText';
 import { IssueModal } from '../components/IssueModal';
-import { lineOptions, typeOptions, priorityOptions, statusOptions } from '../../issues/types/issueOptions';
+import { lineOptions, typeOptions, priorityOptions } from '../../issues/types/issueOptions';
 
 interface Issue {
   _id: string;
@@ -46,6 +46,12 @@ interface Issue {
   updatedAt: string;
   resolvedAt?: string;
 }
+
+const statusOptions = [
+  { value: 'aperta', label: 'Aperta' },
+  { value: 'in lavorazione', label: 'In lavorazione' },
+  { value: 'risolta', label: 'Risolta' }
+];
 
 // Funzione di mapping da "Linea 1" a "LINE-1"
 const mapLineFilterToDb = (filterValue: string) => {
@@ -170,7 +176,7 @@ export const Issues = () => {
   // Funzione per creare una nuova issue
   const handleCreateIssue = async (data: any) => {
     try {
-      console.log("DATI" , data);
+      console.log("DATI", data);
       await api.post('/issues', data);
       // Aggiorna la lista dopo la creazione
       const response = await api.get<Issue[]>('/issues');
@@ -184,7 +190,7 @@ export const Issues = () => {
   return (
     <Box
       p={1}
-     
+
     >
       <Paper
         elevation={1}
@@ -421,8 +427,8 @@ export const Issues = () => {
                               issue.priority === 'alta'
                                 ? '#FF3B3B'
                                 : issue.priority === 'media'
-                                ? '#FFB800'
-                                : '#00B67A',
+                                  ? '#FFB800'
+                                  : '#00B67A',
                             fontWeight: 600,
                             marginRight: 6,
                             fontSize: 30,
