@@ -31,10 +31,10 @@ import { Delete } from "@mui/icons-material";
 import SaveIcon from "@mui/icons-material/Save";
 import ClearIcon from "@mui/icons-material/Clear";
 import EditIcon from "@mui/icons-material/Edit";
-
 import axios from "axios";
 import api from "../../../utils/axios.ts";
 import { useNavigate } from "react-router-dom";
+import { BarChart } from "@mui/x-charts/BarChart";
 
 interface Issue {
   _id: string;
@@ -50,9 +50,15 @@ interface Issue {
   resolvedAt?: string;
 }
 
+interface ChecklistItem {
+  id?: string;
+  item: string;
+  done: boolean;
+}
+
 interface Task {
   _id: string;
-  date: string; // es: "2025-06-12"
+  date: string;
   lineId: string;
   description: string;
   assignedTo: {
@@ -62,11 +68,8 @@ interface Task {
     role: string;
   };
   estimatedMinutes: number;
-  status: "in_corso" | "completata" | "da_fare" | string; // puoi estendere i possibili valori
-  checklist: {
-    title: string;
-    completed: boolean;
-  }[];
+  status: string;
+  checklist: ChecklistItem[];
 }
 
 export const GestioneUtenti = () => {
@@ -90,6 +93,20 @@ export const GestioneUtenti = () => {
     password: "",
     role: "operator",
   });
+
+  const issueStatuses = Array.from(new Set(issues.map((i) => i.status)));
+  const taskStatuses = Array.from(new Set(tasks.map((t) => t.status)));
+
+  const allStatuses = Array.from(new Set([...issueStatuses, ...taskStatuses]));
+
+  // 2. Costruisci le serie combinate per status
+  const series = allStatuses.map((status) => ({
+    label: status,
+    data: [
+      issues.filter((i) => i.status === status).length, // bar "Issues"
+      tasks.filter((t) => t.status === status).length, // bar "Tasks"
+    ],
+  }));
 
   const openConfirmDialog = (user: User) => {
     setUserToDelete(user);
@@ -291,120 +308,226 @@ export const GestioneUtenti = () => {
               height: "100%",
             }}
           >
-            <Grid size={3}>
-              <Paper
-                elevation={1}
-                sx={{
-                  borderRadius: 11,
-                  p: 1,
-                  background: "rgba(255, 255, 255, 0.07)",
-                  backdropFilter: "blur(20px) saturate(180%)",
-                  WebkitBackdropFilter: "blur(20px) saturate(180%)",
-                  boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
-                  maxHeight: "600px",
-                  overflowY: "scroll",
-                  scrollbarWidth: "none",
-                  "&::-webkit-scrollbar": {
-                    display: "none",
-                  },
-                }}
-              >
-                {selectedUser ? (
-                  <>
-                    <Typography sx={{ m: 1 }}>
-                      {selectedUser.fullName} - {selectedUser.role}
-                    </Typography>
+            <Grid container size={3}>
+              <Grid size={12}>
+                <Paper
+                  elevation={1}
+                  sx={{
+                    borderRadius: 11,
+                    p: 2,
+                    background: "rgba(255, 255, 255, 0.07)",
+                    backdropFilter: "blur(20px) saturate(180%)",
+                    WebkitBackdropFilter: "blur(20px) saturate(180%)",
+                    boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
+                    maxHeight: "400px",
+                    overflowY: "scroll",
+                    scrollbarWidth: "none",
+                    "&::-webkit-scrollbar": {
+                      display: "none",
+                    },
+                  }}
+                >
+                  {selectedUser ? (
+                    <>
+                      <Typography>
+                        {selectedUser.fullName} - {selectedUser.role}
+                      </Typography>
 
-                    <Divider sx={{ my: 2 }} />
+                      <Divider sx={{ my: 2 }} />
 
-                    <div className="flex justify-between">
-                      {" "}
-                      <Typography variant="h6" gutterBottom>
+                      <Typography
+                        variant="h6"
+                        gutterBottom
+                        onClick={() => navigate("/issues")}
+                        sx={{
+                          cursor: "pointer",
+                          transition: "all 0.3s ease",
+                          "&:hover": {
+                            textDecoration: "underline",
+                            color: "secondary.main",
+                          },
+                        }}
+                      >
                         Issues segnalate
                       </Typography>
-                      <Button
-                        variant="contained"
-                        onClick={() => navigate("/issues")}
-                      >
-                        Issues
-                      </Button>
-                    </div>
 
-                    {loading ? (
-                      <Typography variant="body2">
-                        Caricamento issues...
-                      </Typography>
-                    ) : issues.length > 0 ? (
-                      <ul style={{ paddingLeft: "1rem" }}>
-                        {issues.map((issue) => (
-                          <li key={issue._id}>
-                            <Typography variant="body2">
-                              <strong>Descrizione:</strong> {issue.description}{" "}
-                              <br />
-                              <strong>Stato:</strong> {issue.status}
-                            </Typography>
-                            <Divider sx={{ my: 1 }} />
-                          </li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <Typography variant="body2">
-                        Nessuna issue trovata per questo utente.
-                      </Typography>
-                    )}
-                    <div className="flex justify-between">
-                      <Typography variant="h6" gutterBottom>
+                      {loading ? (
+                        <Typography variant="body2">
+                          Caricamento issues...
+                        </Typography>
+                      ) : issues.length > 0 ? (
+                        <ul style={{ paddingLeft: "1rem" }}>
+                          {issues.map((issue, id) => (
+                            <li key={issue._id}>
+                              <Typography variant="body2">
+                                <span>#{id + 1}</span>
+                                <br />
+                                <strong>Descrizione:</strong>{" "}
+                                {issue.description} <br />
+                                <strong>Stato:</strong> {issue.status}
+                              </Typography>
+                              <Divider sx={{ my: 1 }} />
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <Typography variant="body2">
+                          Nessuna issue trovata per questo utente.
+                        </Typography>
+                      )}
+
+                      <Typography
+                        variant="h6"
+                        gutterBottom
+                        onClick={() => navigate("/tasks")}
+                         sx={{
+                          cursor: "pointer",
+                          transition: "all 0.3s ease",
+                          "&:hover": {
+                            textDecoration: "underline",
+                            color: "secondary.main",
+                          },
+                        }}
+                      >
                         Tasks segnalate
                       </Typography>
-                      <Button
-                        variant="contained"
-                        onClick={() => navigate("/tasks")}
-                      >
-                        Tasks
-                      </Button>
-                    </div>
-                    <ul style={{ paddingLeft: "1rem" }}>
-                      {tasks.map((task) => (
-                        <li key={task._id}>
-                          <Typography variant="body2">
-                            <strong>Data:</strong> {task.date} <br />
-                            <strong>Linea:</strong> {task.lineId} <br />
-                            <strong>Descrizione:</strong> {task.description}{" "}
-                            <br />
-                            <strong>Stima:</strong> {task.estimatedMinutes}{" "}
-                            minuti <br />
-                            <strong>Stato:</strong> {task.status}
-                          </Typography>
-                          {task.checklist?.length > 0 && (
-                            <Box ml={2} mt={1}>
-                              <Typography variant="subtitle2">
-                                Checklist:
+
+                      {loading ? (
+                        <Typography variant="body2">
+                          Caricamento tasks...
+                        </Typography>
+                      ) : tasks.length > 0 ? (
+                        <ul style={{ paddingLeft: "1rem" }}>
+                          {tasks.map((task, id) => (
+                            <li key={task._id}>
+                              <Typography variant="body2">
+                                <span>#{id + 1}</span>
+                                <br />
+                                <strong>Data:</strong> {task.date} <br />
+                                <strong>Linea:</strong> {task.lineId} <br />
+                                <strong>Descrizione:</strong>{" "}
+                                {task.description.length > 30
+                                  ? task.description.substring(0, 30) + "..."
+                                  : task.description}{" "}
+                                <br />
+                                <strong>Stima:</strong> {task.estimatedMinutes}{" "}
+                                minuti <br />
+                                <strong>Stato:</strong> {task.status}
                               </Typography>
-                              <ul style={{ marginTop: 0, paddingLeft: "1rem" }}>
-                                {task.checklist.map((item, index) => (
-                                  <li key={index}>
-                                    <Typography variant="body2">
-                                      {item.title} -{" "}
-                                      {item.completed
-                                        ? "✅ Completato"
-                                        : "⏳ In sospeso"}
-                                    </Typography>
-                                  </li>
-                                ))}
-                              </ul>
-                            </Box>
-                          )}
-                          <Divider sx={{ my: 1 }} />
-                        </li>
-                      ))}
-                    </ul>
-                  </>
-                ) : (
-                  <Typography variant="body2" color="textSecondary">
-                    Seleziona un utente per visualizzare i dettagli.
-                  </Typography>
-                )}
-              </Paper>
+
+                              {task.checklist?.length > 0 && (
+                                <Box ml={2} mt={1}>
+                                  <Typography variant="subtitle2">
+                                    Checklist:
+                                  </Typography>
+                                  <ul
+                                    style={{
+                                      marginTop: 0,
+                                      paddingLeft: "1rem",
+                                    }}
+                                  >
+                                    {task.checklist.map((item, index) => (
+                                      <li key={index}>
+                                        <Typography variant="body2">
+                                          -{item.item}
+                                          {item.done
+                                            ? "✅ Completato"
+                                            : "⏳ In sospeso"}
+                                        </Typography>
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </Box>
+                              )}
+                              <Divider sx={{ my: 1 }} />
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <Typography variant="body2">
+                          Nessuna task trovata per questo utente.
+                        </Typography>
+                      )}
+                    </>
+                  ) : (
+                    <Typography variant="body2" color="textSecondary">
+                      Seleziona un utente per visualizzare i dettagli.
+                    </Typography>
+                  )}
+                </Paper>
+              </Grid>
+              <Grid size={12}>
+                <Paper
+                  elevation={1}
+                  sx={{
+                    borderRadius: 11,
+                    p: 2,
+                    background: "rgba(255, 255, 255, 0.07)",
+                    backdropFilter: "blur(20px) saturate(180%)",
+                    WebkitBackdropFilter: "blur(20px) saturate(180%)",
+                    boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
+                  }}
+                >
+                  {selectedUser && (tasks.length > 0 || issues.length > 0) ? (
+                    <>
+                      {/* <PieChart
+                        series={[
+                          {
+                            arcLabel: (data) => String(data.value),
+                            data: [
+                              { id: 0, value: issues.length, label: "Issues" },
+                              { id: 1, value: tasks.length, label: "Tasks" },
+                            ],
+                            innerRadius: "50%",
+                            cornerRadius: 4,
+                            paddingAngle: 2,
+                            highlightScope: {
+                              highlight: "item",
+                              fade: "global",
+                            },
+                          },
+                        ]}
+                        slotProps={{
+                          legend: {
+                            sx: {
+                              fontSize: 16,
+                            },
+                          },
+                          pieArc: {
+                            strokeOpacity: 0,
+                          },
+                          pieArcLabel: {
+                            fontSize: 16,
+                            fontWeight: 500,
+                          },
+                        }}
+                        width={300}
+                        height={200}
+                      /> */}
+                      <BarChart
+                        width={350}
+                        height={250}
+                        series={series}
+                        hideLegend
+                        borderRadius={6}
+                        barLabel="value"
+                        xAxis={[
+                          {
+                            data: ["Issues", "Tasks"],
+                            scaleType: "band",
+                          },
+                        ]}
+                      />
+                    </>
+                  ) : (
+                    <Typography variant="body2" color="textSecondary">
+                      {selectedUser
+                        ? "Nessuna issue o task disponibile per questo utente."
+                        : "Seleziona un utente per visualizzare il grafico."}
+                    </Typography>
+                  )}
+                </Paper>
+              </Grid>
             </Grid>
             <Grid size={9}>
               <Paper
@@ -485,7 +608,14 @@ export const GestioneUtenti = () => {
                               key={u._id}
                               hover
                               onClick={() => handleShowInfo(u)}
-                              sx={{ cursor: "pointer" }}
+                              sx={{
+                                cursor: "pointer",
+                                backgroundColor:
+                                  selectedUser && selectedUser._id === u._id
+                                    ? "rgba(255, 255, 255, 0.2)"
+                                    : "transparent",
+                                transition: "background-color 0.3s",
+                              }}
                             >
                               <TableCell>
                                 {isEditing ? (
@@ -536,7 +666,10 @@ export const GestioneUtenti = () => {
                                 {isEditing ? (
                                   <>
                                     <Button
-                                      onClick={saveEdit}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        saveEdit();
+                                      }}
                                       variant="contained"
                                       size="small"
                                       sx={{ mr: 1 }}
@@ -544,7 +677,10 @@ export const GestioneUtenti = () => {
                                       <SaveIcon />
                                     </Button>
                                     <IconButton
-                                      onClick={cancelEditing}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        cancelEditing();
+                                      }}
                                       // variant="text"
                                       size="small"
                                     >
@@ -554,7 +690,10 @@ export const GestioneUtenti = () => {
                                 ) : (
                                   <>
                                     <IconButton
-                                      onClick={() => startEditing(u)}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        startEditing(u);
+                                      }}
                                       size="small"
                                       sx={{ mr: 1 }}
                                     >
@@ -563,7 +702,10 @@ export const GestioneUtenti = () => {
                                     <IconButton
                                       // variant="text"
                                       size="small"
-                                      onClick={() => openConfirmDialog(u)}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        openConfirmDialog(u);
+                                      }}
                                     >
                                       <Delete />
                                     </IconButton>
