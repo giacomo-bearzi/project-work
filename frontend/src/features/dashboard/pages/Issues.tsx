@@ -172,7 +172,7 @@ export const Issues = () => {
   return (
     <Box
       p={1}
-      height={'100dvh'}
+     
     >
       <Paper
         elevation={1}
@@ -366,12 +366,13 @@ export const Issues = () => {
               <TableHead>
                 <TableRow
                   sx={{
-                    'background':
-                      theme.palette.mode === 'dark' ? '#23272F' : '#F6F6F6',
+                    position: 'sticky',
+                    top: 0,
+                    zIndex: 1,
+                    background: theme.palette.mode === 'dark' ? '#23272F' : '#F6F6F6',
                     '& th': {
                       borderBottom: 'none',
-                      color:
-                        theme.palette.mode === 'dark' ? '#B0B3B8' : '#7D7D7D',
+                      color: theme.palette.mode === 'dark' ? '#B0B3B8' : '#7D7D7D',
                     },
                   }}
                 >
@@ -389,7 +390,12 @@ export const Issues = () => {
               </TableHead>
               <TableBody>
                 {filteredIssues.map((issue, idx) => (
-                  <TableRow key={issue._id}>
+                  <TableRow
+                    key={issue._id}
+                    sx={{
+                      '&:last-child td, &:last-child th': { borderBottom: 'none' }
+                    }}
+                  >
                     {/* <TableCell>{`#${String(idx + 1).padStart(3, '0')}`}</TableCell> */}
                     <TableCell>{issue.description}</TableCell>
                     <TableCell>{issue.lineId}</TableCell>

@@ -9,9 +9,12 @@ import {
     DialogTitle,
     DialogActions,
     Button,
+    Badge,
+    IconButton,
 } from '@mui/material';
-import { KeyboardArrowDownRounded, KeyboardArrowUpRounded, LogoutRounded } from '@mui/icons-material';
+import { InboxRounded, KeyboardArrowDownRounded, KeyboardArrowUpRounded, LogoutRounded, NotificationsRounded } from '@mui/icons-material';
 import { useEffect, useRef, useState } from 'react';
+import { ToggleThemeModeButton } from '../../theme/components/ToggleThemeModeButton';
 
 interface UserDropdownProps {
     fullName: string;
@@ -49,18 +52,18 @@ export const UserDropdown = ({ fullName, role, onLogout }: UserDropdownProps) =>
     };
 
     useEffect(() => {
-    if (!buttonRef.current) return;
+        if (!buttonRef.current) return;
 
-    const observer = new ResizeObserver(entries => {
-      for (let entry of entries) {
-        setMenuWidth(entry.contentRect.width);
-      }
-    });
+        const observer = new ResizeObserver(entries => {
+            for (let entry of entries) {
+                setMenuWidth(entry.contentRect.width);
+            }
+        });
 
-    observer.observe(buttonRef.current);
+        observer.observe(buttonRef.current);
 
-    return () => observer.disconnect();
-  }, []);
+        return () => observer.disconnect();
+    }, []);
 
     return (
         <>
@@ -107,7 +110,31 @@ export const UserDropdown = ({ fullName, role, onLogout }: UserDropdownProps) =>
                 }}
                 disableAutoFocusItem
             >
-                <MenuItem onClick={handleLogoutClick}>
+                <ToggleThemeModeButton asMenuItem />
+
+                <MenuItem>
+                    <IconButton sx={{ mr: 1, padding: '8px 0' }}>
+                        <Badge
+                            badgeContent={'0'}
+                            color="primary"
+                            overlap="circular"
+                            anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+                            sx={{
+                                '& .MuiBadge-badge': {
+                                    fontSize: '0.65rem',
+                                    minWidth: 16,
+                                    height: 16,
+                                    padding: '0 4px',
+                                },
+                            }}
+                        >
+                            <NotificationsRounded fontSize='small' />
+                        </Badge>
+                    </IconButton>
+                    Notifiche
+                </MenuItem>
+
+                <MenuItem onClick={handleLogoutClick} sx={{ padding: '10px 20px' }}>
                     <LogoutRounded fontSize="small" sx={{ mr: 1 }} />
                     Logout
                 </MenuItem>
@@ -116,7 +143,7 @@ export const UserDropdown = ({ fullName, role, onLogout }: UserDropdownProps) =>
             <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
                 <DialogTitle>Sei sicuro di voler effettuare il logout?</DialogTitle>
                 <DialogActions sx={{ justifyContent: 'center', gap: 2 }}>
-                    <Button onClick={() => setDialogOpen(false)} color="primary" variant="outlined">
+                    <Button onClick={() => setDialogOpen(false)} color="inherit" variant="outlined">
                         Annulla
                     </Button>
                     <Button onClick={confirmLogout} color="error" variant="contained">
