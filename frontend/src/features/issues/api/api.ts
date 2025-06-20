@@ -11,3 +11,12 @@ export const getIssues = async (): Promise<ApiIssue[]> => {
   const response = await api.get(ENDPOINT);
   return response.data;
 };
+
+export const getAssignedIssues = async (): Promise<ApiIssue[]> => {
+  const response = await api.get(`${ENDPOINT}/assigned`);
+  return response.data;
+}
+
+export const markAssignedIssuesAsRead = async (): Promise<void> => {
+  await api.patch('/issues/assigned/mark-as-read');
+};

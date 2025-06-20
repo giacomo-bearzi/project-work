@@ -51,6 +51,11 @@ const issueSchema = new mongoose.Schema({
     resolvedAt: {
         type: Date,
         required: false // ResolvedAt is optional
+    },
+    readBy: {
+        type: [mongoose.Schema.Types.ObjectId],
+        ref: 'User',
+        default: []
     }
 }, {
     timestamps: true, // Handles createdAt and updatedAt

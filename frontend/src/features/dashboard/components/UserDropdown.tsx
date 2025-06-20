@@ -12,9 +12,12 @@ import {
     Badge,
     IconButton,
 } from '@mui/material';
-import { InboxRounded, KeyboardArrowDownRounded, KeyboardArrowUpRounded, LogoutRounded, NotificationsRounded } from '@mui/icons-material';
+import { KeyboardArrowDownRounded, KeyboardArrowUpRounded, LogoutRounded, NotificationsRounded } from '@mui/icons-material';
 import { useEffect, useRef, useState } from 'react';
 import { ToggleThemeModeButton } from '../../theme/components/ToggleThemeModeButton';
+import { markAssignedIssuesAsRead } from '../../issues/api/api';
+import { NotificationsPopover } from './NotificationsPopover';
+import { useGetAssignedIssues } from '../../issues/hooks/useIssueQueries';
 
 interface UserDropdownProps {
     fullName: string;
@@ -26,6 +29,24 @@ export const UserDropdown = ({ fullName, role, onLogout }: UserDropdownProps) =>
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [dialogOpen, setDialogOpen] = useState(false);
     const [menuWidth, setMenuWidth] = useState<number | undefined>(undefined);
+    const [notificationAnchorEl, setNotificationAnchorEl] = useState<null | HTMLElement>(null);
+
+    const handleOpenNotifications = (event: React.MouseEvent<HTMLElement>) => {
+        setNotificationAnchorEl(event.currentTarget);
+    };
+    const handleCloseNotifications = () => setNotificationAnchorEl(null);
+
+    const { data: assignedIssues } = useGetAssignedIssues();
+
+    const notifications = (assignedIssues ?? []).map((issue: any) => ({
+        id: issue._id,
+        message: issue.description,
+        read: issue.readBy?.includes(issue.assignedTo?._id),
+    }));
+
+    const handleMarkAllAsRead = async () => {
+        await markAssignedIssuesAsRead();
+    };
 
     const buttonRef = useRef<HTMLDivElement>(null);
 
@@ -112,10 +133,10 @@ export const UserDropdown = ({ fullName, role, onLogout }: UserDropdownProps) =>
             >
                 <ToggleThemeModeButton asMenuItem />
 
-                <MenuItem>
+                <MenuItem onClick={handleOpenNotifications}>
                     <IconButton sx={{ mr: 1, padding: '8px 0' }}>
                         <Badge
-                            badgeContent={'0'}
+                            badgeContent={notifications.filter(n => !n.read).length}
                             color="primary"
                             overlap="circular"
                             anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
@@ -140,6 +161,13 @@ export const UserDropdown = ({ fullName, role, onLogout }: UserDropdownProps) =>
                 </MenuItem>
             </Menu>
 
+            <NotificationsPopover
+                anchorEl={notificationAnchorEl}
+                onClose={handleCloseNotifications}
+                notifications={notifications}
+                onMarkAllAsRead={handleMarkAllAsRead}
+            />
+
             <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
                 <DialogTitle>Sei sicuro di voler effettuare il logout?</DialogTitle>
                 <DialogActions sx={{ justifyContent: 'center', gap: 2 }}>
@@ -151,7 +179,6 @@ export const UserDropdown = ({ fullName, role, onLogout }: UserDropdownProps) =>
                     </Button>
                 </DialogActions>
             </Dialog>
-
         </>
     );
 };
