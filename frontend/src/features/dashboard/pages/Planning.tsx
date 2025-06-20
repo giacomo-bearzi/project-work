@@ -11,6 +11,9 @@ import { useAuth } from '../../log-in/context/AuthContext';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import CheckIcon from '@mui/icons-material/Check';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 
 interface ChecklistItem {
     item: string;
@@ -194,136 +197,175 @@ export const Planning = () => {
     return (
         <Box p={2}>
             <Header />
-            <Typography variant="h5" fontWeight={700} mb={2} sx={{ color: '#225' }}>Planning & Scheduling</Typography>
             <DragDropContext onDragEnd={handleDragEnd}>
-                <Box display="flex" flexDirection={{ xs: 'column', md: 'row' }} gap={3}>
-                    <Box flex={7}>
-                        <Paper sx={{ p: 2, borderRadius: 3, boxShadow: 2, mb: 3 }}>
+                <Box
+                    display="flex"
+                    flexDirection={{ xs: 'column', md: 'row' }}
+                    gap={1}
+                    sx={{ width: '100%', maxWidth: '100vw', overflowX: 'hidden', mt: 2 }}
+                >
+                    <Box
+                        sx={{
+                            width: { xs: '100%', md: '50%' },
+                            minWidth: 0,
+                            boxSizing: 'border-box',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            maxWidth: '100%',
+                        }}
+                    >
+                        <Paper sx={{ p: 2, borderRadius: 3, boxShadow: 2, mb: 2, maxWidth: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
                             <Stack direction="row" alignItems="center" spacing={1} mb={2}>
                                 <AssignmentIcon sx={{ color: '#1976d2' }} />
-                                <Typography variant="h6" fontWeight={700}>Attività Pianificate</Typography>
+                                <Typography variant="h6" fontWeight={700}>Pianificate</Typography>
                                 <Box flex={1} />
-                                <input type="date" value={selectedDate} onChange={e => setSelectedDate(e.target.value)} style={{ border: '1px solid #eee', borderRadius: 6, padding: 4 }} />
+                                <LocalizationProvider dateAdapter={AdapterDateFns}>
+                                    <DatePicker
+                                        label="Data"
+                                        value={selectedDate ? new Date(selectedDate) : null}
+                                        onChange={(newValue) => setSelectedDate(newValue ? newValue.toISOString().slice(0, 10) : '')}
+                                        slotProps={{
+                                            textField: {
+                                                size: 'small',
+                                                sx: { minWidth: 140 }
+                                            }
+                                        }}
+                                    />
+                                </LocalizationProvider>
                                 <Button variant="contained" onClick={() => { setEditingTask(null); setOpenModal(true); }}>Aggiungi Attività</Button>
                             </Stack>
-                            {/* Da Fare */}
-                            <Typography variant="subtitle1" fontWeight={700} mb={1}>Da Fare</Typography>
-                            {tasksByStatus.waiting.length === 0 ? (
-                                <Typography color="text.secondary" mb={2}>Nessuna attività da fare</Typography>
-                            ) : (
-                                tasksByStatus.waiting.map(task => (
-                                    <Paper key={task._id} sx={{ mb: 2, p: 2, borderRadius: 2, boxShadow: 1, borderLeft: '4px solid #1976d2', position: 'relative' }}>
-                                        <Typography fontWeight="bold">{task.description}</Typography>
-                                        <Typography variant="body2">
-                                            {task.startTime && task.endTime ? `${task.startTime} - ${task.endTime}` : ''}
-                                            {task.assignedTo ? ` | ${typeof task.assignedTo === 'object' && task.assignedTo !== null ? task.assignedTo.fullName : task.assignedTo}` : ''}
-                                        </Typography>
-                                        {task.checklist && task.checklist.length > 0 && (
-                                            <Box mt={1}>
-                                                {task.checklist.map((item, idx) => (
-                                                    <FormControlLabel
-                                                        key={idx}
-                                                        control={
-                                                            <Checkbox
-                                                                checked={item.done}
-                                                                onChange={() => handleChecklistToggle(task, idx)}
-                                                            />
-                                                        }
-                                                        label={item.item}
-                                                    />
-                                                ))}
-                                            </Box>
-                                        )}
-                                        {canEdit && (
-                                            <Button size="small" variant="outlined" sx={{ position: 'absolute', top: 8, right: 8 }} onClick={() => handleOpenEdit(task)}>
-                                                Modifica
-                                            </Button>
-                                        )}
-                                    </Paper>
-                                ))
-                            )}
-                            {/* In Corso (draggabile) */}
-                            <Typography variant="subtitle1" fontWeight={700} mb={1}>In Corso</Typography>
-                            <Droppable droppableId="in_corso">
-                                {(provided) => (
-                                    <Box ref={provided.innerRef} {...provided.droppableProps}>
-                                        {tasksByStatus.in_corso.length === 0 ? (
-                                            <Typography color="text.secondary" mb={2}>Nessuna attività in corso</Typography>
-                                        ) : (
-                                            tasksByStatus.in_corso.map((task, idx) => (
-                                                <Draggable key={task._id} draggableId={task._id} index={idx}>
-                                                    {(provided) => (
-                                                        <Box ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-                                                            <Paper sx={{ mb: 2, p: 2, borderRadius: 2, boxShadow: 1, borderLeft: '4px solid #ffa726', position: 'relative' }}>
-                                                                <Typography fontWeight="bold">{task.description}</Typography>
-                                                                <Typography variant="body2">
-                                                                    {task.startTime && task.endTime ? `${task.startTime} - ${task.endTime}` : ''}
-                                                                    {task.assignedTo ? ` | ${typeof task.assignedTo === 'object' && task.assignedTo !== null ? task.assignedTo.fullName : task.assignedTo}` : ''}
-                                                                    {typeof task.estimatedMinutes === 'number' ? ` | ${task.estimatedMinutes} min` : ''}
-                                                                </Typography>
-                                                                {task.checklist && task.checklist.length > 0 && (
-                                                                    <Box mt={1}>
-                                                                        {task.checklist.map((item, idx) => (
-                                                                            <FormControlLabel
-                                                                                key={idx}
-                                                                                control={
-                                                                                    <Checkbox
-                                                                                        checked={item.done}
-                                                                                        onChange={() => handleChecklistToggle(task, idx)}
-                                                                                    />
-                                                                                }
-                                                                                label={item.item}
-                                                                            />
-                                                                        ))}
-                                                                    </Box>
-                                                                )}
-                                                                {canEdit && (
-                                                                    <Button size="small" variant="outlined" sx={{ position: 'absolute', top: 8, right: 8 }} onClick={() => handleOpenEdit(task)}>
-                                                                        Modifica
-                                                                    </Button>
-                                                                )}
-                                                            </Paper>
-                                                        </Box>
-                                                    )}
-                                                </Draggable>
-                                            ))
-                                        )}
-                                        {provided.placeholder}
-                                    </Box>
+                            <Box sx={{ overflowY: 'auto', maxHeight: '70vh', pr: 1 }}>
+                                {/* Da Fare */}
+                                <Typography variant="subtitle1" fontWeight={700} mb={1}>Da Fare</Typography>
+                                {tasksByStatus.waiting.length === 0 ? (
+                                    <Typography color="text.secondary" mb={2}>Nessuna attività da fare</Typography>
+                                ) : (
+                                    tasksByStatus.waiting.map(task => (
+                                        <Paper key={task._id} sx={{ mb: 2, p: 2, borderRadius: 2, boxShadow: 1, borderLeft: '4px solid #1976d2', position: 'relative' }}>
+                                            <Typography fontWeight="bold">{task.description}</Typography>
+                                            <Typography variant="body2">
+                                                {task.startTime && task.endTime ? `${task.startTime} - ${task.endTime}` : ''}
+                                                {task.assignedTo ? ` | ${typeof task.assignedTo === 'object' && task.assignedTo !== null ? task.assignedTo.fullName : task.assignedTo}` : ''}
+                                            </Typography>
+                                            {task.checklist && task.checklist.length > 0 && (
+                                                <Box mt={1}>
+                                                    {task.checklist.map((item, idx) => (
+                                                        <FormControlLabel
+                                                            key={idx}
+                                                            control={
+                                                                <Checkbox
+                                                                    checked={item.done}
+                                                                    onChange={() => handleChecklistToggle(task, idx)}
+                                                                />
+                                                            }
+                                                            label={item.item}
+                                                        />
+                                                    ))}
+                                                </Box>
+                                            )}
+                                            {canEdit && (
+                                                <Button size="small" variant="outlined" sx={{ position: 'absolute', top: 8, right: 8 }} onClick={() => handleOpenEdit(task)}>
+                                                    Modifica
+                                                </Button>
+                                            )}
+                                        </Paper>
+                                    ))
                                 )}
-                            </Droppable>
+                                {/* In Corso (draggabile) */}
+                                <Typography variant="subtitle1" fontWeight={700} mb={1}>In Corso</Typography>
+                                <Droppable droppableId="in_corso">
+                                    {(provided) => (
+                                        <Box ref={provided.innerRef} {...provided.droppableProps}>
+                                            {tasksByStatus.in_corso.length === 0 ? (
+                                                <Typography color="text.secondary" mb={2}>Nessuna attività in corso</Typography>
+                                            ) : (
+                                                tasksByStatus.in_corso.map((task, idx) => (
+                                                    <Draggable key={task._id} draggableId={task._id} index={idx}>
+                                                        {(provided) => (
+                                                            <Box ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
+                                                                <Paper sx={{ mb: 2, p: 2, borderRadius: 2, boxShadow: 1, borderLeft: '4px solid #ffa726', position: 'relative' }}>
+                                                                    <Typography fontWeight="bold">{task.description}</Typography>
+                                                                    <Typography variant="body2">
+                                                                        {task.startTime && task.endTime ? `${task.startTime} - ${task.endTime}` : ''}
+                                                                        {task.assignedTo ? ` | ${typeof task.assignedTo === 'object' && task.assignedTo !== null ? task.assignedTo.fullName : task.assignedTo}` : ''}
+                                                                        {typeof task.estimatedMinutes === 'number' ? ` | ${task.estimatedMinutes} min` : ''}
+                                                                    </Typography>
+                                                                    {task.checklist && task.checklist.length > 0 && (
+                                                                        <Box mt={1}>
+                                                                            {task.checklist.map((item, idx) => (
+                                                                                <FormControlLabel
+                                                                                    key={idx}
+                                                                                    control={
+                                                                                        <Checkbox
+                                                                                            checked={item.done}
+                                                                                            onChange={() => handleChecklistToggle(task, idx)}
+                                                                                        />
+                                                                                    }
+                                                                                    label={item.item}
+                                                                                />
+                                                                            ))}
+                                                                        </Box>
+                                                                    )}
+                                                                    {canEdit && (
+                                                                        <Button size="small" variant="outlined" sx={{ position: 'absolute', top: 8, right: 8 }} onClick={() => handleOpenEdit(task)}>
+                                                                            Modifica
+                                                                        </Button>
+                                                                    )}
+                                                                </Paper>
+                                                            </Box>
+                                                        )}
+                                                    </Draggable>
+                                                ))
+                                            )}
+                                            {provided.placeholder}
+                                        </Box>
+                                    )}
+                                </Droppable>
+                            </Box>
                         </Paper>
                     </Box>
-                    {/* Completate (droppable) */}
-                    <Droppable droppableId="done">
-                        {(provided) => (
-                            <Box ref={provided.innerRef} {...provided.droppableProps} flex={5}>
-                                <Paper sx={{ p: 2, borderRadius: 3, boxShadow: 2 }}>
-                                    <Stack direction="row" alignItems="center" spacing={1} mb={2}>
-                                        <BarChartIcon sx={{ color: '#43a047' }} />
-                                        <Typography variant="h6" fontWeight={700}>Completate</Typography>
-                                    </Stack>
-                                    <Paper sx={{ p: 2, background: '#f7fafd', borderRadius: 2 }}>
-                                        <Typography fontWeight={700} fontSize={15} mb={1}>Complete ({completedCount}/{totalCount})</Typography>
-                                        {tasksByStatus.done.map((task, idx) => (
-                                            <Paper key={task._id} sx={{ mb: 1, p: 1.5, borderRadius: 2, boxShadow: 1, borderLeft: '4px solid #43a047', background: '#fff' }}>
-                                                <Stack direction="row" alignItems="center" spacing={1}>
-                                                    <Avatar sx={{ bgcolor: '#43a047', width: 24, height: 24, fontSize: 16 }}>
-                                                        <CheckIcon sx={{ color: '#fff', fontSize: 18 }} />
-                                                    </Avatar>
-                                                    <Box>
-                                                        <Typography fontWeight={700} fontSize={15}>{task.description}</Typography>
-                                                        <Typography variant="body2" color="text.secondary">Completato alle {task.completedAt || '--:--'}</Typography>
-                                                    </Box>
-                                                </Stack>
+                    <Box
+                        sx={{
+                            width: { xs: '100%', md: '50%' },
+                            minWidth: 0,
+                            boxSizing: 'border-box',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            maxWidth: '100%',
+                        }}
+                    >
+                        <Droppable droppableId="done">
+                            {(provided) => (
+                                <Box ref={provided.innerRef} {...provided.droppableProps} sx={{ width: '100%', maxWidth: '100%' }}>
+                                    <Paper sx={{ p: 2, borderRadius: 3, boxShadow: 2, maxWidth: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+                                        <Stack direction="row" alignItems="center" spacing={1} mb={2}>
+                                            <BarChartIcon sx={{ color: '#43a047' }} />
+                                            <Typography variant="h6" fontWeight={700}>Completate</Typography>
+                                        </Stack>
+                                        <Box sx={{ overflowY: 'auto', maxHeight: '70vh', pr: 1 }}>
+                                            <Paper sx={{ p: 2, borderRadius: 2 }}>
+                                                <Typography fontWeight={700} fontSize={15} mb={1}>Completate ({completedCount}/{totalCount})</Typography>
+                                                {tasksByStatus.done.map((task, idx) => (
+                                                    <Paper key={task._id} sx={{ mb: 1, p: 1.5, borderRadius: 2, boxShadow: 1, borderLeft: '4px solid #43a047' }}>
+                                                        <Stack direction="row" alignItems="center" spacing={1}>
+                                                            <Avatar sx={{ bgcolor: '#43a047', width: 24, height: 24, fontSize: 16 }}>
+                                                                <CheckIcon sx={{ color: '#fff', fontSize: 18 }} />
+                                                            </Avatar>
+                                                            <Box>
+                                                                <Typography fontWeight={700} fontSize={15}>{task.description}</Typography>
+                                                                <Typography variant="body2" color="text.secondary">Completato alle {task.completedAt || '--:--'}</Typography>
+                                                            </Box>
+                                                        </Stack>
+                                                    </Paper>
+                                                ))}
+                                                {provided.placeholder}
                                             </Paper>
-                                        ))}
-                                        {provided.placeholder}
+                                        </Box>
                                     </Paper>
-                                </Paper>
-                            </Box>
-                        )}
-                    </Droppable>
+                                </Box>
+                            )}
+                        </Droppable>
+                    </Box>
                 </Box>
             </DragDropContext>
             <Snackbar open={snackbar.open} autoHideDuration={3000} onClose={() => setSnackbar({ ...snackbar, open: false })}>
