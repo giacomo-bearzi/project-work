@@ -17,16 +17,13 @@ export const ShowPasswordButton = ({
     <VisibilityRounded />
   );
 
-  const handleTogglePassword = () => {
-    setShowPassword(true);
-    setTimeout(() => setShowPassword(false), 5000);
-  };
-
   return (
     <IconButton
       edge="end"
       aria-label="Mostra o nascondi password"
-      onClick={handleTogglePassword}
+      onMouseDown={() => setShowPassword(true)}
+      onMouseUp={() => setShowPassword(false)}
+      onMouseLeave={() => setShowPassword(false)}
     >
       {InputAdornmentIcon}
     </IconButton>

@@ -14,7 +14,6 @@ import { OverviewPage } from './features/dashboard/pages/OverviewPage.tsx';
 import { GestioneUtenti } from './features/dashboard/pages/GestioneUtenti.tsx';
 import { Issues } from './features/dashboard/pages/Issues.tsx';
 import { Planning } from './features/dashboard/pages/Planning.tsx';
-import { Tasks } from './features/dashboard/pages/Tasks.tsx';
 const queryClient = new QueryClient();
 
 const AppContent = () => {
@@ -36,10 +35,6 @@ const AppContent = () => {
         <Route
           path="/issues"
           element={<Issues />}
-        />
-        <Route
-          path="/tasks"
-          element={<Tasks />}
         />
         <Route
           path="/planning"

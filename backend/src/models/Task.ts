@@ -13,6 +13,7 @@ export interface ITask extends Document {
     estimatedMinutes: number;
     status: 'in_attesa' | 'in_corso' | 'completata';
     checklist: ChecklistItem[];
+    completedAt?: string;
 }
 
 const TaskSchema = new Schema<ITask>({
@@ -29,7 +30,8 @@ const TaskSchema = new Schema<ITask>({
     checklist: [{
         item: { type: String, required: true },
         done: { type: Boolean, default: false }
-    }]
+    }],
+    completedAt: { type: String, required: false },
 });
 
 // Indici per query efficienti
