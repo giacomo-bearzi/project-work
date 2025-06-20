@@ -2,23 +2,9 @@ import {
   Box,
   Button,
   CircularProgress,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Divider,
   Grid,
-  IconButton,
-  MenuItem,
   Paper,
-  Select,
   Stack,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
   TextField,
   Typography,
 } from "@mui/material";
@@ -27,18 +13,16 @@ import { useAuth } from "../../log-in/context/AuthContext.tsx";
 import { useEffect, useState } from "react";
 import type { User } from "../../../components/Login.tsx";
 import AddIcon from "@mui/icons-material/Add";
-import { Delete } from "@mui/icons-material";
-import SaveIcon from "@mui/icons-material/Save";
-import ClearIcon from "@mui/icons-material/Clear";
-import EditIcon from "@mui/icons-material/Edit";
 import axios from "axios";
 import api from "../../../utils/axios.ts";
 import { useNavigate } from "react-router-dom";
-import { BarChart } from "@mui/x-charts/BarChart";
 import { AddUserDialog } from "../../dashboard-users/components/AddUserDialog.tsx";
 import { ConfirmDeleteDialog } from "../../dashboard-users/components/ConfirmDeleteDialog.tsx";
+import { UsersTable } from "../../dashboard-users/components/UsersTable.tsx";
+import { UserDetails } from "../../dashboard-users/components/UserDetails.tsx";
+import { UserActivityChart } from "../../dashboard-users/components/UserActivityChart.tsx";
 
-interface Issue {
+export interface Issue {
   _id: string;
   lineId: string;
   type: string;
@@ -58,7 +42,7 @@ interface ChecklistItem {
   done: boolean;
 }
 
-interface Task {
+export interface Task {
   _id: string;
   date: string;
   lineId: string;
@@ -95,20 +79,6 @@ export const GestioneUtenti = () => {
     password: "",
     role: "operator",
   });
-
-  const issueStatuses = Array.from(new Set(issues.map((i) => i.status)));
-  const taskStatuses = Array.from(new Set(tasks.map((t) => t.status)));
-
-  const allStatuses = Array.from(new Set([...issueStatuses, ...taskStatuses]));
-
-  // 2. Costruisci le serie combinate per status
-  const series = allStatuses.map((status) => ({
-    label: status,
-    data: [
-      issues.filter((i) => i.status === status).length, // bar "Issues"
-      tasks.filter((t) => t.status === status).length, // bar "Tasks"
-    ],
-  }));
 
   const openConfirmDialog = (user: User) => {
     setUserToDelete(user);
@@ -235,15 +205,6 @@ export const GestioneUtenti = () => {
     }));
   };
 
-  const filteredUsers = users.filter((u: User) => {
-    const term = searchTerm.toLowerCase();
-    return (
-      u.fullName.toLowerCase().includes(term) ||
-      u.username.toLowerCase().includes(term) ||
-      u.role.toLowerCase().includes(term)
-    );
-  });
-
   const handleCloseAddDialog = () => {
     setAddDialogOpen(false);
   };
@@ -330,127 +291,14 @@ export const GestioneUtenti = () => {
                   }}
                 >
                   {selectedUser ? (
-                    <>
-                      <Typography>
-                        {selectedUser.fullName} - {selectedUser.role}
-                      </Typography>
-
-                      <Divider sx={{ my: 2 }} />
-
-                      <Typography
-                        variant="h6"
-                        gutterBottom
-                        onClick={() => navigate("/issues")}
-                        sx={{
-                          cursor: "pointer",
-                          transition: "all 0.3s ease",
-                          "&:hover": {
-                            textDecoration: "underline",
-                            color: "secondary.main",
-                          },
-                        }}
-                      >
-                        Issues segnalate
-                      </Typography>
-
-                      {loading ? (
-                        <Typography variant="body2">
-                          Caricamento issues...
-                        </Typography>
-                      ) : issues.length > 0 ? (
-                        <ul style={{ paddingLeft: "1rem" }}>
-                          {issues.map((issue, id) => (
-                            <li key={issue._id}>
-                              <Typography variant="body2">
-                                <span>#{id + 1}</span>
-                                <br />
-                                <strong>Descrizione:</strong>{" "}
-                                {issue.description} <br />
-                                <strong>Stato:</strong> {issue.status}
-                              </Typography>
-                              <Divider sx={{ my: 1 }} />
-                            </li>
-                          ))}
-                        </ul>
-                      ) : (
-                        <Typography variant="body2">
-                          Nessuna issue trovata per questo utente.
-                        </Typography>
-                      )}
-
-                      <Typography
-                        variant="h6"
-                        gutterBottom
-                        onClick={() => navigate("/planning")}
-                        sx={{
-                          cursor: "pointer",
-                          transition: "all 0.3s ease",
-                          "&:hover": {
-                            textDecoration: "underline",
-                            color: "secondary.main",
-                          },
-                        }}
-                      >
-                        Tasks segnalate
-                      </Typography>
-
-                      {loading ? (
-                        <Typography variant="body2">
-                          Caricamento tasks...
-                        </Typography>
-                      ) : tasks.length > 0 ? (
-                        <ul style={{ paddingLeft: "1rem" }}>
-                          {tasks.map((task, id) => (
-                            <li key={task._id}>
-                              <Typography variant="body2">
-                                <span>#{id + 1}</span>
-                                <br />
-                                <strong>Data:</strong> {task.date} <br />
-                                <strong>Linea:</strong> {task.lineId} <br />
-                                <strong>Descrizione:</strong>{" "}
-                                {task.description.length > 30
-                                  ? task.description.substring(0, 30) + "..."
-                                  : task.description}{" "}
-                                <br />
-                                <strong>Stima:</strong> {task.estimatedMinutes}{" "}
-                                minuti <br />
-                                <strong>Stato:</strong> {task.status}
-                              </Typography>
-
-                              {task.checklist?.length > 0 && (
-                                <Box ml={2} mt={1}>
-                                  <Typography variant="subtitle2">
-                                    Checklist:
-                                  </Typography>
-                                  <ul
-                                    style={{
-                                      marginTop: 0,
-                                      paddingLeft: "1rem",
-                                    }}
-                                  >
-                                    {task.checklist.map((item, index) => (
-                                      <li key={index}>
-                                        <Typography variant="body2">
-                                          -{item.item}
-                                          {item.done
-                                            ? "✅ Completato"
-                                            : "⏳ In sospeso"}
-                                        </Typography>
-                                      </li>
-                                    ))}
-                                  </ul>
-                                </Box>
-                              )}
-                              <Divider sx={{ my: 1 }} />
-                            </li>
-                          ))}
-                        </ul>
-                      ) : (
-                        <Typography variant="body2">
-                          Nessuna task trovata per questo utente.
-                        </Typography>
-                      )}
-                    </>
+                    <UserDetails
+                      user={selectedUser}
+                      issues={issues}
+                      tasks={tasks}
+                      loading={loading}
+                      onNavigateToIssues={() => navigate("/issues")}
+                      onNavigateToPlanning={() => navigate("/planning")}
+                    />
                   ) : (
                     <Typography variant="body2" color="textSecondary">
                       Seleziona un utente per visualizzare i dettagli.
@@ -470,30 +318,11 @@ export const GestioneUtenti = () => {
                     boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
                   }}
                 >
-                  {selectedUser && (tasks.length > 0 || issues.length > 0) ? (
-                    <>
-                      <BarChart
-                        width={350}
-                        height={250}
-                        series={series}
-                        hideLegend
-                        borderRadius={6}
-                        barLabel="value"
-                        xAxis={[
-                          {
-                            data: ["Issues", "Tasks"],
-                            scaleType: "band",
-                          },
-                        ]}
-                      />
-                    </>
-                  ) : (
-                    <Typography variant="body2" color="textSecondary">
-                      {selectedUser
-                        ? "Nessuna grafico disponibile per questo utente."
-                        : "Seleziona un utente per visualizzare il grafico."}
-                    </Typography>
-                  )}
+                  <UserActivityChart
+                    user={selectedUser}
+                    issues={issues}
+                    tasks={tasks}
+                  />
                 </Paper>
               </Grid>
             </Grid>
@@ -541,151 +370,19 @@ export const GestioneUtenti = () => {
                     <CircularProgress size="3rem" color="secondary" />
                   </Box>
                 ) : (
-                  <TableContainer
-                    component={Paper}
-                    sx={{
-                      borderRadius: 8,
-                      background: "rgba(255, 255, 255, 0.07)",
-                      backdropFilter: "blur(20px) saturate(180%)",
-                      WebkitBackdropFilter: "blur(20px) saturate(180%)",
-                      boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
-                      display: "flex",
-                      maxHeight: "650px",
-                      overflowY: "scroll",
-                      scrollbarWidth: "none",
-                      "&::-webkit-scrollbar": {
-                        display: "none",
-                      },
-                    }}
-                  >
-                    <Table stickyHeader aria-label="sticky table">
-                      <TableHead>
-                        <TableRow>
-                          <TableCell>Nome</TableCell>
-                          <TableCell>Username</TableCell>
-                          <TableCell>Ruolo</TableCell>
-                          <TableCell align="right">Azioni</TableCell>
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {filteredUsers.map((u: User) => {
-                          const isEditing = editingUserId === u._id;
-
-                          return (
-                            <TableRow
-                              key={u._id}
-                              hover
-                              onClick={() => handleShowInfo(u)}
-                              sx={{
-                                cursor: "pointer",
-                                backgroundColor:
-                                  selectedUser && selectedUser._id === u._id
-                                    ? "rgba(255, 255, 255, 0.2)"
-                                    : "transparent",
-                                transition: "background-color 0.3s",
-                              }}
-                            >
-                              <TableCell>
-                                {isEditing ? (
-                                  <TextField
-                                    name="fullName"
-                                    value={editedUser.fullName || ""}
-                                    onChange={handleEditChange}
-                                    size="small"
-                                    fullWidth
-                                  />
-                                ) : (
-                                  u.fullName
-                                )}
-                              </TableCell>
-                              <TableCell>
-                                {isEditing ? (
-                                  <TextField
-                                    name="username"
-                                    value={editedUser.username || ""}
-                                    onChange={handleEditChange}
-                                    size="small"
-                                    fullWidth
-                                  />
-                                ) : (
-                                  u.username
-                                )}
-                              </TableCell>
-                              <TableCell>
-                                {isEditing ? (
-                                  <Select
-                                    name="role"
-                                    value={editedUser.role || ""}
-                                    onChange={handleEditChange}
-                                    size="small"
-                                    fullWidth
-                                  >
-                                    <MenuItem value="admin">admin</MenuItem>
-                                    <MenuItem value="manager">manager</MenuItem>
-                                    <MenuItem value="operator">
-                                      operator
-                                    </MenuItem>
-                                  </Select>
-                                ) : (
-                                  u.role
-                                )}
-                              </TableCell>
-                              <TableCell align="right">
-                                {isEditing ? (
-                                  <>
-                                    <Button
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        saveEdit();
-                                      }}
-                                      variant="contained"
-                                      size="small"
-                                      sx={{ mr: 1 }}
-                                    >
-                                      <SaveIcon />
-                                    </Button>
-                                    <IconButton
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        cancelEditing();
-                                      }}
-                                      // variant="text"
-                                      size="small"
-                                    >
-                                      <ClearIcon />
-                                    </IconButton>
-                                  </>
-                                ) : (
-                                  <>
-                                    <IconButton
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        startEditing(u);
-                                      }}
-                                      size="small"
-                                      sx={{ mr: 1 }}
-                                    >
-                                      <EditIcon />
-                                    </IconButton>
-                                    <IconButton
-                                      // variant="text"
-                                      size="small"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        openConfirmDialog(u);
-                                      }}
-                                    >
-                                      <Delete />
-                                    </IconButton>
-                                  </>
-                                )}
-                              </TableCell>
-                            </TableRow>
-                          );
-                        })}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
+                  <UsersTable
+                    users={users}
+                    selectedUser={selectedUser}
+                    editingUserId={editingUserId}
+                    editedUser={editedUser}
+                    searchTerm={searchTerm}
+                    onEditChange={handleEditChange}
+                    onStartEditing={startEditing}
+                    onCancelEditing={cancelEditing}
+                    onSaveEdit={saveEdit}
+                    onSelectUser={handleShowInfo}
+                    onDeleteClick={openConfirmDialog}
+                  />
                 )}
 
                 <AddUserDialog
