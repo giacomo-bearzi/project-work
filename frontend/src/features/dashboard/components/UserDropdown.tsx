@@ -36,7 +36,7 @@ export const UserDropdown = ({ fullName, role, onLogout }: UserDropdownProps) =>
     };
     const handleCloseNotifications = () => setNotificationAnchorEl(null);
 
-    const { data: assignedIssues } = useGetAssignedIssues();
+    const { data: assignedIssues, refetch } = useGetAssignedIssues();
 
     const notifications = (assignedIssues ?? []).map((issue: any) => ({
         id: issue._id,
@@ -46,6 +46,7 @@ export const UserDropdown = ({ fullName, role, onLogout }: UserDropdownProps) =>
 
     const handleMarkAllAsRead = async () => {
         await markAssignedIssuesAsRead();
+        refetch();
     };
 
     const buttonRef = useRef<HTMLDivElement>(null);
