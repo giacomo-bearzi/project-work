@@ -74,8 +74,7 @@ export const IssueModal: React.FC<IssueModalProps> = ({ open, onClose, onSave, l
       setStatus('');
       setAssignedTo(null);
       setReportedBy(null);
-      const today = new Date().toISOString().slice(0, 10);
-      setCreatedAt(today);
+      setCreatedAt(new Date().toISOString());
       setResolvedAt('');
       setUserOptions([]);
       setSearchAssigned('');
@@ -119,23 +118,33 @@ export const IssueModal: React.FC<IssueModalProps> = ({ open, onClose, onSave, l
     fetchUsers(searchReported);
   }, [searchReported]);
 
-  const handleSave = async () => {
-    try {
-      const payload = {
-        description,
-        lineId: line,
-        type,
-        priority,
-        status,
-        assignedTo: assignedTo ? assignedTo._id : null,
-        resolvedAt: resolvedAt ? resolvedAt : null,
-        // reportedBy viene gestito dal backend
-      };
-      await api.post('/issues', payload);
-      onClose();
-    } catch (err) {
-      alert('Errore nella creazione della issue');
+  const handleSave = () => {
+
+
+    let createdAtISO = createdAt;
+    if (createdAt.length === 10) { // solo data, senza orario
+      const now = new Date();
+      const time = now.toTimeString().split(' ')[0]; // HH:MM:SS
+      createdAtISO = `${createdAt}T${time}`;
     }
+    let resolvedAtISO = resolvedAt;
+    if (resolvedAt.length === 10) { // solo data, senza orario
+      const now = new Date();
+      const time = now.toTimeString().split(' ')[0]; // HH:MM:SS
+      resolvedAtISO = `${resolvedAt}T${time}`;
+    }
+    const payload = {
+      description,
+      lineId: line,
+      type,
+      priority,
+      status,
+      assignedTo: assignedTo ? assignedTo._id : null,
+      reportedBy: reportedBy ? reportedBy._id : null,
+      createdAt: createdAtISO,
+      resolvedAt: resolvedAtISO,
+    };
+    onSave(payload); 
   };
 
   return (
