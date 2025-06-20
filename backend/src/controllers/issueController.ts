@@ -67,3 +67,39 @@ export const updateIssue = async (req: Request, res: Response) => {
         res.status(500).json({ message: 'Server Error' });
     }
 };
+
+export const getAssignedIssues = async (req: Request, res: Response) => {
+    try {
+        const userId = (req as any).user.userId;
+
+        const assignedIssues = await Issue.find({ assignedTo: userId })
+            .populate('reportedBy assignedTo', 'username fullName role')
+            .sort({ createdAt: -1 });
+
+        res.json(assignedIssues);
+    } catch (error) {
+        console.error('Error fetching assigned issues:', error);
+        res.status(500).json({ message: 'Server Error' });
+    }
+};
+
+export const markAssignedIssuesAsRead = async (req: Request, res: Response) => {
+    try {
+        const userId = (req as any).user.userId;
+
+        await Issue.updateMany(
+            {
+                assignedTo: userId,
+                readBy: { $ne: userId },
+            },
+            {
+                $addToSet: { readBy: userId },
+            }
+        );
+
+        res.status(200).json({ message: 'Notifiche segnate come lette' });
+    } catch (error) {
+        console.error('Errore nel marcare le notifiche come lette:', error);
+        res.status(500).json({ message: 'Errore del server' });
+    }
+};

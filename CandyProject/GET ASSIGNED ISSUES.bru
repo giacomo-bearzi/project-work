@@ -1,0 +1,15 @@
+meta {
+  name: GET ASSIGNED ISSUES
+  type: http
+  seq: 15
+}
+
+get {
+  url: http://localhost:5000/api/issues/assigned
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODQxNGM5MTBjZWU4MzA2NDRhZWEyNzIiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NDkyMTcyNTEsImV4cCI6MTc0OTMwMzY1MX0.nDZMzFfRcqvyohW3SCIBYjGZLm9sf14_k9t_YiedPOk
+}

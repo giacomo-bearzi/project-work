@@ -1,0 +1,19 @@
+meta {
+  name: MARK ASSIGNED ISSUES AS READ
+  type: http
+  seq: 14
+}
+
+put {
+  url: http://localhost:5000/api/issues/assigned/read
+  auth: bearer
+  body: json
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODQxNGM5MTBjZWU4MzA2NDRhZWEyNzIiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NDkyMTcyNTEsImV4cCI6MTc0OTMwMzY1MX0.nDZMzFfRcqvyohW3SCIBYjGZLm9sf14_k9t_YiedPOk
+}
+
+body:json {
+  {}
+}
