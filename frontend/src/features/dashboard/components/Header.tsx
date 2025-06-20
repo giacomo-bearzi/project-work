@@ -10,10 +10,13 @@ import { CustomPaper } from '../../../components/CustomPaper.tsx';
 import { CustomHeaderDrawer } from './CustomHeaderDrawer.tsx';
 import { Logo } from './Logo.tsx';
 import { Navbar } from './Navbar.tsx';
-import { UserMenu } from './UserMenu.tsx';
+// import { UserMenu } from './UserMenu.tsx';
+import { useAuth } from '../../log-in/context/AuthContext.tsx';
+import { UserDropdown } from './UserDropdown.tsx';
 
 export const Header = () => {
   const [toggleDrawer, setToggleDrawer] = useState<boolean>(false);
+  const { logout, user } = useAuth();
 
   const theme = useTheme();
   const isTablet = useMediaQuery(theme.breakpoints.between('sm', 'lg'));
@@ -43,7 +46,7 @@ export const Header = () => {
                 </IconButton>
               </CustomPaper>
               <Logo />
-              <UserMenu />
+              <UserDropdown fullName={user!.fullName} role={user!.role} onLogout={logout} />
             </Toolbar>
           </AppBar>
         </Box>
@@ -74,7 +77,7 @@ export const Header = () => {
         >
           <Navbar />
           <Logo />
-          <UserMenu />
+          <UserDropdown fullName={user!.fullName} role={user!.role} onLogout={logout} />
         </Toolbar>
       </AppBar>
     </Box>
