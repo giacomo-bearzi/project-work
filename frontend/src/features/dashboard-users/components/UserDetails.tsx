@@ -2,7 +2,7 @@ import { Typography, Divider, Box } from "@mui/material";
 
 import type { User } from "../../../components/Login.tsx";
 import type { Issue, Task } from "../../dashboard/pages/GestioneUtenti.tsx";
-import DoubleArrowIcon from '@mui/icons-material/DoubleArrow';
+import DoubleArrowIcon from "@mui/icons-material/DoubleArrow";
 interface UserDetailsProps {
   user: User;
   issues: Issue[];
@@ -34,10 +34,18 @@ export const UserDetails: React.FC<UserDetailsProps> = ({
         onClick={onNavigateToIssues}
         sx={{
           cursor: "pointer",
-          transition: "all 0.3s ease",
+          display: "inline-flex",
+          alignItems: "center",
+          gap: 1,
+          transition: "color 0.3s ease",
           "&:hover": {
-            textDecoration: "underline",
             color: "secondary.main",
+          },
+          "&:hover svg": {
+            transform: "translateX(5px)",
+          },
+          "& svg": {
+            transition: "transform 0.3s ease",
           },
         }}
       >
@@ -72,10 +80,18 @@ export const UserDetails: React.FC<UserDetailsProps> = ({
         onClick={onNavigateToPlanning}
         sx={{
           cursor: "pointer",
-          transition: "all 0.3s ease",
+          display: "inline-flex",
+          alignItems: "center",
+          gap: 1,
+          transition: "color 0.3s ease",
           "&:hover": {
-            textDecoration: "underline",
             color: "secondary.main",
+          },
+          "&:hover svg": {
+            transform: "translateX(5px)",
+          },
+          "& svg": {
+            transition: "transform 0.3s ease",
           },
         }}
       >
