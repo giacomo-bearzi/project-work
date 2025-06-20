@@ -11,8 +11,14 @@ import {
   IconButton,
   Paper,
   Button,
+  type SelectChangeEvent,
 } from "@mui/material";
-import { Delete, Edit as EditIcon, Save as SaveIcon, Clear as ClearIcon } from "@mui/icons-material";
+import {
+  Delete,
+  Edit as EditIcon,
+  Save as SaveIcon,
+  Clear as ClearIcon,
+} from "@mui/icons-material";
 import type { User } from "../../../components/Login.tsx";
 
 interface UsersTableProps {
@@ -21,7 +27,11 @@ interface UsersTableProps {
   editingUserId: string | null;
   editedUser: Partial<User>;
   searchTerm: string;
-  onEditChange: (e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<{ name?: string; value: unknown }>) => void;
+  onEditChange: (
+    e:
+      | React.ChangeEvent<HTMLInputElement>
+      | React.ChangeEvent<{ name?: string; value: unknown }>
+  ) => void;
   onStartEditing: (user: User) => void;
   onCancelEditing: () => void;
   onSaveEdit: () => void;
@@ -127,7 +137,7 @@ export const UsersTable: React.FC<UsersTableProps> = ({
                     <Select
                       name="role"
                       value={editedUser.role || ""}
-                      onChange={onEditChange}
+                      onChange={(e: SelectChangeEvent) => onEditChange(e)}
                       size="small"
                       fullWidth
                     >

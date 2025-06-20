@@ -14,13 +14,18 @@ import { useEffect, useState } from "react";
 import type { User } from "../../../components/Login.tsx";
 import AddIcon from "@mui/icons-material/Add";
 import axios from "axios";
-import api from "../../../utils/axios.ts";
 import { useNavigate } from "react-router-dom";
 import { AddUserDialog } from "../../dashboard-users/components/AddUserDialog.tsx";
 import { ConfirmDeleteDialog } from "../../dashboard-users/components/ConfirmDeleteDialog.tsx";
 import { UsersTable } from "../../dashboard-users/components/UsersTable.tsx";
 import { UserDetails } from "../../dashboard-users/components/UserDetails.tsx";
 import { UserActivityChart } from "../../dashboard-users/components/UserActivityChart.tsx";
+import {
+  addUser,
+  deleteUser,
+  getUserIssues,
+  getUserTasks,
+} from "../../dashboard-users/api/UsersApi.ts";
 
 export interface Issue {
   _id: string;
@@ -70,10 +75,15 @@ export const GestioneUtenti = () => {
   const [loading, setLoading] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [issues, setIssues] = useState<Issue[]>([]);
-  const [tasks, setTasks] = useState<any[]>([]);
+  const [tasks, setTasks] = useState<Task[]>([]);
   const navigate = useNavigate();
 
-  const [newUser, setNewUser] = useState({
+  const [newUser, setNewUser] = useState<{
+    fullName: string;
+    username: string;
+    password: string;
+    role: "operator" | "manager" | "admin";
+  }>({
     fullName: "",
     username: "",
     password: "",
@@ -131,65 +141,38 @@ export const GestioneUtenti = () => {
 
   const handleAddUser = async () => {
     try {
-      await axios.post("http://localhost:5000/api/users", newUser, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      await fetchUsers(); // <-- aggiorna la lista dopo l'aggiunta
-      handleCloseAddDialog(); // chiudi il dialog
-    } catch (err: any) {
-      console.error(
-        "Errore durante la creazione dell'utente:",
-        err.response?.data || err
-      );
+      await addUser(newUser, token!);
+      await fetchUsers();
+      handleCloseAddDialog();
+    } catch (err) {
+      console.error("Errore durante la creazione dell'utente:", err);
     }
   };
 
   const handleGetIssues = async (username: string) => {
     try {
-      const response = await api.get<Issue[]>("/issues");
-      const filtered = response.data.filter(
-        (issue) => issue.reportedBy.username === username
-      );
-      // console.log(filtered);
-
-      setIssues(filtered);
+      const issues = await getUserIssues(username);
+      setIssues(issues);
     } catch (err) {
       console.error("Error fetching issues:", err);
-    } finally {
-      // setLoading(false);
     }
   };
 
   const handleGetTasks = async (username: string) => {
     try {
-      const response = await api.get("/tasks");
-      const filtered = response.data.filter(
-        (task: Task) => task.assignedTo.username === username
-      );
-      console.log(filtered);
-      setTasks(filtered);
+      const tasks = await getUserTasks(username);
+      setTasks(tasks);
     } catch (err) {
       console.error("Error fetching tasks:", err);
-    } finally {
-      // setLoading(false);
     }
   };
 
   const handleDeleteUser = async () => {
     if (!userToDelete) return;
     try {
-      await axios.delete(
-        `${import.meta.env.VITE_API_URL}/users/${userToDelete._id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      await deleteUser(userToDelete._id, token!);
       closeConfirmDialog();
-      await fetchUsers(); // aggiorna la lista
+      await fetchUsers();
     } catch (err) {
       console.error("Errore durante l'eliminazione dell'utente:", err);
     }
