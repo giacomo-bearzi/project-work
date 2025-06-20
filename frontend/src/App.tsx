@@ -38,10 +38,6 @@ const AppContent = () => {
           element={<Issues />}
         />
         <Route
-          path="/tasks"
-          element={<Tasks />}
-        />
-        <Route
           path="/planning"
           element={<Planning />}
         />
