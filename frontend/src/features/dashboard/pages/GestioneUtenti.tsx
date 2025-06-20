@@ -35,6 +35,8 @@ import axios from "axios";
 import api from "../../../utils/axios.ts";
 import { useNavigate } from "react-router-dom";
 import { BarChart } from "@mui/x-charts/BarChart";
+import { AddUserDialog } from "../../dashboard-users/components/AddUserDialog.tsx";
+import { ConfirmDeleteDialog } from "../../dashboard-users/components/ConfirmDeleteDialog.tsx";
 
 interface Issue {
   _id: string;
@@ -379,8 +381,8 @@ export const GestioneUtenti = () => {
                       <Typography
                         variant="h6"
                         gutterBottom
-                        onClick={() => navigate("/tasks")}
-                         sx={{
+                        onClick={() => navigate("/planning")}
+                        sx={{
                           cursor: "pointer",
                           transition: "all 0.3s ease",
                           "&:hover": {
@@ -470,40 +472,6 @@ export const GestioneUtenti = () => {
                 >
                   {selectedUser && (tasks.length > 0 || issues.length > 0) ? (
                     <>
-                      {/* <PieChart
-                        series={[
-                          {
-                            arcLabel: (data) => String(data.value),
-                            data: [
-                              { id: 0, value: issues.length, label: "Issues" },
-                              { id: 1, value: tasks.length, label: "Tasks" },
-                            ],
-                            innerRadius: "50%",
-                            cornerRadius: 4,
-                            paddingAngle: 2,
-                            highlightScope: {
-                              highlight: "item",
-                              fade: "global",
-                            },
-                          },
-                        ]}
-                        slotProps={{
-                          legend: {
-                            sx: {
-                              fontSize: 16,
-                            },
-                          },
-                          pieArc: {
-                            strokeOpacity: 0,
-                          },
-                          pieArcLabel: {
-                            fontSize: 16,
-                            fontWeight: 500,
-                          },
-                        }}
-                        width={300}
-                        height={200}
-                      /> */}
                       <BarChart
                         width={350}
                         height={250}
@@ -522,7 +490,7 @@ export const GestioneUtenti = () => {
                   ) : (
                     <Typography variant="body2" color="textSecondary">
                       {selectedUser
-                        ? "Nessuna issue o task disponibile per questo utente."
+                        ? "Nessuna grafico disponibile per questo utente."
                         : "Seleziona un utente per visualizzare il grafico."}
                     </Typography>
                   )}
@@ -593,10 +561,10 @@ export const GestioneUtenti = () => {
                     <Table stickyHeader aria-label="sticky table">
                       <TableHead>
                         <TableRow>
-                          <TableCell>Full Name</TableCell>
+                          <TableCell>Nome</TableCell>
                           <TableCell>Username</TableCell>
                           <TableCell>Ruolo</TableCell>
-                          <TableCell align="right">Actions</TableCell>
+                          <TableCell align="right">Azioni</TableCell>
                         </TableRow>
                       </TableHead>
                       <TableBody>
@@ -720,77 +688,19 @@ export const GestioneUtenti = () => {
                   </TableContainer>
                 )}
 
-                <Dialog
+                <AddUserDialog
                   open={addDialogOpen}
                   onClose={handleCloseAddDialog}
-                  fullWidth
-                >
-                  <DialogTitle>Nuovo Utente</DialogTitle>
-                  <DialogContent>
-                    <TextField
-                      autoFocus
-                      margin="dense"
-                      name="fullName"
-                      label="Full Name"
-                      fullWidth
-                      value={newUser.fullName}
-                      onChange={handleNewUserChange}
-                    />
-                    <TextField
-                      margin="dense"
-                      name="username"
-                      label="Username"
-                      fullWidth
-                      value={newUser.username}
-                      onChange={handleNewUserChange}
-                      autoComplete="off"
-                    />
-                    <TextField
-                      margin="dense"
-                      name="password"
-                      label="Password"
-                      type="password"
-                      fullWidth
-                      value={newUser.password}
-                      onChange={handleNewUserChange}
-                      autoComplete="new-password"
-                    />
-                    <Select
-                      name="role"
-                      value={newUser.role}
-                      onChange={handleNewUserChange}
-                      fullWidth
-                      sx={{ mt: 2 }}
-                    >
-                      <MenuItem value="admin">admin</MenuItem>
-                      <MenuItem value="manager">manager</MenuItem>
-                      <MenuItem value="operator">operator</MenuItem>
-                    </Select>
-                  </DialogContent>
-                  <DialogActions>
-                    <Button onClick={handleCloseAddDialog}>Annulla</Button>
-                    <Button variant="contained" onClick={handleAddUser}>
-                      Salva
-                    </Button>
-                  </DialogActions>
-                </Dialog>
-                <Dialog open={confirmOpen} onClose={closeConfirmDialog}>
-                  <DialogTitle>Conferma Eliminazione</DialogTitle>
-                  <DialogContent>
-                    Sei sicuro di voler eliminare l’utente{" "}
-                    <strong>{userToDelete?.fullName}</strong>?
-                  </DialogContent>
-                  <DialogActions>
-                    <Button onClick={closeConfirmDialog}>Annulla</Button>
-                    <Button
-                      onClick={handleDeleteUser}
-                      color="error"
-                      variant="contained"
-                    >
-                      Elimina
-                    </Button>
-                  </DialogActions>
-                </Dialog>
+                  onSave={handleAddUser}
+                  newUser={newUser}
+                  onChange={handleNewUserChange}
+                />
+                <ConfirmDeleteDialog
+                  open={confirmOpen}
+                  user={userToDelete}
+                  onClose={closeConfirmDialog}
+                  onConfirm={handleDeleteUser}
+                />
               </Paper>
             </Grid>
           </Grid>
