@@ -15,8 +15,9 @@ import {
 import { KeyboardArrowDownRounded, KeyboardArrowUpRounded, LogoutRounded, NotificationsRounded } from '@mui/icons-material';
 import { useEffect, useRef, useState } from 'react';
 import { ToggleThemeModeButton } from '../../theme/components/ToggleThemeModeButton';
-import { getAssignedIssues, markAssignedIssuesAsRead } from '../../issues/api/api';
+import { markAssignedIssuesAsRead } from '../../issues/api/api';
 import { NotificationsPopover } from './NotificationsPopover';
+import { useGetAssignedIssues } from '../../issues/hooks/useIssueQueries';
 
 interface UserDropdownProps {
     fullName: string;
@@ -29,38 +30,22 @@ export const UserDropdown = ({ fullName, role, onLogout }: UserDropdownProps) =>
     const [dialogOpen, setDialogOpen] = useState(false);
     const [menuWidth, setMenuWidth] = useState<number | undefined>(undefined);
     const [notificationAnchorEl, setNotificationAnchorEl] = useState<null | HTMLElement>(null);
-    const [notifications, setNotifications] = useState<any[]>([]);
 
     const handleOpenNotifications = (event: React.MouseEvent<HTMLElement>) => {
         setNotificationAnchorEl(event.currentTarget);
     };
     const handleCloseNotifications = () => setNotificationAnchorEl(null);
 
-    useEffect(() => {
-        if (!notificationAnchorEl) return;
-        let interval: ReturnType<typeof setInterval>;
-        const fetchNotifications = async () => {
-            try {
-                const data = await getAssignedIssues();
-                setNotifications(
-                    data.map((issue: any) => ({
-                        id: issue._id,
-                        message: issue.description,
-                        read: issue.readBy?.includes(issue.assignedTo?._id), // adatta se serve
-                    }))
-                );
-            } catch {
-                setNotifications([]);
-            }
-        };
-        fetchNotifications();
-        interval = setInterval(fetchNotifications, 30000);
-        return () => clearInterval(interval);
-    }, [notificationAnchorEl]);
+    const { data: assignedIssues } = useGetAssignedIssues();
+
+    const notifications = (assignedIssues ?? []).map((issue: any) => ({
+        id: issue._id,
+        message: issue.description,
+        read: issue.readBy?.includes(issue.assignedTo?._id),
+    }));
 
     const handleMarkAllAsRead = async () => {
         await markAssignedIssuesAsRead();
-        setNotifications(n => n.map(notif => ({ ...notif, read: true })));
     };
 
     const buttonRef = useRef<HTMLDivElement>(null);

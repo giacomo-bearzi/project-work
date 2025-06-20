@@ -13,7 +13,6 @@ export const getIssues = async (): Promise<ApiIssue[]> => {
 };
 
 export const getAssignedIssues = async (): Promise<ApiIssue[]> => {
-  await delay(3);
   const response = await api.get(`${ENDPOINT}/assigned`);
   return response.data;
 }
