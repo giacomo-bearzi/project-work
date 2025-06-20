@@ -2,23 +2,9 @@ import {
   Box,
   Button,
   CircularProgress,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Divider,
   Grid,
-  IconButton,
-  MenuItem,
   Paper,
-  Select,
   Stack,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
   TextField,
   Typography,
 } from "@mui/material";
@@ -27,16 +13,21 @@ import { useAuth } from "../../log-in/context/AuthContext.tsx";
 import { useEffect, useState } from "react";
 import type { User } from "../../../components/Login.tsx";
 import AddIcon from "@mui/icons-material/Add";
-import { Delete } from "@mui/icons-material";
-import SaveIcon from "@mui/icons-material/Save";
-import ClearIcon from "@mui/icons-material/Clear";
-import EditIcon from "@mui/icons-material/Edit";
-
 import axios from "axios";
-import api from "../../../utils/axios.ts";
 import { useNavigate } from "react-router-dom";
+import { AddUserDialog } from "../../dashboard-users/components/AddUserDialog.tsx";
+import { ConfirmDeleteDialog } from "../../dashboard-users/components/ConfirmDeleteDialog.tsx";
+import { UsersTable } from "../../dashboard-users/components/UsersTable.tsx";
+import { UserDetails } from "../../dashboard-users/components/UserDetails.tsx";
+import { UserActivityChart } from "../../dashboard-users/components/UserActivityChart.tsx";
+import {
+  addUser,
+  deleteUser,
+  getUserIssues,
+  getUserTasks,
+} from "../../dashboard-users/api/UsersApi.ts";
 
-interface Issue {
+export interface Issue {
   _id: string;
   lineId: string;
   type: string;
@@ -50,9 +41,15 @@ interface Issue {
   resolvedAt?: string;
 }
 
-interface Task {
+interface ChecklistItem {
+  id?: string;
+  item: string;
+  done: boolean;
+}
+
+export interface Task {
   _id: string;
-  date: string; // es: "2025-06-12"
+  date: string;
   lineId: string;
   description: string;
   assignedTo: {
@@ -62,11 +59,8 @@ interface Task {
     role: string;
   };
   estimatedMinutes: number;
-  status: "in_corso" | "completata" | "da_fare" | string; // puoi estendere i possibili valori
-  checklist: {
-    title: string;
-    completed: boolean;
-  }[];
+  status: string;
+  checklist: ChecklistItem[];
 }
 
 export const GestioneUtenti = () => {
@@ -81,10 +75,15 @@ export const GestioneUtenti = () => {
   const [loading, setLoading] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [issues, setIssues] = useState<Issue[]>([]);
-  const [tasks, setTasks] = useState<any[]>([]);
+  const [tasks, setTasks] = useState<Task[]>([]);
   const navigate = useNavigate();
 
-  const [newUser, setNewUser] = useState({
+  const [newUser, setNewUser] = useState<{
+    fullName: string;
+    username: string;
+    password: string;
+    role: "operator" | "manager" | "admin";
+  }>({
     fullName: "",
     username: "",
     password: "",
@@ -142,65 +141,38 @@ export const GestioneUtenti = () => {
 
   const handleAddUser = async () => {
     try {
-      await axios.post("http://localhost:5000/api/users", newUser, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      await fetchUsers(); // <-- aggiorna la lista dopo l'aggiunta
-      handleCloseAddDialog(); // chiudi il dialog
-    } catch (err: any) {
-      console.error(
-        "Errore durante la creazione dell'utente:",
-        err.response?.data || err
-      );
+      await addUser(newUser, token!);
+      await fetchUsers();
+      handleCloseAddDialog();
+    } catch (err) {
+      console.error("Errore durante la creazione dell'utente:", err);
     }
   };
 
   const handleGetIssues = async (username: string) => {
     try {
-      const response = await api.get<Issue[]>("/issues");
-      const filtered = response.data.filter(
-        (issue) => issue.reportedBy.username === username
-      );
-      // console.log(filtered);
-
-      setIssues(filtered);
+      const issues = await getUserIssues(username);
+      setIssues(issues);
     } catch (err) {
       console.error("Error fetching issues:", err);
-    } finally {
-      // setLoading(false);
     }
   };
 
   const handleGetTasks = async (username: string) => {
     try {
-      const response = await api.get("/tasks");
-      const filtered = response.data.filter(
-        (task: Task) => task.assignedTo.username === username
-      );
-      console.log(filtered);
-      setTasks(filtered);
+      const tasks = await getUserTasks(username);
+      setTasks(tasks);
     } catch (err) {
       console.error("Error fetching tasks:", err);
-    } finally {
-      // setLoading(false);
     }
   };
 
   const handleDeleteUser = async () => {
     if (!userToDelete) return;
     try {
-      await axios.delete(
-        `${import.meta.env.VITE_API_URL}/users/${userToDelete._id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      await deleteUser(userToDelete._id, token!);
       closeConfirmDialog();
-      await fetchUsers(); // aggiorna la lista
+      await fetchUsers();
     } catch (err) {
       console.error("Errore durante l'eliminazione dell'utente:", err);
     }
@@ -215,15 +187,6 @@ export const GestioneUtenti = () => {
       [name!]: value,
     }));
   };
-
-  const filteredUsers = users.filter((u: User) => {
-    const term = searchTerm.toLowerCase();
-    return (
-      u.fullName.toLowerCase().includes(term) ||
-      u.username.toLowerCase().includes(term) ||
-      u.role.toLowerCase().includes(term)
-    );
-  });
 
   const handleCloseAddDialog = () => {
     setAddDialogOpen(false);
@@ -291,120 +254,60 @@ export const GestioneUtenti = () => {
               height: "100%",
             }}
           >
-            <Grid size={3}>
-              <Paper
-                elevation={1}
-                sx={{
-                  borderRadius: 11,
-                  p: 1,
-                  background: "rgba(255, 255, 255, 0.07)",
-                  backdropFilter: "blur(20px) saturate(180%)",
-                  WebkitBackdropFilter: "blur(20px) saturate(180%)",
-                  boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
-                  maxHeight: "600px",
-                  overflowY: "scroll",
-                  scrollbarWidth: "none",
-                  "&::-webkit-scrollbar": {
-                    display: "none",
-                  },
-                }}
-              >
-                {selectedUser ? (
-                  <>
-                    <Typography sx={{ m: 1 }}>
-                      {selectedUser.fullName} - {selectedUser.role}
+            <Grid container size={3}>
+              <Grid size={12}>
+                <Paper
+                  elevation={1}
+                  sx={{
+                    borderRadius: 11,
+                    p: 2,
+                    background: "rgba(255, 255, 255, 0.07)",
+                    backdropFilter: "blur(20px) saturate(180%)",
+                    WebkitBackdropFilter: "blur(20px) saturate(180%)",
+                    boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
+                    maxHeight: "400px",
+                    overflowY: "scroll",
+                    scrollbarWidth: "none",
+                    "&::-webkit-scrollbar": {
+                      display: "none",
+                    },
+                  }}
+                >
+                  {selectedUser ? (
+                    <UserDetails
+                      user={selectedUser}
+                      issues={issues}
+                      tasks={tasks}
+                      loading={loading}
+                      onNavigateToIssues={() => navigate("/issues")}
+                      onNavigateToPlanning={() => navigate("/planning")}
+                    />
+                  ) : (
+                    <Typography variant="body2" color="textSecondary">
+                      Seleziona un utente per visualizzare i dettagli.
                     </Typography>
-
-                    <Divider sx={{ my: 2 }} />
-
-                    <div className="flex justify-between">
-                      {" "}
-                      <Typography variant="h6" gutterBottom>
-                        Issues segnalate
-                      </Typography>
-                      <Button
-                        variant="contained"
-                        onClick={() => navigate("/issues")}
-                      >
-                        Issues
-                      </Button>
-                    </div>
-
-                    {loading ? (
-                      <Typography variant="body2">
-                        Caricamento issues...
-                      </Typography>
-                    ) : issues.length > 0 ? (
-                      <ul style={{ paddingLeft: "1rem" }}>
-                        {issues.map((issue) => (
-                          <li key={issue._id}>
-                            <Typography variant="body2">
-                              <strong>Descrizione:</strong> {issue.description}{" "}
-                              <br />
-                              <strong>Stato:</strong> {issue.status}
-                            </Typography>
-                            <Divider sx={{ my: 1 }} />
-                          </li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <Typography variant="body2">
-                        Nessuna issue trovata per questo utente.
-                      </Typography>
-                    )}
-                    <div className="flex justify-between">
-                      <Typography variant="h6" gutterBottom>
-                        Tasks segnalate
-                      </Typography>
-                      <Button
-                        variant="contained"
-                        onClick={() => navigate("/tasks")}
-                      >
-                        Tasks
-                      </Button>
-                    </div>
-                    <ul style={{ paddingLeft: "1rem" }}>
-                      {tasks.map((task) => (
-                        <li key={task._id}>
-                          <Typography variant="body2">
-                            <strong>Data:</strong> {task.date} <br />
-                            <strong>Linea:</strong> {task.lineId} <br />
-                            <strong>Descrizione:</strong> {task.description}{" "}
-                            <br />
-                            <strong>Stima:</strong> {task.estimatedMinutes}{" "}
-                            minuti <br />
-                            <strong>Stato:</strong> {task.status}
-                          </Typography>
-                          {task.checklist?.length > 0 && (
-                            <Box ml={2} mt={1}>
-                              <Typography variant="subtitle2">
-                                Checklist:
-                              </Typography>
-                              <ul style={{ marginTop: 0, paddingLeft: "1rem" }}>
-                                {task.checklist.map((item, index) => (
-                                  <li key={index}>
-                                    <Typography variant="body2">
-                                      {item.title} -{" "}
-                                      {item.completed
-                                        ? "✅ Completato"
-                                        : "⏳ In sospeso"}
-                                    </Typography>
-                                  </li>
-                                ))}
-                              </ul>
-                            </Box>
-                          )}
-                          <Divider sx={{ my: 1 }} />
-                        </li>
-                      ))}
-                    </ul>
-                  </>
-                ) : (
-                  <Typography variant="body2" color="textSecondary">
-                    Seleziona un utente per visualizzare i dettagli.
-                  </Typography>
-                )}
-              </Paper>
+                  )}
+                </Paper>
+              </Grid>
+              <Grid size={12}>
+                <Paper
+                  elevation={1}
+                  sx={{
+                    borderRadius: 11,
+                    p: 2,
+                    background: "rgba(255, 255, 255, 0.07)",
+                    backdropFilter: "blur(20px) saturate(180%)",
+                    WebkitBackdropFilter: "blur(20px) saturate(180%)",
+                    boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
+                  }}
+                >
+                  <UserActivityChart
+                    user={selectedUser}
+                    issues={issues}
+                    tasks={tasks}
+                  />
+                </Paper>
+              </Grid>
             </Grid>
             <Grid size={9}>
               <Paper
@@ -450,205 +353,34 @@ export const GestioneUtenti = () => {
                     <CircularProgress size="3rem" color="secondary" />
                   </Box>
                 ) : (
-                  <TableContainer
-                    component={Paper}
-                    sx={{
-                      borderRadius: 8,
-                      background: "rgba(255, 255, 255, 0.07)",
-                      backdropFilter: "blur(20px) saturate(180%)",
-                      WebkitBackdropFilter: "blur(20px) saturate(180%)",
-                      boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
-                      display: "flex",
-                      maxHeight: "650px",
-                      overflowY: "scroll",
-                      scrollbarWidth: "none",
-                      "&::-webkit-scrollbar": {
-                        display: "none",
-                      },
-                    }}
-                  >
-                    <Table stickyHeader aria-label="sticky table">
-                      <TableHead>
-                        <TableRow>
-                          <TableCell>Full Name</TableCell>
-                          <TableCell>Username</TableCell>
-                          <TableCell>Ruolo</TableCell>
-                          <TableCell align="right">Actions</TableCell>
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {filteredUsers.map((u: User) => {
-                          const isEditing = editingUserId === u._id;
-
-                          return (
-                            <TableRow
-                              key={u._id}
-                              hover
-                              onClick={() => handleShowInfo(u)}
-                              sx={{ cursor: "pointer" }}
-                            >
-                              <TableCell>
-                                {isEditing ? (
-                                  <TextField
-                                    name="fullName"
-                                    value={editedUser.fullName || ""}
-                                    onChange={handleEditChange}
-                                    size="small"
-                                    fullWidth
-                                  />
-                                ) : (
-                                  u.fullName
-                                )}
-                              </TableCell>
-                              <TableCell>
-                                {isEditing ? (
-                                  <TextField
-                                    name="username"
-                                    value={editedUser.username || ""}
-                                    onChange={handleEditChange}
-                                    size="small"
-                                    fullWidth
-                                  />
-                                ) : (
-                                  u.username
-                                )}
-                              </TableCell>
-                              <TableCell>
-                                {isEditing ? (
-                                  <Select
-                                    name="role"
-                                    value={editedUser.role || ""}
-                                    onChange={handleEditChange}
-                                    size="small"
-                                    fullWidth
-                                  >
-                                    <MenuItem value="admin">admin</MenuItem>
-                                    <MenuItem value="manager">manager</MenuItem>
-                                    <MenuItem value="operator">
-                                      operator
-                                    </MenuItem>
-                                  </Select>
-                                ) : (
-                                  u.role
-                                )}
-                              </TableCell>
-                              <TableCell align="right">
-                                {isEditing ? (
-                                  <>
-                                    <Button
-                                      onClick={saveEdit}
-                                      variant="contained"
-                                      size="small"
-                                      sx={{ mr: 1 }}
-                                    >
-                                      <SaveIcon />
-                                    </Button>
-                                    <IconButton
-                                      onClick={cancelEditing}
-                                      // variant="text"
-                                      size="small"
-                                    >
-                                      <ClearIcon />
-                                    </IconButton>
-                                  </>
-                                ) : (
-                                  <>
-                                    <IconButton
-                                      onClick={() => startEditing(u)}
-                                      size="small"
-                                      sx={{ mr: 1 }}
-                                    >
-                                      <EditIcon />
-                                    </IconButton>
-                                    <IconButton
-                                      // variant="text"
-                                      size="small"
-                                      onClick={() => openConfirmDialog(u)}
-                                    >
-                                      <Delete />
-                                    </IconButton>
-                                  </>
-                                )}
-                              </TableCell>
-                            </TableRow>
-                          );
-                        })}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
+                  <UsersTable
+                    users={users}
+                    selectedUser={selectedUser}
+                    editingUserId={editingUserId}
+                    editedUser={editedUser}
+                    searchTerm={searchTerm}
+                    onEditChange={handleEditChange}
+                    onStartEditing={startEditing}
+                    onCancelEditing={cancelEditing}
+                    onSaveEdit={saveEdit}
+                    onSelectUser={handleShowInfo}
+                    onDeleteClick={openConfirmDialog}
+                  />
                 )}
 
-                <Dialog
+                <AddUserDialog
                   open={addDialogOpen}
                   onClose={handleCloseAddDialog}
-                  fullWidth
-                >
-                  <DialogTitle>Nuovo Utente</DialogTitle>
-                  <DialogContent>
-                    <TextField
-                      autoFocus
-                      margin="dense"
-                      name="fullName"
-                      label="Full Name"
-                      fullWidth
-                      value={newUser.fullName}
-                      onChange={handleNewUserChange}
-                    />
-                    <TextField
-                      margin="dense"
-                      name="username"
-                      label="Username"
-                      fullWidth
-                      value={newUser.username}
-                      onChange={handleNewUserChange}
-                      autoComplete="off"
-                    />
-                    <TextField
-                      margin="dense"
-                      name="password"
-                      label="Password"
-                      type="password"
-                      fullWidth
-                      value={newUser.password}
-                      onChange={handleNewUserChange}
-                      autoComplete="new-password"
-                    />
-                    <Select
-                      name="role"
-                      value={newUser.role}
-                      onChange={handleNewUserChange}
-                      fullWidth
-                      sx={{ mt: 2 }}
-                    >
-                      <MenuItem value="admin">admin</MenuItem>
-                      <MenuItem value="manager">manager</MenuItem>
-                      <MenuItem value="operator">operator</MenuItem>
-                    </Select>
-                  </DialogContent>
-                  <DialogActions>
-                    <Button onClick={handleCloseAddDialog}>Annulla</Button>
-                    <Button variant="contained" onClick={handleAddUser}>
-                      Salva
-                    </Button>
-                  </DialogActions>
-                </Dialog>
-                <Dialog open={confirmOpen} onClose={closeConfirmDialog}>
-                  <DialogTitle>Conferma Eliminazione</DialogTitle>
-                  <DialogContent>
-                    Sei sicuro di voler eliminare l’utente{" "}
-                    <strong>{userToDelete?.fullName}</strong>?
-                  </DialogContent>
-                  <DialogActions>
-                    <Button onClick={closeConfirmDialog}>Annulla</Button>
-                    <Button
-                      onClick={handleDeleteUser}
-                      color="error"
-                      variant="contained"
-                    >
-                      Elimina
-                    </Button>
-                  </DialogActions>
-                </Dialog>
+                  onSave={handleAddUser}
+                  newUser={newUser}
+                  onChange={handleNewUserChange}
+                />
+                <ConfirmDeleteDialog
+                  open={confirmOpen}
+                  user={userToDelete}
+                  onClose={closeConfirmDialog}
+                  onConfirm={handleDeleteUser}
+                />
               </Paper>
             </Grid>
           </Grid>

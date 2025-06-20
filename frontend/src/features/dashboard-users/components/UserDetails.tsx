@@ -1,0 +1,135 @@
+import {
+  Typography,
+  Divider,
+  Box,
+} from "@mui/material";
+
+import type { User } from "../../../components/Login.tsx";
+import type { Issue, Task } from "../../dashboard/pages/GestioneUtenti.tsx";
+
+interface UserDetailsProps {
+  user: User;
+  issues: Issue[];
+  tasks: Task[];
+  loading: boolean;
+  onNavigateToIssues: () => void;
+  onNavigateToPlanning: () => void;
+}
+
+export const UserDetails: React.FC<UserDetailsProps> = ({
+  user,
+  issues,
+  tasks,
+  loading,
+  onNavigateToIssues,
+  onNavigateToPlanning,
+}) => {
+  return (
+    <>
+      <Typography>
+        {user.fullName} - {user.role}
+      </Typography>
+
+      <Divider sx={{ my: 2 }} />
+
+      <Typography
+        variant="h6"
+        gutterBottom
+        onClick={onNavigateToIssues}
+        sx={{
+          cursor: "pointer",
+          transition: "all 0.3s ease",
+          "&:hover": {
+            textDecoration: "underline",
+            color: "secondary.main",
+          },
+        }}
+      >
+        Issues segnalate
+      </Typography>
+
+      {loading ? (
+        <Typography variant="body2">Caricamento issues...</Typography>
+      ) : issues.length > 0 ? (
+        <ul style={{ paddingLeft: "1rem" }}>
+          {issues.map((issue, id) => (
+            <li key={issue._id}>
+              <Typography variant="body2">
+                <span>#{id + 1}</span>
+                <br />
+                <strong>Descrizione:</strong> {issue.description} <br />
+                <strong>Stato:</strong> {issue.status}
+              </Typography>
+              <Divider sx={{ my: 1 }} />
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <Typography variant="body2">
+          Nessuna issue trovata per questo utente.
+        </Typography>
+      )}
+
+      <Typography
+        variant="h6"
+        gutterBottom
+        onClick={onNavigateToPlanning}
+        sx={{
+          cursor: "pointer",
+          transition: "all 0.3s ease",
+          "&:hover": {
+            textDecoration: "underline",
+            color: "secondary.main",
+          },
+        }}
+      >
+        Tasks segnalate
+      </Typography>
+
+      {loading ? (
+        <Typography variant="body2">Caricamento tasks...</Typography>
+      ) : tasks.length > 0 ? (
+        <ul style={{ paddingLeft: "1rem" }}>
+          {tasks.map((task, id) => (
+            <li key={task._id}>
+              <Typography variant="body2">
+                <span>#{id + 1}</span>
+                <br />
+                <strong>Data:</strong> {task.date} <br />
+                <strong>Linea:</strong> {task.lineId} <br />
+                <strong>Descrizione:</strong>{" "}
+                {task.description.length > 30
+                  ? task.description.substring(0, 30) + "..."
+                  : task.description}
+                <br />
+                <strong>Stima:</strong> {task.estimatedMinutes} minuti <br />
+                <strong>Stato:</strong> {task.status}
+              </Typography>
+
+              {task.checklist?.length > 0 && (
+                <Box ml={2} mt={1}>
+                  <Typography variant="subtitle2">Checklist:</Typography>
+                  <ul style={{ marginTop: 0, paddingLeft: "1rem" }}>
+                    {task.checklist.map((item, index) => (
+                      <li key={index}>
+                        <Typography variant="body2">
+                          - {item.item}
+                          {item.done ? " ✅ Completato" : " ⏳ In sospeso"}
+                        </Typography>
+                      </li>
+                    ))}
+                  </ul>
+                </Box>
+              )}
+              <Divider sx={{ my: 1 }} />
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <Typography variant="body2">
+          Nessuna task trovata per questo utente.
+        </Typography>
+      )}
+    </>
+  );
+};

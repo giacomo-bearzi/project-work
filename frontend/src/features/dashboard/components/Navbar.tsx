@@ -1,17 +1,17 @@
 import Stack from '@mui/material/Stack';
 import { CustomPaper } from '../../../components/CustomPaper.tsx';
-// import { useAuth } from '../../log-in/context/AuthContext.tsx';
+import { useAuth } from '../../log-in/context/AuthContext.tsx';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { NavbarButton } from './NavbarButton.tsx';
 
 export const Navbar = () => {
-  // const { user } = useAuth();
+  const { user } = useAuth();
 
   const theme = useTheme();
   const isTablet = useMediaQuery(theme.breakpoints.between('sm', 'lg'));
 
-  // const isAdmin = user!.role === 'admin';
+  const isAdmin = user!.role === 'admin';
 
   if (isTablet) {
     return (
@@ -64,9 +64,9 @@ export const Navbar = () => {
         <NavbarButton path="/issues">Segnalazioni</NavbarButton>
         <NavbarButton path="/planning">Attività</NavbarButton>
         {/* <NavbarButton path="/planning">Monitoraggio attività</NavbarButton> */}
-        {/* {isAdmin && (
+        {isAdmin && (
           <NavbarButton path="/gestione-utenti">Gestione Utenti</NavbarButton>
-        )} */}
+        )}
       </Stack>
     </CustomPaper>
   );
