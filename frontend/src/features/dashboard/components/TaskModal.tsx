@@ -4,6 +4,9 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { v4 as uuidv4 } from 'uuid';
 import { useEffect, useState } from 'react';
 import api from '../../../utils/axios';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 
 interface ChecklistItem {
     id?: string;
@@ -231,18 +234,21 @@ export const TaskModal: React.FC<TaskModalProps> = ({
             <DialogTitle>Nuova Attività</DialogTitle>
             <form onSubmit={handleSubmit}>
                 <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                    <TextField
-                        label="Data"
-                        name="date"
-                        type="date"
-                        value={form.date}
-                        onChange={handleFormChange}
-                        required
-                        fullWidth
-                        InputLabelProps={{
-                            shrink: true,
-                        }}
-                    />
+                    <LocalizationProvider dateAdapter={AdapterDateFns}>
+                        <DatePicker
+                            label="Data"
+                            value={form.date ? new Date(form.date) : null}
+                            onChange={(newValue) => setForm(prev => ({ ...prev, date: newValue ? newValue.toISOString().slice(0, 10) : '' }))}
+                            slotProps={{
+                                textField: {
+                                    size: 'small',
+                                    fullWidth: true,
+                                    required: true,
+                                    InputLabelProps: { shrink: true }
+                                }
+                            }}
+                        />
+                    </LocalizationProvider>
                     <TextField
                         label="Descrizione"
                         name="description"
