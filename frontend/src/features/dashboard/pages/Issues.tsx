@@ -30,6 +30,8 @@ import SearchIcon from '@mui/icons-material/Search';
 import Select from '@mui/material/Select';
 import Checkbox from '@mui/material/Checkbox';
 import ListItemText from '@mui/material/ListItemText';
+import { IssueModal } from '../components/IssueModal';
+import { lineOptions, typeOptions, priorityOptions, statusOptions } from '../../issues/types/issueOptions';
 
 interface Issue {
   _id: string;
@@ -39,7 +41,7 @@ interface Issue {
   status: string;
   description: string;
   reportedBy: { username: string; fullName: string; role: string };
-  assignedTo?: { username: string; fullName: string; role: string };
+  assignedTo: { username: string; fullName: string; role: string };
   createdAt: string;
   updatedAt: string;
   resolvedAt?: string;
@@ -69,11 +71,7 @@ export const Issues = () => {
   const [selectedType, setSelectedType] = useState<string[]>([]);
   const [searchId, setSearchId] = useState('');
   const [selectedDate, setSelectedDate] = useState('');
-
-  const statusOptions = ['Aperta', 'Risolta', 'Chiusa'];
-  const priorityOptions = ['Bassa', 'Media', 'Alta'];
-  const lineOptions = ['Linea 1', 'Linea 2', 'Linea 3'];
-  const typeOptions = ['Meccanico', 'Eletttrico', 'Qualità', 'Sicurezza'];
+  const [modalOpen, setModalOpen] = useState(false);
 
   useEffect(() => {
     // Set background image based on theme mode
@@ -169,6 +167,20 @@ export const Issues = () => {
     return true;
   });
 
+  // Funzione per creare una nuova issue
+  const handleCreateIssue = async (data: any) => {
+    try {
+      console.log("DATI" , data);
+      await api.post('/issues', data);
+      // Aggiorna la lista dopo la creazione
+      const response = await api.get<Issue[]>('/issues');
+      setIssues(response.data);
+      setModalOpen(false);
+    } catch (err) {
+      alert('Errore nella creazione della issue');
+    }
+  };
+
   return (
     <Box
       p={1}
@@ -251,11 +263,11 @@ export const Issues = () => {
               >
                 {statusOptions.map((option) => (
                   <MenuItem
-                    key={option}
-                    value={option}
+                    key={option.value}
+                    value={option.value}
                   >
-                    <Checkbox checked={selectedStatus.indexOf(option) > -1} />
-                    <ListItemText primary={option} />
+                    <Checkbox checked={selectedStatus.indexOf(option.value) > -1} />
+                    <ListItemText primary={option.label} />
                   </MenuItem>
                 ))}
               </Select>
@@ -276,11 +288,11 @@ export const Issues = () => {
               >
                 {priorityOptions.map((option) => (
                   <MenuItem
-                    key={option}
-                    value={option}
+                    key={option.value}
+                    value={option.value}
                   >
-                    <Checkbox checked={selectedPriority.indexOf(option) > -1} />
-                    <ListItemText primary={option} />
+                    <Checkbox checked={selectedPriority.indexOf(option.value) > -1} />
+                    <ListItemText primary={option.label} />
                   </MenuItem>
                 ))}
               </Select>
@@ -301,11 +313,11 @@ export const Issues = () => {
               >
                 {lineOptions.map((option) => (
                   <MenuItem
-                    key={option}
-                    value={option}
+                    key={option.value}
+                    value={option.value}
                   >
-                    <Checkbox checked={selectedLine.indexOf(option) > -1} />
-                    <ListItemText primary={option} />
+                    <Checkbox checked={selectedLine.indexOf(option.value) > -1} />
+                    <ListItemText primary={option.label} />
                   </MenuItem>
                 ))}
               </Select>
@@ -326,11 +338,11 @@ export const Issues = () => {
               >
                 {typeOptions.map((option) => (
                   <MenuItem
-                    key={option}
-                    value={option}
+                    key={option.value}
+                    value={option.value}
                   >
-                    <Checkbox checked={selectedType.indexOf(option) > -1} />
-                    <ListItemText primary={option} />
+                    <Checkbox checked={selectedType.indexOf(option.value) > -1} />
+                    <ListItemText primary={option.label} />
                   </MenuItem>
                 ))}
               </Select>
@@ -346,6 +358,7 @@ export const Issues = () => {
               <Button
                 variant="contained"
                 startIcon={<AddIcon />}
+                onClick={() => setModalOpen(true)}
               >
                 Segnala
               </Button>
@@ -514,6 +527,16 @@ export const Issues = () => {
           </TableContainer>
         </Stack>
       </Paper>
+      <IssueModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onSave={handleCreateIssue}
+        lineOptions={lineOptions}
+        typeOptions={typeOptions}
+        priorityOptions={priorityOptions}
+        statusOptions={statusOptions}
+        currentUser={user}
+      />
     </Box>
   );
 };
