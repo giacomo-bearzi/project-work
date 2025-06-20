@@ -239,9 +239,9 @@ export const Issues = () => {
                   ),
                 }}
                 sx={{
-                  'minWidth': 160,
+                  minWidth: 160,
                   '& .MuiInputBase-input::placeholder': {
-                    color: theme.palette.mode === 'dark' ? '#B0B3B8' : '#888',
+                    color: theme.palette.mode === 'dark' ? '#B0B3B8' : '#222',
                     opacity: 1,
                   },
                 }}
