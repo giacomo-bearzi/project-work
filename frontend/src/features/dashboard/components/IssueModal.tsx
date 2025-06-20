@@ -118,9 +118,8 @@ export const IssueModal: React.FC<IssueModalProps> = ({ open, onClose, onSave, l
     fetchUsers(searchReported);
   }, [searchReported]);
 
-  const handleSave = () => {
-
-
+  const handleSave = (e: React.FormEvent) => {
+    e.preventDefault();
     let createdAtISO = createdAt;
     if (createdAt.length === 10) { // solo data, senza orario
       const now = new Date();
@@ -152,127 +151,129 @@ export const IssueModal: React.FC<IssueModalProps> = ({ open, onClose, onSave, l
       <CustomPaper sx={{ p: 2 }}>
         <DialogTitle sx={{ fontWeight: 600, fontSize: 22 }}>Nuova Issue</DialogTitle>
         <DialogContent>
-          <Stack spacing={2}>
-            <TextField
-              label="Descrizione"
-              value={description}
-              onChange={e => setDescription(e.target.value)}
-              required
-              fullWidth
-            />
-            <FormControl fullWidth required>
-              <InputLabel>Linea</InputLabel>
-              <Select
-                value={line}
-                label="Linea"
-                onChange={e => setLine(e.target.value)}
-              >
-                {lineOptions.map(opt => (
-                  <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            <FormControl fullWidth required>
-              <InputLabel>Tipo</InputLabel>
-              <Select
-                value={type}
-                label="Tipo"
-                onChange={e => setType(e.target.value)}
-              >
-                {typeOptions.map(opt => (
-                  <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            <FormControl fullWidth required>
-              <InputLabel>Priorità</InputLabel>
-              <Select
-                value={priority}
-                label="Priorità"
-                onChange={e => setPriority(e.target.value)}
-              >
-                {priorityOptions.map(opt => (
-                  <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            <FormControl fullWidth required>
-              <InputLabel>Stato</InputLabel>
-              <Select
-                value={status}
-                label="Stato"
-                onChange={e => setStatus(e.target.value)}
-              >
-                {statusOptions.map(opt => (
-                  <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            {currentUser.role === 'operator' ? (
+          <form onSubmit={handleSave}>
+            <Stack spacing={2}>
               <TextField
-                label="Segnalata da"
-                value={currentUser.fullName + ' (' + currentUser.username + ')'}
-                disabled
-                fullWidth
+                label="Descrizione"
+                value={description}
+                onChange={e => setDescription(e.target.value)}
                 required
+                fullWidth
               />
-            ) : (
+              <FormControl fullWidth required>
+                <InputLabel>Linea</InputLabel>
+                <Select
+                  value={line}
+                  label="Linea"
+                  onChange={e => setLine(e.target.value)}
+                >
+                  {lineOptions.map(opt => (
+                    <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <FormControl fullWidth required>
+                <InputLabel>Tipo</InputLabel>
+                <Select
+                  value={type}
+                  label="Tipo"
+                  onChange={e => setType(e.target.value)}
+                >
+                  {typeOptions.map(opt => (
+                    <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <FormControl fullWidth required>
+                <InputLabel>Priorità</InputLabel>
+                <Select
+                  value={priority}
+                  label="Priorità"
+                  onChange={e => setPriority(e.target.value)}
+                >
+                  {priorityOptions.map(opt => (
+                    <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <FormControl fullWidth required>
+                <InputLabel>Stato</InputLabel>
+                <Select
+                  value={status}
+                  label="Stato"
+                  onChange={e => setStatus(e.target.value)}
+                >
+                  {statusOptions.map(opt => (
+                    <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              {currentUser.role === 'operator' ? (
+                <TextField
+                  label="Segnalata da"
+                  value={currentUser.fullName + ' (' + currentUser.username + ')'}
+                  disabled
+                  fullWidth
+                  required
+                />
+              ) : (
+                <Autocomplete
+                  options={userOptions}
+                  getOptionLabel={(option) => option && typeof option === 'object' ? `${option.fullName} (${option.username})` : ''}
+                  value={reportedBy}
+                  onInputChange={(_, newInputValue) => setSearchReported(newInputValue)}
+                  onChange={(_, value) => setReportedBy(value as User || null)}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Segnalata da"
+                      required
+                      fullWidth
+                    />
+                  )}
+                  isOptionEqualToValue={(option, value) => option?._id === value?._id}
+                />
+              )}
               <Autocomplete
                 options={userOptions}
                 getOptionLabel={(option) => option && typeof option === 'object' ? `${option.fullName} (${option.username})` : ''}
-                value={reportedBy}
-                onInputChange={(_, newInputValue) => setSearchReported(newInputValue)}
-                onChange={(_, value) => setReportedBy(value as User || null)}
+                value={assignedTo}
+                onInputChange={(_, newInputValue) => setSearchAssigned(newInputValue)}
+                onChange={(_, value) => setAssignedTo(value as User || null)}
                 renderInput={(params) => (
                   <TextField
                     {...params}
-                    label="Segnalata da"
+                    label="Assegnata a"
                     required
                     fullWidth
                   />
                 )}
                 isOptionEqualToValue={(option, value) => option?._id === value?._id}
               />
-            )}
-            <Autocomplete
-              options={userOptions}
-              getOptionLabel={(option) => option && typeof option === 'object' ? `${option.fullName} (${option.username})` : ''}
-              value={assignedTo}
-              onInputChange={(_, newInputValue) => setSearchAssigned(newInputValue)}
-              onChange={(_, value) => setAssignedTo(value as User || null)}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  label="Assegnata a"
-                  required
-                  fullWidth
-                />
-              )}
-              isOptionEqualToValue={(option, value) => option?._id === value?._id}
-            />
-            <TextField
-              label="Creata il"
-              type="date"
-              value={createdAt}
-              onChange={e => setCreatedAt(e.target.value)}
-              InputLabelProps={{ shrink: true }}
-              fullWidth
-              required
-            />
-            <TextField
-              label="Risolta il"
-              type="date"
-              value={resolvedAt}
-              onChange={e => setResolvedAt(e.target.value)}
-              InputLabelProps={{ shrink: true }}
-              fullWidth
-            />
-          </Stack>
+              <TextField
+                label="Creata il"
+                type="date"
+                value={createdAt}
+                onChange={e => setCreatedAt(e.target.value)}
+                InputLabelProps={{ shrink: true }}
+                fullWidth
+                required
+              />
+              <TextField
+                label="Risolta il"
+                type="date"
+                value={resolvedAt}
+                onChange={e => setResolvedAt(e.target.value)}
+                InputLabelProps={{ shrink: true }}
+                fullWidth
+              />
+            </Stack>
+            <DialogActions sx={{ justifyContent: 'flex-end', gap: 2 }}>
+              <Button onClick={onClose} color="inherit">Annulla</Button>
+              <Button type="submit" variant="contained" color="primary">Salva</Button>
+            </DialogActions>
+          </form>
         </DialogContent>
-        <DialogActions sx={{ justifyContent: 'flex-end', gap: 2 }}>
-          <Button onClick={onClose} color="inherit">Annulla</Button>
-          <Button onClick={handleSave} variant="contained" color="primary">Salva</Button>
-        </DialogActions>
       </CustomPaper>
     </Dialog>
   );
