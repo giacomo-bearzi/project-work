@@ -34,7 +34,7 @@ export const Navbar = () => {
           </NavbarButton>
           <NavbarButton
             sx={{ borderRadius: 8 }}
-            path="/tasks"
+            path="/planning"
           >
             Attività
           </NavbarButton>
@@ -62,7 +62,7 @@ export const Navbar = () => {
       >
         <NavbarButton path="/overview">Panoramica</NavbarButton>
         <NavbarButton path="/issues">Segnalazioni</NavbarButton>
-        <NavbarButton path="/tasks">Attività</NavbarButton>
+        <NavbarButton path="/planning">Attività</NavbarButton>
         {/* <NavbarButton path="/planning">Monitoraggio attività</NavbarButton> */}
         {isAdmin && (
           <NavbarButton path="/gestione-utenti">Gestione Utenti</NavbarButton>

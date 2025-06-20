@@ -68,6 +68,7 @@ export const Issues = () => {
   const [selectedLine, setSelectedLine] = useState<string[]>([]);
   const [selectedType, setSelectedType] = useState<string[]>([]);
   const [searchId, setSearchId] = useState('');
+  const [selectedDate, setSelectedDate] = useState('');
 
   const statusOptions = ['Aperta', 'Risolta', 'Chiusa'];
   const priorityOptions = ['Bassa', 'Media', 'Alta'];
@@ -118,11 +119,10 @@ export const Issues = () => {
   }
 
   const filteredIssues = issues.filter((issue) => {
-    // Normalizza l'input e l'id (rimuove # e spazi, case-insensitive)
-    const normalizedSearch = searchId.trim().replace(/^#/, '').toLowerCase();
-    const normalizedId = issue._id.replace(/^#/, '').toLowerCase();
-
-    if (normalizedSearch && !normalizedId.includes(normalizedSearch)) {
+    // Filtro descrizione
+    const normalizedSearch = searchId.trim().toLowerCase();
+    const normalizedDescription = issue.description.toLowerCase();
+    if (normalizedSearch && !normalizedDescription.includes(normalizedSearch)) {
       return false;
     }
     // Filtro Priorità
@@ -159,13 +159,20 @@ export const Issues = () => {
     ) {
       return false;
     }
+    // Filtro Data di creazione
+    if (selectedDate) {
+      const createdAtDate = moment(issue.createdAt).format('YYYY-MM-DD');
+      if (createdAtDate !== selectedDate) {
+        return false;
+      }
+    }
     return true;
   });
 
   return (
     <Box
       p={1}
-      height={'100dvh'}
+     
     >
       <Paper
         elevation={1}
@@ -333,6 +340,8 @@ export const Issues = () => {
                 variant="outlined"
                 sx={{ minWidth: 140 }}
                 InputLabelProps={{ shrink: true }}
+                value={selectedDate}
+                onChange={e => setSelectedDate(e.target.value)}
               />
               <Button
                 variant="contained"
@@ -357,12 +366,13 @@ export const Issues = () => {
               <TableHead>
                 <TableRow
                   sx={{
-                    'background':
-                      theme.palette.mode === 'dark' ? '#23272F' : '#F6F6F6',
+                    position: 'sticky',
+                    top: 0,
+                    zIndex: 1,
+                    background: theme.palette.mode === 'dark' ? '#23272F' : '#F6F6F6',
                     '& th': {
                       borderBottom: 'none',
-                      color:
-                        theme.palette.mode === 'dark' ? '#B0B3B8' : '#7D7D7D',
+                      color: theme.palette.mode === 'dark' ? '#B0B3B8' : '#7D7D7D',
                     },
                   }}
                 >
@@ -380,7 +390,12 @@ export const Issues = () => {
               </TableHead>
               <TableBody>
                 {filteredIssues.map((issue, idx) => (
-                  <TableRow key={issue._id}>
+                  <TableRow
+                    key={issue._id}
+                    sx={{
+                      '&:last-child td, &:last-child th': { borderBottom: 'none' }
+                    }}
+                  >
                     {/* <TableCell>{`#${String(idx + 1).padStart(3, '0')}`}</TableCell> */}
                     <TableCell>{issue.description}</TableCell>
                     <TableCell>{issue.lineId}</TableCell>
