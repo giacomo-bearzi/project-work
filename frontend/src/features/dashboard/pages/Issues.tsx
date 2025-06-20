@@ -68,6 +68,7 @@ export const Issues = () => {
   const [selectedLine, setSelectedLine] = useState<string[]>([]);
   const [selectedType, setSelectedType] = useState<string[]>([]);
   const [searchId, setSearchId] = useState('');
+  const [selectedDate, setSelectedDate] = useState('');
 
   const statusOptions = ['Aperta', 'Risolta', 'Chiusa'];
   const priorityOptions = ['Bassa', 'Media', 'Alta'];
@@ -118,11 +119,10 @@ export const Issues = () => {
   }
 
   const filteredIssues = issues.filter((issue) => {
-    // Normalizza l'input e l'id (rimuove # e spazi, case-insensitive)
-    const normalizedSearch = searchId.trim().replace(/^#/, '').toLowerCase();
-    const normalizedId = issue._id.replace(/^#/, '').toLowerCase();
-
-    if (normalizedSearch && !normalizedId.includes(normalizedSearch)) {
+    // Filtro descrizione
+    const normalizedSearch = searchId.trim().toLowerCase();
+    const normalizedDescription = issue.description.toLowerCase();
+    if (normalizedSearch && !normalizedDescription.includes(normalizedSearch)) {
       return false;
     }
     // Filtro Priorità
@@ -158,6 +158,13 @@ export const Issues = () => {
         .includes(issue.type.toLowerCase())
     ) {
       return false;
+    }
+    // Filtro Data di creazione
+    if (selectedDate) {
+      const createdAtDate = moment(issue.createdAt).format('YYYY-MM-DD');
+      if (createdAtDate !== selectedDate) {
+        return false;
+      }
     }
     return true;
   });
@@ -333,6 +340,8 @@ export const Issues = () => {
                 variant="outlined"
                 sx={{ minWidth: 140 }}
                 InputLabelProps={{ shrink: true }}
+                value={selectedDate}
+                onChange={e => setSelectedDate(e.target.value)}
               />
               <Button
                 variant="contained"
