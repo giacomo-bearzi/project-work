@@ -1,12 +1,8 @@
-import {
-  Typography,
-  Divider,
-  Box,
-} from "@mui/material";
+import { Typography, Divider, Box } from "@mui/material";
 
 import type { User } from "../../../components/Login.tsx";
 import type { Issue, Task } from "../../dashboard/pages/GestioneUtenti.tsx";
-
+import DoubleArrowIcon from '@mui/icons-material/DoubleArrow';
 interface UserDetailsProps {
   user: User;
   issues: Issue[];
@@ -45,7 +41,7 @@ export const UserDetails: React.FC<UserDetailsProps> = ({
           },
         }}
       >
-        Issues segnalate
+        Issues segnalate <DoubleArrowIcon />
       </Typography>
 
       {loading ? (
@@ -83,7 +79,7 @@ export const UserDetails: React.FC<UserDetailsProps> = ({
           },
         }}
       >
-        Tasks segnalate
+        Tasks segnalate <DoubleArrowIcon />
       </Typography>
 
       {loading ? (
