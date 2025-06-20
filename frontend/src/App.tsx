@@ -14,6 +14,7 @@ import { OverviewPage } from './features/dashboard/pages/OverviewPage.tsx';
 import { GestioneUtenti } from './features/dashboard/pages/GestioneUtenti.tsx';
 import { Issues } from './features/dashboard/pages/Issues.tsx';
 import { Planning } from './features/dashboard/pages/Planning.tsx';
+import NotificationPoller from './components/NotificationPoller.tsx';
 const queryClient = new QueryClient();
 
 const AppContent = () => {
@@ -64,7 +65,7 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <Router>
       <AuthProvider>
-        {/* <NotificationPoller /> */}
+        <NotificationPoller />
         <AppContent />
       </AuthProvider>
     </Router>
