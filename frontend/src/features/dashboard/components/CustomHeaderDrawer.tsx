@@ -8,7 +8,7 @@ import { red } from '@mui/material/colors';
 import { CustomPaper } from '../../../components/CustomPaper.tsx';
 import { useAuth } from '../../log-in/context/AuthContext.tsx';
 import { Logo } from './Logo.tsx';
-import { Navbar } from './Navbar.tsx';
+import { NavbarDesktop } from './Navbar/NavbarDesktop.tsx';
 import { UserInfo } from './UserInfo.tsx';
 
 interface CustomHeaderDrawerProps {
@@ -65,7 +65,7 @@ export const CustomHeaderDrawer = ({
               </IconButton>
             </Box>
             <UserInfo />
-            <Navbar />
+            <NavbarDesktop />
           </Stack>
           <Button
             onClick={() => logout()}
