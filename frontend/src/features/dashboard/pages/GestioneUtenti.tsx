@@ -1,18 +1,15 @@
 import {
   Box,
-  Button,
   CircularProgress,
   Grid,
   Paper,
   Stack,
-  TextField,
   Typography,
 } from "@mui/material";
 import { Header } from "../components/Header.tsx";
 import { useAuth } from "../../log-in/context/AuthContext.tsx";
 import { useEffect, useState } from "react";
 import type { User } from "../../../components/Login.tsx";
-import AddIcon from "@mui/icons-material/Add";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { AddUserDialog } from "../../dashboard-users/components/AddUserDialog.tsx";
@@ -26,6 +23,7 @@ import {
   getUserIssues,
   getUserTasks,
 } from "../../dashboard-users/api/UsersApi.ts";
+import { UserActionsToolbar } from "../../dashboard-users/components/UserActionsToolbar.tsx";
 
 export interface Issue {
   _id: string;
@@ -245,148 +243,135 @@ export const GestioneUtenti = () => {
         }}
       >
       </Paper> */}
-        <Stack direction="column" gap={1} sx={{ height: "100%" }}>
-          <Header />
+      <Stack direction="column" gap={1} sx={{ height: "100%" }}>
+        <Header />
 
-          <Grid
-            container
-            spacing={1}
-            sx={{
-              height: "100%",
-            }}
-          >
-            <Grid container size={3}>
-              <Grid size={12}>
-                <Paper
-                  elevation={1}
-                  sx={{
-                    borderRadius: 11,
-                    p: 2,
-                    background: "rgba(255, 255, 255, 0.07)",
-                    backdropFilter: "blur(20px) saturate(180%)",
-                    WebkitBackdropFilter: "blur(20px) saturate(180%)",
-                    boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
-                    maxHeight: "400px",
-                    overflowY: "scroll",
-                    scrollbarWidth: "none",
-                    "&::-webkit-scrollbar": {
-                      display: "none",
-                    },
-                  }}
-                >
-
-                  {selectedUser ? (
-                    <UserDetails
-                      user={selectedUser}
-                      issues={issues}
-                      tasks={tasks}
-                      loading={loading}
-                      onNavigateToIssues={() => navigate("/issues")}
-                      onNavigateToPlanning={() => navigate("/planning")}
-                    />
-                  ) : (
-                    <Typography variant="body2" color="textSecondary">
-                      Seleziona un utente per visualizzare i dettagli.
-                    </Typography>
-                  )}
-                </Paper>
-              </Grid>
-              <Grid size={12}>
-                <Paper
-                  elevation={1}
-                  sx={{
-                    borderRadius: 11,
-                    p: 2,
-                    background: "rgba(255, 255, 255, 0.07)",
-                    backdropFilter: "blur(20px) saturate(180%)",
-                    WebkitBackdropFilter: "blur(20px) saturate(180%)",
-                    boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
-                  }}
-                >
-                  <UserActivityChart
-                    user={selectedUser}
-                    issues={issues}
-                    tasks={tasks}
-                  />
-                </Paper>
-              </Grid>
-            </Grid>
-            <Grid size={9}>
+        <Grid
+          container
+          spacing={1}
+          sx={{
+            height: "100%",
+          }}
+        >
+          <Grid container size={3}>
+            <Grid size={12}>
               <Paper
                 elevation={1}
                 sx={{
                   borderRadius: 11,
-                  p: 1,
+                  p: 2,
                   background: "rgba(255, 255, 255, 0.07)",
                   backdropFilter: "blur(20px) saturate(180%)",
                   WebkitBackdropFilter: "blur(20px) saturate(180%)",
                   boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
-                  height: "100%",
-                  display: "flex",
-                  flexDirection: "column",
+                  maxHeight: "400px",
+                  overflowY: "scroll",
+                  scrollbarWidth: "none",
+                  "&::-webkit-scrollbar": {
+                    display: "none",
+                  },
                 }}
               >
-                <div className="flex justify-between mb-2 mt-2 p-2">
-                  <TextField
-                    label="Cerca utente"
-                    variant="outlined"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    size="small"
-                    sx={{ width: 300 }}
+                {selectedUser ? (
+                  <UserDetails
+                    user={selectedUser}
+                    issues={issues}
+                    tasks={tasks}
+                    loading={loading}
+                    onNavigateToIssues={() => navigate("/issues")}
+                    onNavigateToPlanning={() => navigate("/planning")}
                   />
-                  <Button
-                    variant="contained"
-                    onClick={handleOpenAddDialog}
-                    startIcon={<AddIcon />}
-                  >
-                    Aggiungi Utente
-                  </Button>
-                </div>
-
-                {loading ? (
-                  <Box
-                    display="flex"
-                    justifyContent="center"
-                    alignItems="center"
-                    height="400px"
-                    width="100%"
-                  >
-                    <CircularProgress size="3rem" color="secondary" />
-                  </Box>
                 ) : (
-                  <UsersTable
-                    users={users}
-                    selectedUser={selectedUser}
-                    editingUserId={editingUserId}
-                    editedUser={editedUser}
-                    searchTerm={searchTerm}
-                    onEditChange={handleEditChange}
-                    onStartEditing={startEditing}
-                    onCancelEditing={cancelEditing}
-                    onSaveEdit={saveEdit}
-                    onSelectUser={handleShowInfo}
-                    onDeleteClick={openConfirmDialog}
-                  />
+                  <Typography variant="body2" color="textSecondary">
+                    Seleziona un utente per visualizzare i dettagli.
+                  </Typography>
                 )}
-
-                <AddUserDialog
-                  open={addDialogOpen}
-                  onClose={handleCloseAddDialog}
-                  onSave={handleAddUser}
-                  newUser={newUser}
-                  onChange={handleNewUserChange}
-                />
-                <ConfirmDeleteDialog
-                  open={confirmOpen}
-                  user={userToDelete}
-                  onClose={closeConfirmDialog}
-                  onConfirm={handleDeleteUser}
+              </Paper>
+            </Grid>
+            <Grid size={12}>
+              <Paper
+                elevation={1}
+                sx={{
+                  borderRadius: 11,
+                  p: 2,
+                  background: "rgba(255, 255, 255, 0.07)",
+                  backdropFilter: "blur(20px) saturate(180%)",
+                  WebkitBackdropFilter: "blur(20px) saturate(180%)",
+                  boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
+                }}
+              >
+                <UserActivityChart
+                  user={selectedUser}
+                  issues={issues}
+                  tasks={tasks}
                 />
               </Paper>
             </Grid>
           </Grid>
-        </Stack>
+          <Grid size={9}>
+            <Paper
+              elevation={1}
+              sx={{
+                borderRadius: 11,
+                p: 1,
+                background: "rgba(255, 255, 255, 0.07)",
+                backdropFilter: "blur(20px) saturate(180%)",
+                WebkitBackdropFilter: "blur(20px) saturate(180%)",
+                boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
+                height: "100%",
+                display: "flex",
+                flexDirection: "column",
+              }}
+            >
+              <UserActionsToolbar
+                searchTerm={searchTerm}
+                onSearchChange={setSearchTerm}
+                onAddUser={handleOpenAddDialog}
+              />
+
+              {loading ? (
+                <Box
+                  display="flex"
+                  justifyContent="center"
+                  alignItems="center"
+                  height="400px"
+                  width="100%"
+                >
+                  <CircularProgress size="3rem" color="secondary" />
+                </Box>
+              ) : (
+                <UsersTable
+                  users={users}
+                  selectedUser={selectedUser}
+                  editingUserId={editingUserId}
+                  editedUser={editedUser}
+                  searchTerm={searchTerm}
+                  onEditChange={handleEditChange}
+                  onStartEditing={startEditing}
+                  onCancelEditing={cancelEditing}
+                  onSaveEdit={saveEdit}
+                  onSelectUser={handleShowInfo}
+                  onDeleteClick={openConfirmDialog}
+                />
+              )}
+
+              <AddUserDialog
+                open={addDialogOpen}
+                onClose={handleCloseAddDialog}
+                onSave={handleAddUser}
+                newUser={newUser}
+                onChange={handleNewUserChange}
+              />
+              <ConfirmDeleteDialog
+                open={confirmOpen}
+                user={userToDelete}
+                onClose={closeConfirmDialog}
+                onConfirm={handleDeleteUser}
+              />
+            </Paper>
+          </Grid>
+        </Grid>
+      </Stack>
     </Box>
   );
 };

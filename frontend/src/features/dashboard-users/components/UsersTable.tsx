@@ -71,7 +71,7 @@ export const UsersTable: React.FC<UsersTableProps> = ({
         WebkitBackdropFilter: "blur(20px) saturate(180%)",
         boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
         display: "flex",
-        maxHeight: "650px",
+        height: "80vh",
         overflowY: "scroll",
         scrollbarWidth: "none",
         "&::-webkit-scrollbar": {
