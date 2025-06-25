@@ -14,6 +14,9 @@ export interface ITask extends Document {
     status: 'in_attesa' | 'in_corso' | 'completata';
     checklist: ChecklistItem[];
     completedAt?: string;
+    type: 'standard' | 'manutenzione';
+    maintenanceStart?: string;
+    maintenanceEnd?: string;
 }
 
 const TaskSchema = new Schema<ITask>({
@@ -32,6 +35,13 @@ const TaskSchema = new Schema<ITask>({
         done: { type: Boolean, default: false }
     }],
     completedAt: { type: String, required: false },
+    type: {
+        type: String,
+        enum: ['standard', 'manutenzione'],
+        required: true
+    },
+    maintenanceStart: { type: String, required: false },
+    maintenanceEnd: { type: String, required: false },
 });
 
 // Indici per query efficienti
