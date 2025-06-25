@@ -1,7 +1,7 @@
-import { Typography } from "@mui/material";
-import { BarChart } from "@mui/x-charts";
-import type { User } from "../../../components/Login.tsx";
-import type { Issue, Task } from "../../dashboard/pages/GestioneUtenti.tsx";
+import { Typography } from '@mui/material';
+import { BarChart } from '@mui/x-charts';
+import type { User } from '../../../components/Login.tsx';
+import type { Issue, Task } from '../pages/UsersPage.tsx';
 
 interface UserActivityChartProps {
   user: User | null;
@@ -38,16 +38,19 @@ export const UserActivityChart: React.FC<UserActivityChartProps> = ({
           barLabel="value"
           xAxis={[
             {
-              data: ["Issues", "Tasks"],
-              scaleType: "band",
+              data: ['Issues', 'Tasks'],
+              scaleType: 'band',
             },
           ]}
         />
       ) : (
-        <Typography variant="body2" color="textSecondary">
+        <Typography
+          variant="body2"
+          color="textSecondary"
+        >
           {user
-            ? "Nessun grafico disponibile per questo utente."
-            : "Seleziona un utente per visualizzare il grafico."}
+            ? 'Nessun grafico disponibile per questo utente.'
+            : 'Seleziona un utente per visualizzare il grafico.'}
         </Typography>
       )}
     </>

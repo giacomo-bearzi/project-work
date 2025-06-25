@@ -14,28 +14,50 @@ import {
   Avatar,
   Chip,
   Button,
-} from "@mui/material";
-import { Header } from "../components/Header.tsx";
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import moment from "moment"; // To format dates
-import api from "../../../utils/axios.ts";
-import { useAuth } from "../../log-in/context/AuthContext.tsx";
+} from '@mui/material';
 
-import AddIcon from "@mui/icons-material/Add";
-import TextField from "@mui/material/TextField";
-import MenuItem from "@mui/material/MenuItem";
-import InputAdornment from "@mui/material/InputAdornment";
-import SearchIcon from "@mui/icons-material/Search";
-import Select from "@mui/material/Select";
-import Checkbox from "@mui/material/Checkbox";
-import ListItemText from "@mui/material/ListItemText";
-import { IssueModal } from "../components/IssueModal";
-import {
-  lineOptions,
-  typeOptions,
-  priorityOptions,
-} from "../../issues/types/issueOptions";
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import moment from 'moment'; // To format dates
+import api from '../../../utils/axios.ts';
+import { useAuth } from '../../log-in/context/AuthContext.tsx';
+
+import AddIcon from '@mui/icons-material/Add';
+import TextField from '@mui/material/TextField';
+import MenuItem from '@mui/material/MenuItem';
+import InputAdornment from '@mui/material/InputAdornment';
+import SearchIcon from '@mui/icons-material/Search';
+import Select from '@mui/material/Select';
+import Checkbox from '@mui/material/Checkbox';
+import ListItemText from '@mui/material/ListItemText';
+import { IssueModal } from '../../dashboard/components/IssueModal.tsx';
+
+import { HeaderDesktop } from '../../dashboard/components/Header/HeaderDesktop.tsx';
+
+const lineOptions = [
+  { value: 'line-1', label: 'Linea 1' },
+  { value: 'line-2', label: 'Linea 2' },
+  { value: 'line-3', label: 'Linea 3' },
+];
+
+const typeOptions = [
+  { value: 'meccanico', label: 'Meccanico' },
+  { value: 'elettrico', label: 'Elettrico' },
+  { value: 'qualità', label: 'Qualità' },
+  { value: 'sicurezza', label: 'Sicurezza' },
+];
+
+const priorityOptions = [
+  { value: 'bassa', label: 'Bassa' },
+  { value: 'media', label: 'Media' },
+  { value: 'alta', label: 'Alta' },
+];
+
+const statusOptions = [
+  { value: 'in attesa', label: 'In attesa' },
+  { value: 'aperta', label: 'Aperta' },
+  { value: 'risolta', label: 'Risolta' },
+];
 
 interface Issue {
   _id: string;
@@ -51,53 +73,47 @@ interface Issue {
   resolvedAt?: string;
 }
 
-const statusOptions = [
-  { value: "aperta", label: "Aperta" },
-  { value: "in lavorazione", label: "In lavorazione" },
-  { value: "risolta", label: "Risolta" },
-];
-
-// Funzione di mapping da "Linea 1" a "LINE-1"
+// Funzione di mapping da "Linea 1" a "line-1"
 const mapLineFilterToDb = (filterValue: string) => {
-  // Esempio: "Linea 1" -> "LINE-1"
+  // Esempio: "Linea 1" -> "line-1"
   const match = filterValue.match(/Linea (\d+)/i);
   if (match) {
-    return `LINE-${match[1]}`;
+    return `line-${match[1]}`;
   }
   return filterValue;
 };
 
-export const Issues = () => {
+export const IssuesPage = () => {
   const [issues, setIssues] = useState<Issue[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const theme = useTheme(); // Get the current theme
-  const [themeMode, setThemeMode] = useState("/background-light.svg");
+  const [themeMode, setThemeMode] = useState('/background-light.svg');
   const { user, logout } = useAuth();
   const [selectedStatus, setSelectedStatus] = useState<string[]>([]);
   const [selectedPriority, setSelectedPriority] = useState<string[]>([]);
   const [selectedLine, setSelectedLine] = useState<string[]>([]);
   const [selectedType, setSelectedType] = useState<string[]>([]);
-  const [searchId, setSearchId] = useState("");
-  const [selectedDate, setSelectedDate] = useState("");
+  const [searchId, setSearchId] = useState('');
+  const [selectedDate, setSelectedDate] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
 
   useEffect(() => {
     // Set background image based on theme mode
-    if (theme.palette.mode === "light") {
-      setThemeMode("/background-light.svg");
+    if (theme.palette.mode === 'light') {
+      setThemeMode('/background-light.svg');
     } else {
-      setThemeMode("/background-dark.svg");
+      setThemeMode('/background-dark.svg');
     }
 
     const fetchIssues = async () => {
       try {
-        const response = await api.get<Issue[]>("/issues");
+        const response = await api.get<Issue[]>('/issues');
         setIssues(response.data);
       } catch (err) {
-        console.error("Error fetching issues:", err);
-        setError("Failed to load issues");
+        console.error('Error fetching issues:', err);
+        setError('Failed to load issues');
       } finally {
         setLoading(false);
       }
@@ -115,10 +131,10 @@ export const Issues = () => {
     return (
       <Box
         sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh',
         }}
       >
         <CircularProgress size={80} />
@@ -169,7 +185,7 @@ export const Issues = () => {
     }
     // Filtro Data di creazione
     if (selectedDate) {
-      const createdAtDate = moment(issue.createdAt).format("YYYY-MM-DD");
+      const createdAtDate = moment(issue.createdAt).format('YYYY-MM-DD');
       if (createdAtDate !== selectedDate) {
         return false;
       }
@@ -180,21 +196,25 @@ export const Issues = () => {
   // Funzione per creare una nuova issue
   const handleCreateIssue = async (data: any) => {
     try {
-      console.log("DATI", data);
-      await api.post("/issues", data);
+      console.log('DATI', data);
+      await api.post('/issues', data);
       // Aggiorna la lista dopo la creazione
-      const response = await api.get<Issue[]>("/issues");
+      const response = await api.get<Issue[]>('/issues');
       setIssues(response.data);
       setModalOpen(false);
     } catch (err) {
-      alert("Errore nella creazione della issue");
+      alert('Errore nella creazione della issue');
     }
   };
 
   return (
     <Box p={1}>
-      <Stack direction="column" gap={1} sx={{ height: "100%" }}>
-        <Header />
+      <Stack
+        direction="column"
+        gap={1}
+        sx={{ height: '100%' }}
+      >
+        <HeaderDesktop />
         <Stack
           direction="row"
           alignItems="center"
@@ -203,11 +223,19 @@ export const Issues = () => {
           sx={{ mb: 2, mt: 2, p: 2 }}
         >
           {/* Titolo a sinistra */}
-          <Box fontWeight="bold" fontSize={18} letterSpacing={1}>
+          <Box
+            fontWeight="bold"
+            fontSize={18}
+            letterSpacing={1}
+          >
             ISSUES
           </Box>
           {/* Filtri e bottone a destra */}
-          <Stack direction="row" spacing={2} alignItems="center">
+          <Stack
+            direction="row"
+            spacing={2}
+            alignItems="center"
+          >
             <TextField
               placeholder="Cerca la descrizione"
               size="small"
@@ -222,9 +250,9 @@ export const Issues = () => {
                 ),
               }}
               sx={{
-                minWidth: 160,
-                "& .MuiInputBase-input::placeholder": {
-                  color: theme.palette.mode === "dark" ? "#B0B3B8" : "#222",
+                'minWidth': 160,
+                '& .MuiInputBase-input::placeholder': {
+                  color: theme.palette.mode === 'dark' ? '#B0B3B8' : '#222',
                   opacity: 1,
                 },
               }}
@@ -235,17 +263,20 @@ export const Issues = () => {
               value={selectedStatus}
               onChange={(e) =>
                 setSelectedStatus(
-                  typeof e.target.value === "string"
-                    ? e.target.value.split(",")
-                    : e.target.value
+                  typeof e.target.value === 'string'
+                    ? e.target.value.split(',')
+                    : e.target.value,
                 )
               }
-              renderValue={() => "Stato"}
+              renderValue={() => 'Stato'}
               size="small"
               sx={{ minWidth: 120 }}
             >
               {statusOptions.map((option) => (
-                <MenuItem key={option.value} value={option.value}>
+                <MenuItem
+                  key={option.value}
+                  value={option.value}
+                >
                   <Checkbox
                     checked={selectedStatus.indexOf(option.value) > -1}
                   />
@@ -259,17 +290,20 @@ export const Issues = () => {
               value={selectedPriority}
               onChange={(e) =>
                 setSelectedPriority(
-                  typeof e.target.value === "string"
-                    ? e.target.value.split(",")
-                    : e.target.value
+                  typeof e.target.value === 'string'
+                    ? e.target.value.split(',')
+                    : e.target.value,
                 )
               }
-              renderValue={() => "Priorità"}
+              renderValue={() => 'Priorità'}
               size="small"
               sx={{ minWidth: 120 }}
             >
               {priorityOptions.map((option) => (
-                <MenuItem key={option.value} value={option.value}>
+                <MenuItem
+                  key={option.value}
+                  value={option.value}
+                >
                   <Checkbox
                     checked={selectedPriority.indexOf(option.value) > -1}
                   />
@@ -283,17 +317,20 @@ export const Issues = () => {
               value={selectedLine}
               onChange={(e) =>
                 setSelectedLine(
-                  typeof e.target.value === "string"
-                    ? e.target.value.split(",")
-                    : e.target.value
+                  typeof e.target.value === 'string'
+                    ? e.target.value.split(',')
+                    : e.target.value,
                 )
               }
-              renderValue={() => "Linea"}
+              renderValue={() => 'Linea'}
               size="small"
               sx={{ minWidth: 120 }}
             >
               {lineOptions.map((option) => (
-                <MenuItem key={option.value} value={option.value}>
+                <MenuItem
+                  key={option.value}
+                  value={option.value}
+                >
                   <Checkbox checked={selectedLine.indexOf(option.value) > -1} />
                   <ListItemText primary={option.label} />
                 </MenuItem>
@@ -305,17 +342,20 @@ export const Issues = () => {
               value={selectedType}
               onChange={(e) =>
                 setSelectedType(
-                  typeof e.target.value === "string"
-                    ? e.target.value.split(",")
-                    : e.target.value
+                  typeof e.target.value === 'string'
+                    ? e.target.value.split(',')
+                    : e.target.value,
                 )
               }
-              renderValue={() => "Tipo"}
+              renderValue={() => 'Tipo'}
               size="small"
               sx={{ minWidth: 120 }}
             >
               {typeOptions.map((option) => (
-                <MenuItem key={option.value} value={option.value}>
+                <MenuItem
+                  key={option.value}
+                  value={option.value}
+                >
                   <Checkbox checked={selectedType.indexOf(option.value) > -1} />
                   <ListItemText primary={option.label} />
                 </MenuItem>
@@ -343,40 +383,40 @@ export const Issues = () => {
         <TableContainer
           component={Paper}
           sx={{
-            borderRadius: 8,
-            background: "rgba(255, 255, 255, 0.07)",
-            backdropFilter: "blur(20px) saturate(180%)",
-            WebkitBackdropFilter: "blur(20px) saturate(180%)",
-            boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
-            display: "flex",
-            maxHeight: "650px",
-            overflowY: "scroll",
-            scrollbarWidth: "none",
-            "&::-webkit-scrollbar": {
-              display: "none",
+            'borderRadius': 8,
+            'background': 'rgba(255, 255, 255, 0.07)',
+            'backdropFilter': 'blur(20px) saturate(180%)',
+            'WebkitBackdropFilter': 'blur(20px) saturate(180%)',
+            'boxShadow': '0 4px 30px rgba(0, 0, 0, 0.1)',
+            'display': 'flex',
+            'maxHeight': '650px',
+            'overflowY': 'scroll',
+            'scrollbarWidth': 'none',
+            '&::-webkit-scrollbar': {
+              display: 'none',
             },
           }}
         >
           <Table
             stickyHeader
             sx={{
-              "& td, & th": {
-                verticalAlign: "middle",
+              '& td, & th': {
+                verticalAlign: 'middle',
               },
             }}
           >
             <TableHead>
               <TableRow
                 sx={{
-                  position: "sticky",
-                  top: 0,
-                  zIndex: 1,
-                  background:
-                    theme.palette.mode === "dark" ? "#23272F" : "#F6F6F6",
-                  "& th": {
-                    borderBottom: "none",
+                  'position': 'sticky',
+                  'top': 0,
+                  'zIndex': 1,
+                  'background':
+                    theme.palette.mode === 'dark' ? '#23272F' : '#F6F6F6',
+                  '& th': {
+                    borderBottom: 'none',
                     color:
-                      theme.palette.mode === "dark" ? "#B0B3B8" : "#7D7D7D",
+                      theme.palette.mode === 'dark' ? '#B0B3B8' : '#7D7D7D',
                   },
                 }}
               >
@@ -397,8 +437,8 @@ export const Issues = () => {
                 <TableRow
                   key={issue._id}
                   sx={{
-                    "&:last-child td, &:last-child th": {
-                      borderBottom: "none",
+                    '&:last-child td, &:last-child th': {
+                      borderBottom: 'none',
                     },
                   }}
                 >
@@ -407,20 +447,20 @@ export const Issues = () => {
                   <TableCell>{issue.lineId}</TableCell>
                   <TableCell>{issue.type}</TableCell>
                   <TableCell>
-                    <Box sx={{ display: "flex", alignItems: "center" }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
                       <span
                         style={{
                           color:
-                            issue.priority === "alta"
-                              ? "#FF3B3B"
-                              : issue.priority === "media"
-                              ? "#FFB800"
-                              : "#00B67A",
+                            issue.priority === 'alta'
+                              ? '#FF3B3B'
+                              : issue.priority === 'media'
+                              ? '#FFB800'
+                              : '#00B67A',
                           fontWeight: 600,
                           marginRight: 6,
                           fontSize: 30,
                           lineHeight: 1,
-                          display: "inline-block",
+                          display: 'inline-block',
                         }}
                       >
                         •
@@ -429,35 +469,35 @@ export const Issues = () => {
                     </Box>
                   </TableCell>
                   <TableCell>
-                    {issue.status === "aperta" ? (
+                    {issue.status === 'aperta' ? (
                       <Chip
                         label="Aperta"
                         sx={{
-                          background: "#E6FAF0",
-                          color: "#00B67A",
+                          background: '#E6FAF0',
+                          color: '#00B67A',
                           fontWeight: 600,
-                          borderColor: "#00B67A",
+                          borderColor: '#00B67A',
                           borderWidth: 1,
-                          borderStyle: "solid",
+                          borderStyle: 'solid',
                         }}
                       />
                     ) : (
                       <Chip
                         label="Risolta"
                         sx={{
-                          background: "#E6F0FA",
-                          color: "#3B82F6",
+                          background: '#E6F0FA',
+                          color: '#3B82F6',
                           fontWeight: 600,
-                          borderColor: "#3B82F6",
+                          borderColor: '#3B82F6',
                           borderWidth: 1,
-                          borderStyle: "solid",
+                          borderStyle: 'solid',
                         }}
                       />
                     )}
                   </TableCell>
                   <TableCell>
                     {issue.reportedBy?.fullName ? (
-                      <Box sx={{ display: "flex", alignItems: "center" }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
                         <Avatar
                           sx={{
                             width: 24,
@@ -465,9 +505,9 @@ export const Issues = () => {
                             fontSize: 14,
                             mr: 1,
                             backgroundColor:
-                              theme.palette.mode === "dark" ? "#fff" : "black",
+                              theme.palette.mode === 'dark' ? '#fff' : 'black',
                             color:
-                              theme.palette.mode === "dark" ? "black" : "#fff",
+                              theme.palette.mode === 'dark' ? 'black' : '#fff',
                           }}
                         >
                           {issue.reportedBy.fullName[0]}
@@ -478,7 +518,7 @@ export const Issues = () => {
                   </TableCell>
                   <TableCell>
                     {issue.assignedTo?.fullName ? (
-                      <Box sx={{ display: "flex", alignItems: "center" }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
                         <Avatar
                           sx={{
                             width: 24,
@@ -486,9 +526,9 @@ export const Issues = () => {
                             fontSize: 14,
                             mr: 1,
                             backgroundColor:
-                              theme.palette.mode === "dark" ? "#fff" : "black",
+                              theme.palette.mode === 'dark' ? '#fff' : 'black',
                             color:
-                              theme.palette.mode === "dark" ? "black" : "#fff",
+                              theme.palette.mode === 'dark' ? 'black' : '#fff',
                           }}
                         >
                           {issue.assignedTo.fullName[0]}
@@ -498,12 +538,12 @@ export const Issues = () => {
                     ) : null}
                   </TableCell>
                   <TableCell>
-                    {moment(issue.createdAt).format("YYYY-MM-DD HH:mm")}
+                    {moment(issue.createdAt).format('YYYY-MM-DD HH:mm')}
                   </TableCell>
                   <TableCell>
                     {issue.resolvedAt
-                      ? moment(issue.resolvedAt).format("YYYY-MM-DD HH:mm")
-                      : "-"}
+                      ? moment(issue.resolvedAt).format('YYYY-MM-DD HH:mm')
+                      : '-'}
                   </TableCell>
                 </TableRow>
               ))}

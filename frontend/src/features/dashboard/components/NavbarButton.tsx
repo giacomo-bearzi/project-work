@@ -49,6 +49,9 @@ export const NavbarButton = ({ path, children, sx }: NavbarButtonProps) => {
       sx={{
         py: 1,
         px: 2,
+        display: 'flex',
+        gap: 1,
+        alignItems: 'center',
         ...currentTheme,
         ...sx,
       }}

@@ -1,13 +1,14 @@
 import Grid from '@mui/material/Grid';
-import { CustomPaper } from '../../../components/CustomPaper.tsx';
+import { CustomPaper } from '../../../../components/CustomPaper.tsx';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { PieChart } from '@mui/x-charts/PieChart';
-import { useGetIssues } from '../../issues/hooks/useIssueQueries.tsx';
-import type { ApiIssue } from '../../issues/types/types.api.ts';
+
 import Box from '@mui/material/Box';
 import Skeleton from '@mui/material/Skeleton';
 import Alert from '@mui/material/Alert';
+import { useGetIssues } from '../../../issues/hooks/useIssueQueries.tsx';
+import type { ApiIssue } from '../../../issues/types/types.api.ts';
 
 const transformByType = (data: ApiIssue[]) => {
   const typeMap = new Map();
@@ -35,7 +36,7 @@ export const IssuesDistributionChart = () => {
   if (data) {
     return (
       <Grid size={6}>
-        <CustomPaper sx={{ p: 2, borderRadius: 8 }}>
+        <CustomPaper sx={{ p: 2, borderRadius: 5 }}>
           <Stack
             gap={2}
             alignItems={'center'}
@@ -87,7 +88,7 @@ export const IssuesDistributionChart = () => {
   if (isPending) {
     return (
       <Grid size={6}>
-        <CustomPaper sx={{ p: 2, borderRadius: 8 }}>
+        <CustomPaper sx={{ p: 2, borderRadius: 5 }}>
           <Stack
             gap={2}
             alignItems={'center'}
@@ -121,7 +122,7 @@ export const IssuesDistributionChart = () => {
   if (isError) {
     return (
       <Grid size={6}>
-        <CustomPaper sx={{ p: 2, borderRadius: 8 }}>
+        <CustomPaper sx={{ p: 2, borderRadius: 5 }}>
           <Stack
             gap={2}
             alignItems={'center'}
