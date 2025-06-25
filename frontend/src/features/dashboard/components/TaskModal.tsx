@@ -51,6 +51,9 @@ interface TaskFormState {
     checklist: string[];
     lineId: string;
     date: string;
+    type: string;
+    maintenanceStart: string;
+    maintenanceEnd: string;
 }
 
 interface TaskModalProps {
@@ -76,6 +79,9 @@ export const TaskModal: React.FC<TaskModalProps> = ({
         checklist: [''],
         lineId: '',
         date: new Date().toISOString().slice(0, 10),
+        type: 'standard',
+        maintenanceStart: '',
+        maintenanceEnd: '',
     });
     const [saving, setSaving] = useState(false);
 
@@ -162,6 +168,25 @@ export const TaskModal: React.FC<TaskModalProps> = ({
         }
     }, [autocompleteInput, form.assignedTo]);
 
+    useEffect(() => {
+        if (open) {
+            setForm({
+                description: '',
+                assignedTo: '',
+                estimatedMinutes: '',
+                status: 'in_attesa',
+                checklist: [''],
+                lineId: '',
+                date: new Date().toISOString().slice(0, 10),
+                type: 'standard',
+                maintenanceStart: '',
+                maintenanceEnd: '',
+            });
+            setSelectedAssignedUserLocal(null);
+            setAutocompleteInput('');
+        }
+    }, [open]);
+
     const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | React.ChangeEvent<{ name?: string; value: unknown }>) => {
         const { name, value } = e.target as HTMLInputElement;
         setForm((prev) => ({ ...prev, [name!]: value }));
@@ -211,7 +236,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({
         setSaving(true);
         try {
             const checklist = form.checklist.filter((item) => item.trim() !== '').map((item) => ({ item, done: false }));
-            const payload = {
+            const payload: any = {
                 date: form.date || new Date().toISOString().slice(0, 10),
                 lineId: form.lineId,
                 description: form.description,
@@ -219,7 +244,12 @@ export const TaskModal: React.FC<TaskModalProps> = ({
                 estimatedMinutes: Number(form.estimatedMinutes),
                 status: form.status,
                 checklist,
+                type: form.type,
             };
+            if (form.type === 'manutenzione') {
+                payload.maintenanceStart = form.maintenanceStart;
+                payload.maintenanceEnd = form.maintenanceEnd;
+            }
             await api.post('/tasks', payload);
             await onSaveSuccess();
         } catch (err) {
@@ -326,8 +356,43 @@ export const TaskModal: React.FC<TaskModalProps> = ({
                     >
                         <MenuItem value="in_attesa">In attesa</MenuItem>
                         <MenuItem value="in_corso">In corso</MenuItem>
-                        <MenuItem value="completata">Completata</MenuItem>
                     </TextField>
+                    <TextField
+                        select
+                        label="Tipo"
+                        name="type"
+                        value={form.type}
+                        onChange={handleFormChange}
+                        required
+                        fullWidth
+                    >
+                        <MenuItem value="standard">Standard</MenuItem>
+                        <MenuItem value="manutenzione">Manutenzione</MenuItem>
+                    </TextField>
+                    {form.type === 'manutenzione' && (
+                        <>
+                            <TextField
+                                label="Inizio manutenzione"
+                                name="maintenanceStart"
+                                type="datetime-local"
+                                value={form.maintenanceStart}
+                                onChange={handleFormChange}
+                                fullWidth
+                                InputLabelProps={{ shrink: true }}
+                                sx={{ mt: 1 }}
+                            />
+                            <TextField
+                                label="Fine manutenzione"
+                                name="maintenanceEnd"
+                                type="datetime-local"
+                                value={form.maintenanceEnd}
+                                onChange={handleFormChange}
+                                fullWidth
+                                InputLabelProps={{ shrink: true }}
+                                sx={{ mt: 1 }}
+                            />
+                        </>
+                    )}
                     <Typography variant="subtitle1" sx={{ mt: 1 }}>Sotto attività</Typography>
                     <List>
                         {form.checklist.map((item: string, idx: number) => (

@@ -77,9 +77,16 @@ export const Planning = () => {
     useEffect(() => {
         setLoading(true);
         api.get('/tasks')
-            .then(res => {
-                // Filtro le task per la data selezionata
-                setTasks(res.data.filter((t: Task) => t.date === selectedDate));
+            .then(async res => {
+                const today = new Date().toISOString().slice(0, 10);
+                const tasksFetched = res.data;
+                // Trova le task non completate e con data < oggi
+                const toUpdate = tasksFetched.filter((t: Task) => t.status !== 'completata' && t.date < today);
+                // Aggiorna la data di queste task al giorno corrente
+                await Promise.all(toUpdate.map(t => api.put(`/tasks/${t._id}`, { ...t, date: today })));
+                // Ricarica le task dopo eventuali update
+                const finalTasks = toUpdate.length > 0 ? (await api.get('/tasks')).data : tasksFetched;
+                setTasks(finalTasks.filter((t: Task) => t.date === selectedDate));
             })
             .finally(() => setLoading(false));
     }, [selectedDate]);
@@ -108,23 +115,32 @@ export const Planning = () => {
         const taskId = result.draggableId;
         const task = tasks.find(t => t._id === taskId);
         if (!task) return;
-        // Se droppata in completate, checka tutta la checklist e aggiorna stato e completedAt
+        let newStatus = task.status;
+        let completedAt = task.completedAt;
+        let newChecklist = [...task.checklist];
         if (destCol === 'done') {
-            const newChecklist = task.checklist.map(item => ({ ...item, done: true }));
-            const completedAt = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            setTasks(prev =>
-                prev.map(t =>
-                    t._id === taskId
-                        ? { ...t, checklist: newChecklist, status: 'completata', completedAt }
-                        : t
-                )
-            );
-            await api.put(`/tasks/${taskId}`, {
-                checklist: newChecklist,
-                status: 'completata',
-                completedAt,
-            });
+            newChecklist = task.checklist.map(item => ({ ...item, done: true }));
+            newStatus = 'completata';
+            completedAt = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        } else if (destCol === 'in_corso') {
+            newStatus = 'in_corso';
+            completedAt = undefined;
+        } else if (destCol === 'todo') {
+            newStatus = 'in_attesa';
+            completedAt = undefined;
         }
+        setTasks(prev =>
+            prev.map(t =>
+                t._id === taskId
+                    ? { ...t, checklist: newChecklist, status: newStatus, completedAt }
+                    : t
+            )
+        );
+        await api.put(`/tasks/${taskId}`, {
+            checklist: newChecklist,
+            status: newStatus,
+            completedAt,
+        });
     };
 
     // Funzione per gestire il check/uncheck della checklist
@@ -150,15 +166,48 @@ export const Planning = () => {
 
     // Card stile MUI
     const TaskCard = ({ task }: { task: Task }) => (
-        <Paper sx={{ mb: 2, p: 2, borderRadius: 2, boxShadow: 1, borderLeft: '4px solid #1976d2' }}>
-            <Typography fontWeight="bold" fontSize={16} mb={0.5}>{task.description}</Typography>
-            <Typography variant="body2" color="text.secondary" mb={0.5}>
-                {task.startTime && task.endTime ? `${task.startTime} - ${task.endTime}` : ''}
-                {task.assignedTo ? ` | ${typeof task.assignedTo === 'object' && task.assignedTo !== null ? task.assignedTo.fullName : task.assignedTo}` : ''}
-            </Typography>
-            {task.completedAt && (
-                <Chip size="small" color="success" label={`Completato alle ${task.completedAt}`} icon={<span>✔️</span>} sx={{ mt: 0.5 }} />
-            )}
+        <Paper
+            sx={{
+                mb: 2,
+                p: 2,
+                borderRadius: 2,
+                boxShadow: 1,
+                borderLeft: `4px solid ${task.status === 'in_corso'
+                        ? '#ff9800' // arancione
+                        : '#1976d2' // blu default
+                    }`,
+            }}
+        >
+            <Stack direction="row" alignItems="flex-start" justifyContent="space-between" spacing={2}>
+                <Box sx={{ flex: 1, pr: 4 }}>
+                    <Typography fontWeight="bold">{task.description}</Typography>
+                    <Typography variant="body2">
+                        {task.startTime && task.endTime ? `${task.startTime} - ${task.endTime}` : ''}
+                        {task.assignedTo ? ` | ${typeof task.assignedTo === 'object' && task.assignedTo !== null ? task.assignedTo.fullName : task.assignedTo}` : ''}
+                    </Typography>
+                    {task.checklist && task.checklist.length > 0 && (
+                        <Box mt={1}>
+                            {task.checklist.map((item, idx) => (
+                                <FormControlLabel
+                                    key={idx}
+                                    control={
+                                        <Checkbox
+                                            checked={item.done}
+                                            onChange={() => handleChecklistToggle(task, idx)}
+                                        />
+                                    }
+                                    label={item.item}
+                                />
+                            ))}
+                        </Box>
+                    )}
+                </Box>
+                {canEdit && (
+                    <Button size="small" variant="outlined" sx={{ mt: 1, whiteSpace: 'nowrap' }} onClick={() => handleOpenEdit(task)}>
+                        Modifica
+                    </Button>
+                )}
+            </Stack>
         </Paper>
     );
 
@@ -237,40 +286,26 @@ export const Planning = () => {
                             <Box sx={{ overflowY: 'auto', maxHeight: '70vh', pr: 1 }}>
                                 {/* Da Fare */}
                                 <Typography variant="subtitle1" fontWeight={700} mb={1}>Da Fare</Typography>
-                                {tasksByStatus.waiting.length === 0 ? (
-                                    <Typography color="text.secondary" mb={2}>Nessuna attività da fare</Typography>
-                                ) : (
-                                    tasksByStatus.waiting.map(task => (
-                                        <Paper key={task._id} sx={{ mb: 2, p: 2, borderRadius: 2, boxShadow: 1, borderLeft: '4px solid #1976d2', position: 'relative' }}>
-                                            <Typography fontWeight="bold">{task.description}</Typography>
-                                            <Typography variant="body2">
-                                                {task.startTime && task.endTime ? `${task.startTime} - ${task.endTime}` : ''}
-                                                {task.assignedTo ? ` | ${typeof task.assignedTo === 'object' && task.assignedTo !== null ? task.assignedTo.fullName : task.assignedTo}` : ''}
-                                            </Typography>
-                                            {task.checklist && task.checklist.length > 0 && (
-                                                <Box mt={1}>
-                                                    {task.checklist.map((item, idx) => (
-                                                        <FormControlLabel
-                                                            key={idx}
-                                                            control={
-                                                                <Checkbox
-                                                                    checked={item.done}
-                                                                    onChange={() => handleChecklistToggle(task, idx)}
-                                                                />
-                                                            }
-                                                            label={item.item}
-                                                        />
-                                                    ))}
-                                                </Box>
+                                <Droppable droppableId="todo">
+                                    {(provided) => (
+                                        <Box ref={provided.innerRef} {...provided.droppableProps}>
+                                            {tasksByStatus.waiting.length === 0 ? (
+                                                <Typography color="text.secondary" mb={2}>Nessuna attività da fare</Typography>
+                                            ) : (
+                                                tasksByStatus.waiting.map((task, idx) => (
+                                                    <Draggable key={task._id} draggableId={task._id} index={idx}>
+                                                        {(provided) => (
+                                                            <Box ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
+                                                                <TaskCard task={task} />
+                                                            </Box>
+                                                        )}
+                                                    </Draggable>
+                                                ))
                                             )}
-                                            {canEdit && (
-                                                <Button size="small" variant="outlined" sx={{ position: 'absolute', top: 8, right: 8 }} onClick={() => handleOpenEdit(task)}>
-                                                    Modifica
-                                                </Button>
-                                            )}
-                                        </Paper>
-                                    ))
-                                )}
+                                            {provided.placeholder}
+                                        </Box>
+                                    )}
+                                </Droppable>
                                 {/* In Corso (draggabile) */}
                                 <Typography variant="subtitle1" fontWeight={700} mb={1}>In Corso</Typography>
                                 <Droppable droppableId="in_corso">
@@ -283,35 +318,7 @@ export const Planning = () => {
                                                     <Draggable key={task._id} draggableId={task._id} index={idx}>
                                                         {(provided) => (
                                                             <Box ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-                                                                <Paper sx={{ mb: 2, p: 2, borderRadius: 2, boxShadow: 1, borderLeft: '4px solid #ffa726', position: 'relative' }}>
-                                                                    <Typography fontWeight="bold">{task.description}</Typography>
-                                                                    <Typography variant="body2">
-                                                                        {task.startTime && task.endTime ? `${task.startTime} - ${task.endTime}` : ''}
-                                                                        {task.assignedTo ? ` | ${typeof task.assignedTo === 'object' && task.assignedTo !== null ? task.assignedTo.fullName : task.assignedTo}` : ''}
-                                                                        {typeof task.estimatedMinutes === 'number' ? ` | ${task.estimatedMinutes} min` : ''}
-                                                                    </Typography>
-                                                                    {task.checklist && task.checklist.length > 0 && (
-                                                                        <Box mt={1}>
-                                                                            {task.checklist.map((item, idx) => (
-                                                                                <FormControlLabel
-                                                                                    key={idx}
-                                                                                    control={
-                                                                                        <Checkbox
-                                                                                            checked={item.done}
-                                                                                            onChange={() => handleChecklistToggle(task, idx)}
-                                                                                        />
-                                                                                    }
-                                                                                    label={item.item}
-                                                                                />
-                                                                            ))}
-                                                                        </Box>
-                                                                    )}
-                                                                    {canEdit && (
-                                                                        <Button size="small" variant="outlined" sx={{ position: 'absolute', top: 8, right: 8 }} onClick={() => handleOpenEdit(task)}>
-                                                                            Modifica
-                                                                        </Button>
-                                                                    )}
-                                                                </Paper>
+                                                                <TaskCard task={task} />
                                                             </Box>
                                                         )}
                                                     </Draggable>

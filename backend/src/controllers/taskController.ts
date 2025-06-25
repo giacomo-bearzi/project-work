@@ -3,7 +3,10 @@ import Task from '../models/Task';
 
 export const getAllTasks = async (req: Request, res: Response) => {
     try {
-        const tasks = await Task.find({}).populate('assignedTo', 'username fullName role');
+        const tasks = await Task.find({}).populate(
+            'assignedTo',
+            'username fullName role',
+        );
         res.json(tasks);
     } catch (error) {
         console.error('Error fetching tasks:', error);
@@ -13,7 +16,10 @@ export const getAllTasks = async (req: Request, res: Response) => {
 
 export const getTaskById = async (req: Request, res: Response) => {
     try {
-        const task = await Task.findById(req.params.id).populate('assignedTo', 'username fullName role');
+        const task = await Task.findById(req.params.id).populate(
+            'assignedTo',
+            'username fullName role',
+        );
         if (!task) {
             return res.status(404).json({ message: 'Task not found' });
         }
@@ -61,4 +67,42 @@ export const deleteTask = async (req: Request, res: Response) => {
         console.error('Error deleting task:', error);
         res.status(500).json({ message: 'Server Error' });
     }
-}; 
+};
+
+export const updateUncompletedTasksToToday = async () => {
+    const today = new Date().toISOString().slice(0, 10);
+    await Task.updateMany(
+        { status: { $ne: 'completata' }, date: { $lt: today } },
+        { $set: { date: today } }
+    );
+};
+
+export const getTaskByLineId = async (req: Request, res: Response) => {
+    try {
+        const { lineId } = req.params;
+        const { status } = req.query;
+
+        const filter: any = { lineId };
+
+        if (
+            status &&
+            ['in_attesa', 'in_corso', 'completata'].includes(String(status))
+        ) {
+            filter.status = status;
+        }
+
+        const tasks = await Task.find(filter).populate(
+            'assignedTo',
+            'username fullName role',
+        );
+
+        if (!tasks || tasks.length === 0) {
+            return res.status(404).json({ message: 'No tasks found for this line' });
+        }
+
+        res.json(tasks);
+    } catch (error) {
+        console.error('Error fetching tasks by line ID:', error);
+        res.status(500).json({ message: 'Server Error' });
+    }
+};

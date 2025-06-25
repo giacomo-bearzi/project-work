@@ -1,5 +1,5 @@
 import { OverviewLayout } from '../../dashboard-overview/layouts/OverviewLayout.tsx';
-import { DashboardLayout } from '../layouts/DashboardLayout.tsx';
+import { DashboardLayout } from '../../dashboard/layouts/DashboardLayout.tsx';
 
 export const OverviewPage = () => {
   return (
