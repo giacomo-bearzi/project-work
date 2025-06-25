@@ -57,7 +57,7 @@ interface IssueModalProps {
   }>;
 }
 
-const statusOptions = [
+export const statusOptions = [
   { value: 'aperta', label: 'Aperta' },
   { value: 'in lavorazione', label: 'In lavorazione' },
   { value: 'risolta', label: 'Risolta' }

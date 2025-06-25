@@ -32,19 +32,14 @@ import SearchIcon from "@mui/icons-material/Search";
 import Select from "@mui/material/Select";
 import Checkbox from "@mui/material/Checkbox";
 import ListItemText from "@mui/material/ListItemText";
-import { IssueModal } from "../components/IssueModal";
-import {
-  lineOptions,
-  typeOptions,
-  priorityOptions,
-} from "../../issues/types/issueOptions";
-import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import { Delete } from "@mui/icons-material";
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
+import { HeaderDesktop } from "../../dashboard/components/Header/HeaderDesktop.tsx";
+import { IssueModal } from "../../dashboard/components/IssueModal.tsx";
 
 interface Issue {
   _id: string;
@@ -59,6 +54,30 @@ interface Issue {
   updatedAt: string;
   resolvedAt?: string;
 }
+const lineOptions = [
+  { value: 'line-1', label: 'Linea 1' },
+  { value: 'line-2', label: 'Linea 2' },
+  { value: 'line-3', label: 'Linea 3' },
+];
+
+const typeOptions = [
+  { value: 'meccanico', label: 'Meccanico' },
+  { value: 'elettrico', label: 'Elettrico' },
+  { value: 'qualità', label: 'Qualità' },
+  { value: 'sicurezza', label: 'Sicurezza' },
+];
+
+const priorityOptions = [
+  { value: 'bassa', label: 'Bassa' },
+  { value: 'media', label: 'Media' },
+  { value: 'alta', label: 'Alta' },
+];
+
+const statusOptions = [
+  { value: 'in lavorazione', label: 'In lavorazione' },
+  { value: 'aperta', label: 'Aperta' },
+  { value: 'risolta', label: 'Risolta' },
+];
 
 // Funzione di mapping da "Linea 1" a "line-1"
 const mapLineFilterToDb = (filterValue: string) => {
