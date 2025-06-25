@@ -16,7 +16,7 @@ import {
   Button,
   IconButton,
 } from "@mui/material";
-import { Header } from "../components/Header.tsx";
+
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import moment from "moment"; // To format dates
@@ -99,7 +99,7 @@ function normalizeUser(user: any): { _id: string; username: string; fullName: st
   };
 }
 
-export const Issues = () => {
+export const IssuesPage = () => {
   const [issues, setIssues] = useState<Issue[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
