@@ -1,10 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
-import { getProductionLineById } from '../api/api';
+import { getProductionLineByLineId } from '../api/api';
 
-export const useProductionLine = (id: string, token: string) => {
+export const useProductionLine = (lineId: string, token: string) => {
   return useQuery({
-    queryKey: ['productionLine', id],
-    queryFn: () => getProductionLineById(id, token),
-    enabled: !!id && !!token,
+    queryKey: ['productionLine', lineId],
+    queryFn: () => getProductionLineByLineId(lineId, token),
+    enabled: !!lineId && !!token,
   });
 };

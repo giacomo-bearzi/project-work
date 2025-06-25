@@ -9,11 +9,12 @@ import { CustomPaper } from '../../../../components/CustomPaper.tsx';
 interface PLCardStoppedProps {
   lineId: 'line-1' | 'line-2' | 'line-3';
   lineName: string;
+  onClick?: () => void;
 }
 
-export const PLCardStopped = ({ lineId, lineName }: PLCardStoppedProps) => {
+export const PLCardStopped = ({ lineId, lineName, onClick }: PLCardStoppedProps) => {
   return (
-    <Grid size={{ sm: 4, md: 4, lg: 12 }}>
+    <Grid onClick={onClick} size={{ sm: 4, md: 4, lg: 12 }}>
       <CustomPaper
         sx={{
           p: 0,
