@@ -229,7 +229,7 @@ export const GestioneUtenti = () => {
   }, []);
 
   return (
-    <Box p={1} height={"100dvh"}>
+    <Box p={2} height={"100dvh"}>
       {/* <Paper
         elevation={1}
         sx={{
