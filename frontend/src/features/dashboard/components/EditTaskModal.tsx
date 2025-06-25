@@ -20,6 +20,9 @@ interface Task {
     estimatedMinutes: number;
     status: string;
     checklist: ChecklistItem[];
+    type: 'standard' | 'manutenzione';
+    maintenanceStart?: string;
+    maintenanceEnd?: string;
 }
 
 interface ProductionLine {
@@ -205,7 +208,7 @@ export const EditTaskModal: React.FC<EditTaskModalProps> = ({
         if (!editingTask) return;
         setSaving(true);
         try {
-            const payload = {
+            const payload: any = {
                 date: editingTask.date,
                 lineId: editingTask.lineId,
                 description: editingTask.description,
@@ -213,7 +216,12 @@ export const EditTaskModal: React.FC<EditTaskModalProps> = ({
                 estimatedMinutes: Number(editingTask.estimatedMinutes),
                 status: editingTask.status,
                 checklist: editingTask.checklist,
+                type: editingTask.type,
             };
+            if (editingTask.type === 'manutenzione') {
+                payload.maintenanceStart = editingTask.maintenanceStart;
+                payload.maintenanceEnd = editingTask.maintenanceEnd;
+            }
             await api.put(`/tasks/${editingTask._id}`, payload);
             await onSaveSuccess();
         } catch (err) {
@@ -318,6 +326,45 @@ export const EditTaskModal: React.FC<EditTaskModalProps> = ({
                         <MenuItem value="in_corso">In corso</MenuItem>
                         <MenuItem value="completata">Completata</MenuItem>
                     </TextField>
+                    <TextField
+                        select
+                        label="Tipo"
+                        name="type"
+                        value={editingTask.type}
+                        onChange={handleFieldChange}
+                        required
+                        fullWidth
+                        disabled={!canEditCurrentTask}
+                    >
+                        <MenuItem value="standard">Standard</MenuItem>
+                        <MenuItem value="manutenzione">Manutenzione</MenuItem>
+                    </TextField>
+                    {editingTask.type === 'manutenzione' && (
+                        <>
+                            <TextField
+                                label="Inizio manutenzione"
+                                name="maintenanceStart"
+                                type="datetime-local"
+                                value={editingTask.maintenanceStart || ''}
+                                onChange={handleFieldChange}
+                                fullWidth
+                                InputLabelProps={{ shrink: true }}
+                                sx={{ mt: 1 }}
+                                disabled={!canEditCurrentTask}
+                            />
+                            <TextField
+                                label="Fine manutenzione"
+                                name="maintenanceEnd"
+                                type="datetime-local"
+                                value={editingTask.maintenanceEnd || ''}
+                                onChange={handleFieldChange}
+                                fullWidth
+                                InputLabelProps={{ shrink: true }}
+                                sx={{ mt: 1 }}
+                                disabled={!canEditCurrentTask}
+                            />
+                        </>
+                    )}
                     <Typography variant="subtitle1" sx={{ mt: 1 }}>Sotto attività</Typography>
                     <List>
                         {editingTask.checklist.map((item: ChecklistItem, idx: number) => (
