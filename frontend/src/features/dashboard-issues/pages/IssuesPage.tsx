@@ -554,6 +554,18 @@ export const IssuesPage = () => {
                           borderStyle: 'solid',
                         }}
                       />
+                    ) : issue.status === 'in lavorazione' ? (
+                      <Chip
+                        label="In lavorazione"
+                        sx={{
+                          background: '#FFE6B0', // arancione chiaro
+                          color: '#FF9800',      // arancione scuro
+                          fontWeight: 600,
+                          borderColor: '#FF9800',
+                          borderWidth: 1,
+                          borderStyle: 'solid',
+                        }}
+                      />
                     ) : (
                       <Chip
                         label="Risolta"
