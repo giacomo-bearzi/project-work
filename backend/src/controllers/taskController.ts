@@ -105,4 +105,4 @@ export const getTaskByLineId = async (req: Request, res: Response) => {
         console.error('Error fetching tasks by line ID:', error);
         res.status(500).json({ message: 'Server Error' });
     }
-}; 
+};

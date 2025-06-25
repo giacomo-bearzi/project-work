@@ -27,6 +27,7 @@ import {
   getUserTasks,
 } from '../api/UsersApi.ts';
 import { HeaderDesktop } from '../../dashboard/components/Header/HeaderDesktop.tsx';
+import { DashboardLayout } from '../../dashboard/layouts/DashboardLayout.tsx';
 
 export interface Issue {
   _id: string;
@@ -232,10 +233,7 @@ export const UsersPage = () => {
   }, []);
 
   return (
-    <Box
-      p={1}
-      height={'100dvh'}
-    >
+   <DashboardLayout>
       {/* <Paper
         elevation={1}
         sx={{
@@ -254,7 +252,6 @@ export const UsersPage = () => {
         gap={1}
         sx={{ height: '100%' }}
       >
-        <HeaderDesktop />
 
         <Grid
           container
@@ -403,6 +400,6 @@ export const UsersPage = () => {
           </Grid>
         </Grid>
       </Stack>
-    </Box>
+   </DashboardLayout>
   );
 };
