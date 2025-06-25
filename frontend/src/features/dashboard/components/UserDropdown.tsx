@@ -20,9 +20,10 @@ import {
 } from '@mui/icons-material';
 import { useEffect, useRef, useState } from 'react';
 import { ToggleThemeModeButton } from '../../theme/components/ToggleThemeModeButton';
-import { markAssignedIssuesAsRead } from '../../dashboard-issues/api/api';
+
 import { NotificationsPopover } from './NotificationsPopover';
-import { useGetAssignedIssues } from '../../dashboard-issues/hooks/useIssueQueries';
+import { useGetAssignedIssues } from '../../issues/hooks/useIssueQueries.tsx';
+import { markAssignedIssuesAsRead } from '../../issues/api/api.ts';
 
 interface UserDropdownProps {
   fullName: string;
@@ -87,7 +88,7 @@ export const UserDropdown = ({
     if (!buttonRef.current) return;
 
     const observer = new ResizeObserver((entries) => {
-      for (let entry of entries) {
+      for (const entry of entries) {
         setMenuWidth(entry.contentRect.width);
       }
     });

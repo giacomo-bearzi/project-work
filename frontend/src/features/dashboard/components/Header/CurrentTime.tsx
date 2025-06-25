@@ -38,6 +38,7 @@ export const CurrentTime = () => {
       alignItems={'center'}
       spacing={1}
       px={1}
+      minWidth={32}
     >
       {/* <AccessTimeFilledRounded fontSize="small" /> */}
       <Stack

@@ -1,13 +1,16 @@
 import Grid from '@mui/material/Grid';
-import { ChartList } from '../components/ChartList.tsx';
-import { KpiList } from '../components/KpiList.tsx';
-import { ProductionLineList } from '../components/ProductionLineList.tsx';
+
+import { ProductionLineList } from '../components/production-lines/ProductionLineList.tsx';
+import { KpiList } from '../components/kpi/KpiList.tsx';
+import { ChartList } from '../components/charts/ChartList.tsx';
 
 export const OverviewLayout = () => {
   return (
     <Grid
       container
       spacing={2}
+      height={'100%'}
+      alignContent={'start'}
     >
       <ProductionLineList />
       <Grid

@@ -1,5 +1,12 @@
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
+import Toolbar from '@mui/material/Toolbar';
+import { CustomPaper } from '../../../../components/CustomPaper.tsx';
+import IconButton from '@mui/material/IconButton';
+import { MenuRounded } from '@mui/icons-material';
+import { Logo } from '../Logo.tsx';
+import { UserDropdown } from '../UserDropdown.tsx';
+import { CustomHeaderDrawer } from '../CustomHeaderDrawer.tsx';
 
 export const HeaderTablet = () => {
   return (
@@ -20,24 +27,24 @@ export const HeaderTablet = () => {
               justifyContent: 'space-between',
             }}
           >
-            <CustomPaper sx={{ p: 1, borderRadius: 9 }}>
+            {/* <CustomPaper sx={{ p: 1, borderRadius: 9 }}>
               <IconButton onClick={() => setToggleDrawer(true)}>
                 <MenuRounded />
               </IconButton>
-            </CustomPaper>
+            </CustomPaper> */}
             <Logo />
-            <UserDropdown
+            {/* <UserDropdown
               fullName={user!.fullName}
               role={user!.role}
               onLogout={logout}
-            />
+            /> */}
           </Toolbar>
         </AppBar>
       </Box>
-      <CustomHeaderDrawer
+      {/* <CustomHeaderDrawer
         toggleDrawer={toggleDrawer}
         setToggleDrawer={setToggleDrawer}
-      />
+      /> */}
     </>
   );
 };

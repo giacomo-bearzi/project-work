@@ -31,12 +31,33 @@ import Select from '@mui/material/Select';
 import Checkbox from '@mui/material/Checkbox';
 import ListItemText from '@mui/material/ListItemText';
 import { IssueModal } from '../../dashboard/components/IssueModal.tsx';
-import {
-  lineOptions,
-  typeOptions,
-  priorityOptions,
-} from '../types/issueOptions.ts';
+
 import { HeaderDesktop } from '../../dashboard/components/Header/HeaderDesktop.tsx';
+
+const lineOptions = [
+  { value: 'line-1', label: 'Linea 1' },
+  { value: 'line-2', label: 'Linea 2' },
+  { value: 'line-3', label: 'Linea 3' },
+];
+
+const typeOptions = [
+  { value: 'meccanico', label: 'Meccanico' },
+  { value: 'elettrico', label: 'Elettrico' },
+  { value: 'qualità', label: 'Qualità' },
+  { value: 'sicurezza', label: 'Sicurezza' },
+];
+
+const priorityOptions = [
+  { value: 'bassa', label: 'Bassa' },
+  { value: 'media', label: 'Media' },
+  { value: 'alta', label: 'Alta' },
+];
+
+const statusOptions = [
+  { value: 'in attesa', label: 'In attesa' },
+  { value: 'aperta', label: 'Aperta' },
+  { value: 'risolta', label: 'Risolta' },
+];
 
 interface Issue {
   _id: string;
@@ -52,18 +73,12 @@ interface Issue {
   resolvedAt?: string;
 }
 
-const statusOptions = [
-  { value: 'aperta', label: 'Aperta' },
-  { value: 'in lavorazione', label: 'In lavorazione' },
-  { value: 'risolta', label: 'Risolta' },
-];
-
-// Funzione di mapping da "Linea 1" a "LINE-1"
+// Funzione di mapping da "Linea 1" a "line-1"
 const mapLineFilterToDb = (filterValue: string) => {
-  // Esempio: "Linea 1" -> "LINE-1"
+  // Esempio: "Linea 1" -> "line-1"
   const match = filterValue.match(/Linea (\d+)/i);
   if (match) {
-    return `LINE-${match[1]}`;
+    return `line-${match[1]}`;
   }
   return filterValue;
 };
