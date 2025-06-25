@@ -162,22 +162,6 @@ export const TaskModal: React.FC<TaskModalProps> = ({
         }
     }, [autocompleteInput, form.assignedTo]);
 
-    useEffect(() => {
-        if (open) {
-            setForm({
-                description: '',
-                assignedTo: '',
-                estimatedMinutes: '',
-                status: 'in_attesa',
-                checklist: [''],
-                lineId: '',
-                date: new Date().toISOString().slice(0, 10),
-            });
-            setSelectedAssignedUserLocal(null);
-            setAutocompleteInput('');
-        }
-    }, [open]);
-
     const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | React.ChangeEvent<{ name?: string; value: unknown }>) => {
         const { name, value } = e.target as HTMLInputElement;
         setForm((prev) => ({ ...prev, [name!]: value }));
@@ -342,6 +326,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({
                     >
                         <MenuItem value="in_attesa">In attesa</MenuItem>
                         <MenuItem value="in_corso">In corso</MenuItem>
+                        <MenuItem value="completata">Completata</MenuItem>
                     </TextField>
                     <Typography variant="subtitle1" sx={{ mt: 1 }}>Sotto attività</Typography>
                     <List>

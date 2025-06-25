@@ -3,7 +3,10 @@ import Task from '../models/Task';
 
 export const getAllTasks = async (req: Request, res: Response) => {
     try {
-        const tasks = await Task.find({}).populate('assignedTo', 'username fullName role');
+        const tasks = await Task.find({}).populate(
+            'assignedTo',
+            'username fullName role',
+        );
         res.json(tasks);
     } catch (error) {
         console.error('Error fetching tasks:', error);
@@ -13,7 +16,10 @@ export const getAllTasks = async (req: Request, res: Response) => {
 
 export const getTaskById = async (req: Request, res: Response) => {
     try {
-        const task = await Task.findById(req.params.id).populate('assignedTo', 'username fullName role');
+        const task = await Task.findById(req.params.id).populate(
+            'assignedTo',
+            'username fullName role',
+        );
         if (!task) {
             return res.status(404).json({ message: 'Task not found' });
         }

@@ -1,8 +1,8 @@
-import { Typography, Divider, Box } from "@mui/material";
+import { Typography, Divider, Box } from '@mui/material';
 
-import type { User } from "../../../components/Login.tsx";
-import type { Issue, Task } from "../../dashboard/pages/GestioneUtenti.tsx";
-import DoubleArrowIcon from "@mui/icons-material/DoubleArrow";
+import type { User } from '../../../components/Login.tsx';
+import type { Issue, Task } from '../pages/UsersPage.tsx';
+import DoubleArrowIcon from '@mui/icons-material/DoubleArrow';
 interface UserDetailsProps {
   user: User;
   issues: Issue[];
@@ -33,19 +33,19 @@ export const UserDetails: React.FC<UserDetailsProps> = ({
         gutterBottom
         onClick={onNavigateToIssues}
         sx={{
-          cursor: "pointer",
-          display: "inline-flex",
-          alignItems: "center",
-          gap: 1,
-          transition: "color 0.3s ease",
-          "&:hover": {
-            color: "secondary.main",
+          'cursor': 'pointer',
+          'display': 'inline-flex',
+          'alignItems': 'center',
+          'gap': 1,
+          'transition': 'color 0.3s ease',
+          '&:hover': {
+            color: 'secondary.main',
           },
-          "&:hover svg": {
-            transform: "translateX(5px)",
+          '&:hover svg': {
+            transform: 'translateX(5px)',
           },
-          "& svg": {
-            transition: "transform 0.3s ease",
+          '& svg': {
+            transition: 'transform 0.3s ease',
           },
         }}
       >
@@ -55,7 +55,7 @@ export const UserDetails: React.FC<UserDetailsProps> = ({
       {loading ? (
         <Typography variant="body2">Caricamento issues...</Typography>
       ) : issues.length > 0 ? (
-        <ul style={{ paddingLeft: "1rem" }}>
+        <ul style={{ paddingLeft: '1rem' }}>
           {issues.map((issue, id) => (
             <li key={issue._id}>
               <Typography variant="body2">
@@ -79,19 +79,19 @@ export const UserDetails: React.FC<UserDetailsProps> = ({
         gutterBottom
         onClick={onNavigateToPlanning}
         sx={{
-          cursor: "pointer",
-          display: "inline-flex",
-          alignItems: "center",
-          gap: 1,
-          transition: "color 0.3s ease",
-          "&:hover": {
-            color: "secondary.main",
+          'cursor': 'pointer',
+          'display': 'inline-flex',
+          'alignItems': 'center',
+          'gap': 1,
+          'transition': 'color 0.3s ease',
+          '&:hover': {
+            color: 'secondary.main',
           },
-          "&:hover svg": {
-            transform: "translateX(5px)",
+          '&:hover svg': {
+            transform: 'translateX(5px)',
           },
-          "& svg": {
-            transition: "transform 0.3s ease",
+          '& svg': {
+            transition: 'transform 0.3s ease',
           },
         }}
       >
@@ -101,7 +101,7 @@ export const UserDetails: React.FC<UserDetailsProps> = ({
       {loading ? (
         <Typography variant="body2">Caricamento tasks...</Typography>
       ) : tasks.length > 0 ? (
-        <ul style={{ paddingLeft: "1rem" }}>
+        <ul style={{ paddingLeft: '1rem' }}>
           {tasks.map((task, id) => (
             <li key={task._id}>
               <Typography variant="body2">
@@ -109,9 +109,9 @@ export const UserDetails: React.FC<UserDetailsProps> = ({
                 <br />
                 <strong>Data:</strong> {task.date} <br />
                 <strong>Linea:</strong> {task.lineId} <br />
-                <strong>Descrizione:</strong>{" "}
+                <strong>Descrizione:</strong>{' '}
                 {task.description.length > 30
-                  ? task.description.substring(0, 30) + "..."
+                  ? task.description.substring(0, 30) + '...'
                   : task.description}
                 <br />
                 <strong>Stima:</strong> {task.estimatedMinutes} minuti <br />
@@ -119,14 +119,17 @@ export const UserDetails: React.FC<UserDetailsProps> = ({
               </Typography>
 
               {task.checklist?.length > 0 && (
-                <Box ml={2} mt={1}>
+                <Box
+                  ml={2}
+                  mt={1}
+                >
                   <Typography variant="subtitle2">Checklist:</Typography>
-                  <ul style={{ marginTop: 0, paddingLeft: "1rem" }}>
+                  <ul style={{ marginTop: 0, paddingLeft: '1rem' }}>
                     {task.checklist.map((item, index) => (
                       <li key={index}>
                         <Typography variant="body2">
                           - {item.item}
-                          {item.done ? " ✅ Completato" : " ⏳ In sospeso"}
+                          {item.done ? ' ✅ Completato' : ' ⏳ In sospeso'}
                         </Typography>
                       </li>
                     ))}

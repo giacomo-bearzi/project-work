@@ -10,11 +10,12 @@ import { AuthProvider } from './features/log-in/context/AuthContext.tsx';
 import { LogInPage } from './features/log-in/pages/LoginPage.tsx';
 import './index.css';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { OverviewPage } from './features/dashboard/pages/OverviewPage.tsx';
-import { GestioneUtenti } from './features/dashboard/pages/GestioneUtenti.tsx';
-import { Issues } from './features/dashboard/pages/Issues.tsx';
-import { Planning } from './features/dashboard/pages/Planning.tsx';
+import { UsersPage } from './features/dashboard-users/pages/UsersPage.tsx';
+import { IssuesPage } from './features/dashboard-issues/pages/IssuesPage.tsx';
 import NotificationPoller from './components/NotificationPoller.tsx';
+import { OverviewPage } from './features/dashboard-overview/pages/OverviewPage.tsx';
+import { TasksPage } from './features/dashboard-tasks/pages/TasksPage.tsx';
+
 const queryClient = new QueryClient();
 
 const AppContent = () => {
@@ -35,17 +36,17 @@ const AppContent = () => {
         />
         <Route
           path="/issues"
-          element={<Issues />}
+          element={<IssuesPage />}
         />
         <Route
-          path="/planning"
-          element={<Planning />}
+          path="/tasks"
+          element={<TasksPage />}
         />
       </Route>
       <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
         <Route
           path="/gestione-utenti"
-          element={<GestioneUtenti />}
+          element={<UsersPage />}
         />
       </Route>
       <Route
