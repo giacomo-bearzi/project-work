@@ -61,4 +61,12 @@ export const deleteTask = async (req: Request, res: Response) => {
         console.error('Error deleting task:', error);
         res.status(500).json({ message: 'Server Error' });
     }
+};
+
+export const updateUncompletedTasksToToday = async () => {
+    const today = new Date().toISOString().slice(0, 10);
+    await Task.updateMany(
+        { status: { $ne: 'completata' }, date: { $lt: today } },
+        { $set: { date: today } }
+    );
 }; 
