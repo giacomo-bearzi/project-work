@@ -103,3 +103,16 @@ export const markAssignedIssuesAsRead = async (req: Request, res: Response) => {
         res.status(500).json({ message: 'Errore del server' });
     }
 };
+
+export const deleteIssue = async (req: Request, res: Response) => {
+    try {
+        const issue = await Issue.findByIdAndDelete(req.params.id);
+        if (!issue) {
+            return res.status(404).json({ message: 'Issue not found' });
+        }
+        res.json({ message: 'Issue deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting issue:', error);
+        res.status(500).json({ message: 'Server Error' });
+    }
+};

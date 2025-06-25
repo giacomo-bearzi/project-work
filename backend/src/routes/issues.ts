@@ -6,7 +6,8 @@ import {
     createIssue,
     updateIssue,
     getAssignedIssues,
-    markAssignedIssuesAsRead
+    markAssignedIssuesAsRead,
+    deleteIssue
 } from '../controllers/issueController';
 
 const router = express.Router();
@@ -17,6 +18,7 @@ router.patch('/assigned/mark-as-read', authenticateToken, markAssignedIssuesAsRe
 router.get('/:id', authenticateToken, getIssueById);
 router.post('/', authenticateToken, createIssue);
 router.put('/:id', authenticateToken, updateIssue);
+router.delete('/:id', authenticateToken, deleteIssue);
 
 // TODO: implement DELETE with role check
 

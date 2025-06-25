@@ -14,6 +14,7 @@ import {
   Avatar,
   Chip,
   Button,
+  IconButton,
 } from "@mui/material";
 import { Header } from "../components/Header.tsx";
 import { useEffect, useState } from "react";
@@ -21,6 +22,7 @@ import { useNavigate } from "react-router-dom";
 import moment from "moment"; // To format dates
 import api from "../../../utils/axios.ts";
 import { useAuth } from "../../log-in/context/AuthContext.tsx";
+import axios from "axios";
 
 import AddIcon from "@mui/icons-material/Add";
 import TextField from "@mui/material/TextField";
@@ -36,6 +38,13 @@ import {
   typeOptions,
   priorityOptions,
 } from "../../issues/types/issueOptions";
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
+import { Delete } from "@mui/icons-material";
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
 
 interface Issue {
   _id: string;
@@ -44,8 +53,8 @@ interface Issue {
   priority: string;
   status: string;
   description: string;
-  reportedBy: { username: string; fullName: string; role: string };
-  assignedTo: { username: string; fullName: string; role: string };
+  reportedBy: { _id: string; username: string; fullName: string; role: string };
+  assignedTo: { _id: string; username: string; fullName: string; role: string } | null;
   createdAt: string;
   updatedAt: string;
   resolvedAt?: string;
@@ -67,6 +76,16 @@ const mapLineFilterToDb = (filterValue: string) => {
   return filterValue;
 };
 
+// Funzione per normalizzare un oggetto user
+function normalizeUser(user: any): { _id: string; username: string; fullName: string; role: string } {
+  return {
+    _id: user && user._id ? user._id : '',
+    username: user && user.username ? user.username : '',
+    fullName: user && user.fullName ? user.fullName : '',
+    role: user && user.role ? user.role : '',
+  };
+}
+
 export const Issues = () => {
   const [issues, setIssues] = useState<Issue[]>([]);
   const [loading, setLoading] = useState(true);
@@ -82,6 +101,11 @@ export const Issues = () => {
   const [searchId, setSearchId] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [issueToEdit, setIssueToEdit] = useState<Issue | null>(null);
+  const [users, setUsers] = useState<any[]>([]);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [issueToDelete, setIssueToDelete] = useState<Issue | null>(null);
 
   useEffect(() => {
     // Set background image based on theme mode
@@ -104,6 +128,18 @@ export const Issues = () => {
     };
 
     fetchIssues();
+
+    const fetchUsers = async () => {
+      try {
+        const res = await axios.get(`${import.meta.env.VITE_API_URL}/users`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        });
+        setUsers(res.data);
+      } catch (err) {
+        // Ignora errori
+      }
+    };
+    fetchUsers();
 
     // Optional: Set up polling for real-time updates (e.g., every 30 seconds)
     // const pollingInterval = setInterval(fetchIssues, 30000); // Poll every 30 seconds
@@ -188,6 +224,45 @@ export const Issues = () => {
       setModalOpen(false);
     } catch (err) {
       alert("Errore nella creazione della issue");
+    }
+  };
+
+  // Funzione per modificare una issue
+  const handleEditIssue = async (data: any) => {
+    if (!issueToEdit) return;
+    try {
+
+          
+      await api.put(`/issues/${issueToEdit._id}`, data);
+      
+      const response = await api.get<Issue[]>("/issues");
+      setIssues(response.data);
+      setEditModalOpen(false);
+      setIssueToEdit(null);
+    } catch (err:any) {
+      if (err.response) {
+        console.log("PUT ERROR", err.response.data);
+      }
+      alert("Errore nella modifica della issue");
+    }
+  };
+
+  // Funzione per eliminare una issue
+  const openDeleteDialog = (issue: Issue) => {
+    setIssueToDelete(issue);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDeleteIssue = async () => {
+    if (!issueToDelete) return;
+    try {
+      await api.delete(`/issues/${issueToDelete._id}`);
+      const response = await api.get<Issue[]>("/issues");
+      setIssues(response.data);
+      setDeleteDialogOpen(false);
+      setIssueToDelete(null);
+    } catch (err) {
+      alert("Errore nell'eliminazione della issue");
     }
   };
 
@@ -390,6 +465,7 @@ export const Issues = () => {
                 <TableCell>Assegnata A</TableCell>
                 <TableCell>Creata Il</TableCell>
                 <TableCell>Risolta Il</TableCell>
+                <TableCell>Azioni</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -477,7 +553,7 @@ export const Issues = () => {
                     ) : null}
                   </TableCell>
                   <TableCell>
-                    {issue.assignedTo?.fullName ? (
+                    {issue.assignedTo && issue.assignedTo.username ? (
                       <Box sx={{ display: "flex", alignItems: "center" }}>
                         <Avatar
                           sx={{
@@ -505,6 +581,21 @@ export const Issues = () => {
                       ? moment(issue.resolvedAt).format("YYYY-MM-DD HH:mm")
                       : "-"}
                   </TableCell>
+                  <TableCell>
+                    <Box sx={{ display: 'flex', gap: 1 }}>
+                      <IconButton onClick={() => {
+                        const reportedByUser = normalizeUser(users.find((u: any) => u.username === issue.reportedBy.username) || issue.reportedBy);
+                        const assignedToUser = issue.assignedTo && issue.assignedTo.username ? normalizeUser(users.find((u: any) => u.username === issue.assignedTo!.username) || issue.assignedTo) : null;
+                        setIssueToEdit({ ...issue, reportedBy: reportedByUser, assignedTo: assignedToUser });
+                        setEditModalOpen(true);
+                      }}>
+                        <EditIcon />
+                      </IconButton>
+                      <IconButton onClick={() => openDeleteDialog(issue)}>
+                        <Delete />
+                      </IconButton>
+                    </Box>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -521,6 +612,32 @@ export const Issues = () => {
         statusOptions={statusOptions}
         currentUser={user}
       />
+      <IssueModal
+        open={editModalOpen}
+        onClose={() => { setEditModalOpen(false); setIssueToEdit(null); }}
+        onSave={handleEditIssue}
+        lineOptions={lineOptions}
+        typeOptions={typeOptions}
+        priorityOptions={priorityOptions}
+        statusOptions={statusOptions}
+        currentUser={user}
+        initialValues={issueToEdit || undefined}
+      />
+      <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
+        <DialogTitle>Conferma eliminazione</DialogTitle>
+        <DialogContent>
+          Sei sicuro di voler eliminare la issue
+          <b> {issueToDelete?.description}</b>?
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteDialogOpen(false)} color="inherit">
+            Annulla
+          </Button>
+          <Button onClick={confirmDeleteIssue} color="error" variant="contained">
+            Elimina
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };
