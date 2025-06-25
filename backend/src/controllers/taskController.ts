@@ -75,4 +75,34 @@ export const updateUncompletedTasksToToday = async () => {
         { status: { $ne: 'completata' }, date: { $lt: today } },
         { $set: { date: today } }
     );
-}; 
+};
+
+export const getTaskByLineId = async (req: Request, res: Response) => {
+  try {
+    const { lineId } = req.params;
+    const { status } = req.query;
+
+    const filter: any = { lineId };
+
+    if (
+      status &&
+      ['in_attesa', 'in_corso', 'completata'].includes(String(status))
+    ) {
+      filter.status = status;
+    }
+
+    const tasks = await Task.find(filter).populate(
+      'assignedTo',
+      'username fullName role',
+    );
+
+    if (!tasks || tasks.length === 0) {
+      return res.status(404).json({ message: 'No tasks found for this line' });
+    }
+
+    res.json(tasks);
+  } catch (error) {
+    console.error('Error fetching tasks by line ID:', error);
+    res.status(500).json({ message: 'Server Error' });
+  }
+};
