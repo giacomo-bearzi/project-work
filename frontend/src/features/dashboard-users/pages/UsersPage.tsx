@@ -298,7 +298,7 @@ export const UsersPage = () => {
             </Grid>
           </Grid>
           <Grid size={9}>
-            <Paper
+            {/* <Paper
               elevation={1}
               sx={{
                 borderRadius: 11,
@@ -312,6 +312,7 @@ export const UsersPage = () => {
                 flexDirection: "column",
               }}
             >
+            </Paper> */}
               <div className="flex justify-between mb-2 mt-2 p-2">
                 <TextField
                   label="Cerca utente"
@@ -369,7 +370,6 @@ export const UsersPage = () => {
                 onClose={closeConfirmDialog}
                 onConfirm={handleDeleteUser}
               />
-            </Paper>
           </Grid>
         </Grid>
       </Stack>
