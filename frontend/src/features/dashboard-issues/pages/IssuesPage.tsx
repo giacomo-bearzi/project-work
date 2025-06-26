@@ -244,8 +244,6 @@ export const IssuesPage = () => {
   const handleEditIssue = async (data: any) => {
     if (!issueToEdit) return;
     try {
-
-          
       await api.put(`/issues/${issueToEdit._id}`, data);
       
       const response = await api.get<Issue[]>("/issues");
