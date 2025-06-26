@@ -25,6 +25,9 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
+  AreaChart,
+  Area,
+  Brush,
 } from "recharts";
 
 interface LogPoint {
@@ -58,17 +61,24 @@ const SimpleLineChart = ({
   yLabel: string;
 }) => (
   <ResponsiveContainer width="100%" height={250}>
-    <LineChart data={data}>
+    <AreaChart data={data}>
       <CartesianGrid strokeDasharray="3 3" />
       <XAxis
         dataKey="timestamp"
         tickFormatter={(time) => new Date(time).toLocaleTimeString()}
       />
       <YAxis label={{ value: yLabel, angle: -90, position: "insideLeft" }} />
-      <Tooltip labelFormatter={(time) => new Date(time).toLocaleString()} />
+      <Tooltip />
       <Legend />
-      <Line type="monotone" dataKey={dataKey} stroke={color} dot={false} />
-    </LineChart>
+      <Area
+        type="monotone"
+        dataKey={dataKey}
+        stroke={color}
+        dot={false}
+        fill={color}
+      />
+    <Brush />
+    </AreaChart>
   </ResponsiveContainer>
 );
 
