@@ -57,6 +57,11 @@ const issueSchema = new mongoose.Schema({
         ref: 'User',
         default: []
     },
+    hiddenFor: [{ 
+        type: [mongoose.Schema.Types.ObjectId], 
+        ref: 'User',
+        default: []
+    }],
     createdAt: { type: Date, required: true },
 
 }, {
