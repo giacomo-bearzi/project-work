@@ -7,27 +7,27 @@ import {
   Stack,
   TextField,
   Typography,
-} from '@mui/material';
+} from "@mui/material";
 
-import { useAuth } from '../../log-in/context/AuthContext.tsx';
-import { useEffect, useState } from 'react';
-import type { User } from '../../../components/Login.tsx';
-import AddIcon from '@mui/icons-material/Add';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-import { AddUserDialog } from '../components/AddUserDialog.tsx';
-import { ConfirmDeleteDialog } from '../components/ConfirmDeleteDialog.tsx';
-import { UsersTable } from '../components/UsersTable.tsx';
-import { UserDetails } from '../components/UserDetails.tsx';
-import { UserActivityChart } from '../components/UserActivityChart.tsx';
+import { useAuth } from "../../log-in/context/AuthContext.tsx";
+import { useEffect, useState } from "react";
+import type { User } from "../../../components/Login.tsx";
+import AddIcon from "@mui/icons-material/Add";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { AddUserDialog } from "../components/AddUserDialog.tsx";
+import { ConfirmDeleteDialog } from "../components/ConfirmDeleteDialog.tsx";
+import { UsersTable } from "../components/UsersTable.tsx";
+import { UserDetails } from "../components/UserDetails.tsx";
+import { UserActivityChart } from "../components/UserActivityChart.tsx";
 import {
   addUser,
   deleteUser,
   getUserIssues,
   getUserTasks,
-} from '../api/UsersApi.ts';
-import { HeaderDesktop } from '../../dashboard/components/Header/HeaderDesktop.tsx';
-import { DashboardLayout } from '../../dashboard/layouts/DashboardLayout.tsx';
+} from "../api/UsersApi.ts";
+import { HeaderDesktop } from "../../dashboard/components/Header/HeaderDesktop.tsx";
+import { DashboardLayout } from "../../dashboard/layouts/DashboardLayout.tsx";
 
 export interface Issue {
   _id: string;
@@ -73,7 +73,7 @@ export const UsersPage = () => {
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
   const [editingUserId, setEditingUserId] = useState<string | null>(null);
   const [editedUser, setEditedUser] = useState<Partial<User>>({});
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [issues, setIssues] = useState<Issue[]>([]);
@@ -84,12 +84,12 @@ export const UsersPage = () => {
     fullName: string;
     username: string;
     password: string;
-    role: 'operator' | 'manager' | 'admin';
+    role: "operator" | "manager" | "admin";
   }>({
-    fullName: '',
-    username: '',
-    password: '',
-    role: 'operator',
+    fullName: "",
+    username: "",
+    password: "",
+    role: "operator",
   });
 
   const openConfirmDialog = (user: User) => {
@@ -113,7 +113,7 @@ export const UsersPage = () => {
   };
 
   const handleEditChange = (
-    e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>,
+    e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>
   ) => {
     const { name, value } = e.target;
     setEditedUser((prev) => ({
@@ -131,7 +131,7 @@ export const UsersPage = () => {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        },
+        }
       );
       setEditingUserId(null);
       setEditedUser({});
@@ -156,7 +156,7 @@ export const UsersPage = () => {
       const issues = await getUserIssues(username);
       setIssues(issues);
     } catch (err) {
-      console.error('Error fetching issues:', err);
+      console.error("Error fetching issues:", err);
     }
   };
 
@@ -165,7 +165,7 @@ export const UsersPage = () => {
       const tasks = await getUserTasks(username);
       setTasks(tasks);
     } catch (err) {
-      console.error('Error fetching tasks:', err);
+      console.error("Error fetching tasks:", err);
     }
   };
 
@@ -181,7 +181,7 @@ export const UsersPage = () => {
   };
 
   const handleNewUserChange = (
-    e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>,
+    e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>
   ) => {
     const { name, value } = e.target;
     setNewUser((prev) => ({
@@ -195,10 +195,10 @@ export const UsersPage = () => {
   };
   const handleOpenAddDialog = () => {
     setNewUser({
-      fullName: '',
-      username: '',
-      password: '',
-      role: 'operator',
+      fullName: "",
+      username: "",
+      password: "",
+      role: "operator",
     });
     setAddDialogOpen(true);
   };
@@ -221,11 +221,11 @@ export const UsersPage = () => {
         });
         setUsers(res.data);
       } catch (err) {
-        console.error('Errore nel recupero degli utenti:', err);
+        console.error("Errore nel recupero degli utenti:", err);
       } finally {
         setLoading(false);
       }
-    }, 500); // Ritardo di 1 secondo
+    }, 500);
   };
 
   useEffect(() => {
@@ -233,52 +233,31 @@ export const UsersPage = () => {
   }, []);
 
   return (
-   <DashboardLayout>
-      {/* <Paper
-        elevation={1}
-        sx={{
-          borderRadius: 11,
-          p: 1,
-          background: "rgba(255, 255, 255, 0.07)",
-          backdropFilter: "blur(20px) saturate(180%)",
-          WebkitBackdropFilter: "blur(20px) saturate(180%)",
-          boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
-          height: "100%",
-        }}
-      >
-      </Paper> */}
-      <Stack
-        direction="column"
-        gap={1}
-        sx={{ height: '100%' }}
-      >
-
+    <DashboardLayout>
+      <Stack direction="column" gap={1} sx={{ height: "100%" }}>
         <Grid
           container
           spacing={1}
           sx={{
-            height: '100%',
+            height: "100%",
           }}
         >
-          <Grid
-            container
-            size={3}
-          >
+          <Grid container size={3}>
             <Grid size={12}>
               <Paper
                 elevation={1}
                 sx={{
-                  'borderRadius': 11,
-                  'p': 2,
-                  'background': 'rgba(255, 255, 255, 0.07)',
-                  'backdropFilter': 'blur(20px) saturate(180%)',
-                  'WebkitBackdropFilter': 'blur(20px) saturate(180%)',
-                  'boxShadow': '0 4px 30px rgba(0, 0, 0, 0.1)',
-                  'maxHeight': '400px',
-                  'overflowY': 'scroll',
-                  'scrollbarWidth': 'none',
-                  '&::-webkit-scrollbar': {
-                    display: 'none',
+                  borderRadius: 11,
+                  p: 2,
+                  background: "rgba(255, 255, 255, 0.07)",
+                  backdropFilter: "blur(20px) saturate(180%)",
+                  WebkitBackdropFilter: "blur(20px) saturate(180%)",
+                  boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
+                  maxHeight: "400px",
+                  overflowY: "scroll",
+                  scrollbarWidth: "none",
+                  "&::-webkit-scrollbar": {
+                    display: "none",
                   },
                 }}
               >
@@ -288,14 +267,11 @@ export const UsersPage = () => {
                     issues={issues}
                     tasks={tasks}
                     loading={loading}
-                    onNavigateToIssues={() => navigate('/issues')}
-                    onNavigateToPlanning={() => navigate('/tasks')}
+                    onNavigateToIssues={() => navigate("/issues")}
+                    onNavigateToPlanning={() => navigate("/tasks")}
                   />
                 ) : (
-                  <Typography
-                    variant="body2"
-                    color="textSecondary"
-                  >
+                  <Typography variant="body2" color="textSecondary">
                     Seleziona un utente per visualizzare i dettagli.
                   </Typography>
                 )}
@@ -307,10 +283,10 @@ export const UsersPage = () => {
                 sx={{
                   borderRadius: 11,
                   p: 2,
-                  background: 'rgba(255, 255, 255, 0.07)',
-                  backdropFilter: 'blur(20px) saturate(180%)',
-                  WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-                  boxShadow: '0 4px 30px rgba(0, 0, 0, 0.1)',
+                  background: "rgba(255, 255, 255, 0.07)",
+                  backdropFilter: "blur(20px) saturate(180%)",
+                  WebkitBackdropFilter: "blur(20px) saturate(180%)",
+                  boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
                 }}
               >
                 <UserActivityChart
@@ -327,13 +303,13 @@ export const UsersPage = () => {
               sx={{
                 borderRadius: 11,
                 p: 1,
-                background: 'rgba(255, 255, 255, 0.07)',
-                backdropFilter: 'blur(20px) saturate(180%)',
-                WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-                boxShadow: '0 4px 30px rgba(0, 0, 0, 0.1)',
-                height: '100%',
-                display: 'flex',
-                flexDirection: 'column',
+                background: "rgba(255, 255, 255, 0.07)",
+                backdropFilter: "blur(20px) saturate(180%)",
+                WebkitBackdropFilter: "blur(20px) saturate(180%)",
+                boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
+                height: "100%",
+                display: "flex",
+                flexDirection: "column",
               }}
             >
               <div className="flex justify-between mb-2 mt-2 p-2">
@@ -362,10 +338,7 @@ export const UsersPage = () => {
                   height="400px"
                   width="100%"
                 >
-                  <CircularProgress
-                    size="3rem"
-                    color="secondary"
-                  />
+                  <CircularProgress size="3rem" color="secondary" />
                 </Box>
               ) : (
                 <UsersTable
@@ -400,6 +373,6 @@ export const UsersPage = () => {
           </Grid>
         </Grid>
       </Stack>
-   </DashboardLayout>
+    </DashboardLayout>
   );
 };
