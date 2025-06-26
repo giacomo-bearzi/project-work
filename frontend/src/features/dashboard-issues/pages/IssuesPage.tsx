@@ -175,56 +175,64 @@ export const IssuesPage = () => {
     );
   }
 
-  const filteredIssues = issues.filter((issue) => {
-    // Filtro descrizione
-    const normalizedSearch = searchId.trim().toLowerCase();
-    const normalizedDescription = issue.description.toLowerCase();
-    if (normalizedSearch && !normalizedDescription.includes(normalizedSearch)) {
-      return false;
-    }
-    // Filtro Priorità
-    if (
-      selectedPriority.length > 0 &&
-      !selectedPriority
-        .map((p) => p.toLowerCase())
-        .includes(issue.priority.toLowerCase())
-    ) {
-      return false;
-    }
-    // Filtro Stato
-    if (
-      selectedStatus.length > 0 &&
-      !selectedStatus
-        .map((s) => s.toLowerCase())
-        .includes(issue.status.toLowerCase())
-    ) {
-      return false;
-    }
-    // Filtro Linea
-    if (
-      selectedLine.length > 0 &&
-      !selectedLine.map(mapLineFilterToDb).includes(issue.lineId)
-    ) {
-      return false;
-    }
-    // Filtro Tipo
-    if (
-      selectedType.length > 0 &&
-      !selectedType
-        .map((t) => t.toLowerCase())
-        .includes(issue.type.toLowerCase())
-    ) {
-      return false;
-    }
-    // Filtro Data di creazione
-    if (selectedDate) {
-      const createdAtDate = moment(issue.createdAt).format('YYYY-MM-DD');
-      if (createdAtDate !== selectedDate) {
+  const filteredIssues = issues
+    .filter((issue) => {
+      // Filtro descrizione
+      const normalizedSearch = searchId.trim().toLowerCase();
+      const normalizedDescription = issue.description.toLowerCase();
+      if (normalizedSearch && !normalizedDescription.includes(normalizedSearch)) {
         return false;
       }
-    }
-    return true;
-  });
+      // Filtro Priorità
+      if (
+        selectedPriority.length > 0 &&
+        !selectedPriority
+          .map((p) => p.toLowerCase())
+          .includes(issue.priority.toLowerCase())
+      ) {
+        return false;
+      }
+      // Filtro Stato
+      if (
+        selectedStatus.length > 0 &&
+        !selectedStatus
+          .map((s) => s.toLowerCase())
+          .includes(issue.status.toLowerCase())
+      ) {
+        return false;
+      }
+      // Filtro Linea
+      if (
+        selectedLine.length > 0 &&
+        !selectedLine.map(mapLineFilterToDb).includes(issue.lineId)
+      ) {
+        return false;
+      }
+      // Filtro Tipo
+      if (
+        selectedType.length > 0 &&
+        !selectedType
+          .map((t) => t.toLowerCase())
+          .includes(issue.type.toLowerCase())
+      ) {
+        return false;
+      }
+      // Filtro Data di creazione
+      if (selectedDate) {
+        const createdAtDate = moment(issue.createdAt).format('YYYY-MM-DD');
+        if (createdAtDate !== selectedDate) {
+          return false;
+        }
+      }
+      return true;
+    })
+    .filter((issue) => {
+      // Mostra solo le issue assegnate all'utente se è operator
+      if (user.role === 'operator') {
+        return issue.assignedTo && issue.assignedTo._id === user._id;
+      }
+      return true;
+    });
 
   // Funzione per creare una nuova issue
   const handleCreateIssue = async (data: any) => {
