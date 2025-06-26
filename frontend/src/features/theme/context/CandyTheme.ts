@@ -14,14 +14,6 @@ export const getThemeOptions = (mode: 'light' | 'dark'): ThemeOptions => ({
     MuiCssBaseline: {
       styleOverrides: {
         body: {
-          // backgroundImage:
-          //   mode === "light"
-          //     ? "url(/background-light-5.svg)"
-          //     : "url(/background-dark-5.svg)",
-          // backgroundRepeat: "no-repeat",
-          // backgroundSize: "cover",
-          // backgroundAttachment: "fixed",
-          // backgroundPosition: "bottom",
           minHeight: '100vh',
         },
       },
@@ -29,16 +21,12 @@ export const getThemeOptions = (mode: 'light' | 'dark'): ThemeOptions => ({
     MuiTableCell: {
       styleOverrides: {
         head: {
-          backgroundColor:
-            mode === 'light'
-              ? '#e0e0e0' // grigio chiaro per tema light
-              : '#424242', // grigio scuro per tema dark
+          backgroundColor: mode === 'light' ? '#e0e0e0' : '#424242',
           color: mode === 'light' ? '#000' : '#fff',
           fontWeight: 700,
         },
       },
     },
-
     MuiButton: {
       styleOverrides: {
         root: {
@@ -47,25 +35,25 @@ export const getThemeOptions = (mode: 'light' | 'dark'): ThemeOptions => ({
           transition: '0.3s ease',
         },
         contained: {
-          'background': 'linear-gradient(45deg, #FB4376 30%, #FFB6C1 90%)',
-          'color': 'white',
-          'boxShadow': '0 4px 10px rgba(251, 67, 118, 0.4)',
+          background: 'linear-gradient(45deg, #FB4376 30%, #FFB6C1 90%)',
+          color: 'white',
+          boxShadow: '0 4px 10px rgba(251, 67, 118, 0.4)',
           '&:hover': {
             background: 'linear-gradient(45deg, #FF6699 30%, #FFD1DC 90%)',
             boxShadow: '0 6px 14px rgba(251, 67, 118, 0.5)',
           },
         },
         outlined: {
-          'color': '#FB4376',
-          'border': '2px solid #FB4376',
-          'backgroundColor': 'transparent',
+          color: '#FB4376',
+          border: '2px solid #FB4376',
+          backgroundColor: 'transparent',
           '&:hover': {
             backgroundColor: 'rgba(251, 67, 118, 0.1)',
             borderColor: '#FB4376',
           },
         },
         text: {
-          'color': '#FB4376',
+          color: '#FB4376',
           '&:hover': {
             backgroundColor: 'rgba(251, 67, 118, 0.08)',
           },
@@ -75,34 +63,22 @@ export const getThemeOptions = (mode: 'light' | 'dark'): ThemeOptions => ({
     MuiCheckbox: {
       styleOverrides: {
         root: {
-          'color': '#FB4376',
+          color: '#FB4376',
           '&.Mui-checked': {
             color: '#FB4376',
           },
         },
       },
     },
-
-    // MuiToolbar: {
-    //   styleOverrides: {
-    //     root: {
-    //       backgroundColor: "#FB4376",
-    //       color: "white",
-    //       boxShadow: "0 4px 10px rgba(251, 67, 118, 0.3)",
-    //       padding: "0 24px",
-    //       minHeight: "64px",
-    //     },
-    //   },
-    // },
     MuiOutlinedInput: {
       styleOverrides: {
         root: {
-          'borderRadius': '12px',
-          'color': '#fff',
-          'backgroundColor': 'rgba(255, 255, 255, 0.05)',
-          'transition': '0.3s ease',
+          borderRadius: '12px',
+          color: '#fff',
+          backgroundColor: 'rgba(255, 255, 255, 0.05)',
+          transition: '0.3s ease',
           '& .MuiOutlinedInput-input': {
-            'color': mode === 'light' ? '#000' : '#fff',
+            color: mode === 'light' ? '#000' : '#fff',
             '&::placeholder': {
               color: '#FFC1D3',
               opacity: 1,
@@ -137,10 +113,39 @@ export const getThemeOptions = (mode: 'light' | 'dark'): ThemeOptions => ({
     MuiInputLabel: {
       styleOverrides: {
         root: {
-          'color': mode === 'light' ? '#FF69B4' : '#FFD1DC',
-          'fontWeight': 'medium',
+          color: mode === 'light' ? '#FF69B4' : '#FFD1DC',
+          fontWeight: 'medium',
           '&.Mui-focused': {
             color: '#FB4376',
+          },
+        },
+      },
+    },
+
+    // *** Qui aggiungiamo Tabs e Tab ***
+    MuiTabs: {
+      styleOverrides: {
+        root: {
+          borderBottom: `1px solid ${mode === 'light' ? '#e0e0e0' : '#424242'}`,
+        },
+        indicator: {
+          backgroundColor: '#FB4376',
+        },
+      },
+    },
+    MuiTab: {
+      styleOverrides: {
+        root: {
+          textTransform: 'none',
+          fontWeight: 600,
+          color: mode === 'light' ? '#000' : '#fff',
+          '&.Mui-selected': {
+            color: '#FB4376',
+            fontWeight: 700,
+          },
+          '&:hover': {
+            color: '#FF6699',
+            opacity: 1,
           },
         },
       },
