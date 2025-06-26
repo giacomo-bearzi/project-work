@@ -5,6 +5,7 @@ export interface IProductionLine extends Document {
     name: string;
     status: 'active' | 'stopped' | 'maintenance' | 'issue';
     lastUpdated: Date;
+    subLines: mongoose.Types.ObjectId[];
 }
 
 const ProductionLineSchema = new Schema<IProductionLine>({
@@ -15,7 +16,8 @@ const ProductionLineSchema = new Schema<IProductionLine>({
         enum: ['active', 'stopped', 'maintenance', 'issue'],
         required: true
     },
-    lastUpdated: { type: Date, default: Date.now }
+    lastUpdated: { type: Date, default: Date.now },
+    subLines: [{ type: Schema.Types.ObjectId, ref: 'SubLine' }]
 });
 
 export default mongoose.model<IProductionLine>('ProductionLine', ProductionLineSchema); 
