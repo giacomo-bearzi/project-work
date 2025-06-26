@@ -225,7 +225,7 @@ export const UsersPage = () => {
       } finally {
         setLoading(false);
       }
-    }, 1000); // Ritardo di 1 secondo
+    }, 500); // Ritardo di 1 secondo
   };
 
   useEffect(() => {
