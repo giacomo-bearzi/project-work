@@ -16,3 +16,7 @@ export const getAssignedIssues = async (): Promise<ApiIssue[]> => {
 export const markAssignedIssuesAsRead = async (): Promise<void> => {
   await api.patch('/issues/assigned/mark-as-read');
 };
+
+export const clearReadIssues = async (): Promise<void> => {
+  await api.delete('/issues/assigned/clear-read');
+};

@@ -14,7 +14,7 @@ import Typography from '@mui/material/Typography';
 import { useState, useRef, useEffect, type MouseEvent } from 'react';
 import { useAuth } from '../../../log-in/context/AuthContext.tsx';
 import { NotificationsSidebar } from '../NotificationsSidebar.tsx';
-import { markAssignedIssuesAsRead } from '../../../issues/api/api.ts';
+import { clearReadIssues, markAssignedIssuesAsRead } from '../../../issues/api/api.ts';
 import { useGetAssignedIssues } from '../../../issues/hooks/useIssueQueries.tsx';
 import { ToggleThemeModeButton } from '../../../theme/components/ToggleThemeModeButton.tsx';
 import { Button, Dialog, DialogActions, DialogTitle, Avatar } from '@mui/material';
@@ -43,6 +43,11 @@ export const UserMenuDesktop = () => {
     await markAssignedIssuesAsRead();
     refetch();
   };
+
+  const handleClearRead = async () => {
+  await clearReadIssues();
+  refetch();
+};
 
   const open = Boolean(anchorEl);
 
@@ -160,6 +165,7 @@ export const UserMenuDesktop = () => {
         onClose={handleCloseNotifications}
         notifications={notifications}
         onMarkAllAsRead={handleMarkAllAsRead}
+        onClearRead={handleClearRead}
       />
 
       <Dialog
