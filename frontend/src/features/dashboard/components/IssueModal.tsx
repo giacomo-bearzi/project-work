@@ -79,6 +79,33 @@ function getLocalDateTimeString(date = new Date()) {
   );
 }
 
+// Funzione per convertire una stringa datetime-local in una data UTC (ISO) mantenendo l'orario scelto dall'utente
+function localDateTimeToUTC(dateTimeStr: string) {
+  if (!dateTimeStr) return '';
+  const [date, time] = dateTimeStr.split('T');
+  const [year, month, day] = date.split('-').map(Number);
+  const [hour, minute] = time.split(':').map(Number);
+  return new Date(Date.UTC(year, month - 1, day, hour, minute)).toISOString();
+}
+
+// Funzione per ottenere la stringa compatibile con datetime-local a partire da una data UTC (senza conversione locale)
+function getUTCDateTimeLocalString(dateStr: string) {
+  if (!dateStr) return '';
+  const date = new Date(dateStr);
+  const pad = (n: number) => n.toString().padStart(2, '0');
+  return (
+    date.getUTCFullYear() +
+    '-' +
+    pad(date.getUTCMonth() + 1) +
+    '-' +
+    pad(date.getUTCDate()) +
+    'T' +
+    pad(date.getUTCHours()) +
+    ':' +
+    pad(date.getUTCMinutes())
+  );
+}
+
 export const IssueModal: React.FC<IssueModalProps> = ({ open, onClose, onSave, lineOptions, typeOptions, priorityOptions, statusOptions, currentUser, initialValues }) => {
   const [description, setDescription] = useState('');
   const [line, setLine] = useState('');
@@ -103,8 +130,8 @@ export const IssueModal: React.FC<IssueModalProps> = ({ open, onClose, onSave, l
         setStatus(initialValues.status || '');
         setAssignedTo(initialValues.assignedTo || null);
         setReportedBy(initialValues.reportedBy || null);
-        setCreatedAt(initialValues.createdAt ? getLocalDateTimeString(new Date(initialValues.createdAt)) : '');
-        setResolvedAt(initialValues.resolvedAt ? getLocalDateTimeString(new Date(initialValues.resolvedAt)) : '');
+        setCreatedAt(initialValues.createdAt ? getUTCDateTimeLocalString(initialValues.createdAt) : '');
+        setResolvedAt(initialValues.resolvedAt ? getUTCDateTimeLocalString(initialValues.resolvedAt) : '');
       } else {
         setDescription('');
         setLine('');
@@ -160,8 +187,8 @@ export const IssueModal: React.FC<IssueModalProps> = ({ open, onClose, onSave, l
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
-    let createdAtISO = createdAt ? new Date(createdAt).toISOString() : undefined;
-    let resolvedAtISO = resolvedAt ? new Date(resolvedAt).toISOString() : undefined;
+    let createdAtISO = createdAt ? localDateTimeToUTC(createdAt) : '';
+    let resolvedAtISO = resolvedAt ? localDateTimeToUTC(resolvedAt) : '';
     const payload = {
       description,
       lineId: line,

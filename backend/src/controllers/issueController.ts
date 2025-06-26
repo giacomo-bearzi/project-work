@@ -55,6 +55,11 @@ export const updateIssue = async (req: Request, res: Response) => {
       return res.status(404).json({ message: 'Issue not found' });
     }
 
+    if (req.body.createdAt) {
+      issue.createdAt = req.body.createdAt;
+      issue.markModified('createdAt');
+    }
+
     Object.assign(issue, req.body);
 
     if (req.body.status === 'risolta' && !issue.resolvedAt) {

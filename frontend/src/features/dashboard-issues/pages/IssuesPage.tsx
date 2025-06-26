@@ -623,11 +623,11 @@ export const IssuesPage = () => {
                     ) : null}
                   </TableCell>
                   <TableCell>
-                    {moment(issue.createdAt).local().format('YYYY-MM-DD HH:mm')}
+                    {moment.utc(issue.createdAt).format('YYYY-MM-DD HH:mm')}
                   </TableCell>
                   <TableCell>
                     {issue.resolvedAt
-                      ? moment(issue.resolvedAt).local().format('YYYY-MM-DD HH:mm')
+                      ? moment.utc(issue.resolvedAt).format('YYYY-MM-DD HH:mm')
                       : '-'}
                   </TableCell>
                   <TableCell>
