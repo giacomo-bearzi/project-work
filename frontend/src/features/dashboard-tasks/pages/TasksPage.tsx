@@ -295,7 +295,7 @@ export const TasksPage = () => {
   };
 
   return (
-    <Box p={2}>
+    <Box p={1}>
       <HeaderDesktop />
       <DragDropContext onDragEnd={handleDragEnd}>
         <Box
@@ -312,6 +312,7 @@ export const TasksPage = () => {
               display: 'flex',
               flexDirection: 'column',
               maxWidth: '100%',
+
             }}
           >
             <Paper
@@ -324,6 +325,7 @@ export const TasksPage = () => {
                 overflow: 'hidden',
                 display: 'flex',
                 flexDirection: 'column',
+
               }}
             >
               <Stack
@@ -367,7 +369,11 @@ export const TasksPage = () => {
                   Aggiungi Attività
                 </Button>
               </Stack>
-              <Box sx={{ overflowY: 'auto', maxHeight: '70vh', pr: 1 }}>
+              <Box sx={{  maxHeight: '70vh', pr: 1, overflowY: "scroll",
+        scrollbarWidth: "none",
+        "&::-webkit-scrollbar": {
+          display: "none",
+        }, }}>
                 {/* Da Fare */}
                 <Typography
                   variant="subtitle1"

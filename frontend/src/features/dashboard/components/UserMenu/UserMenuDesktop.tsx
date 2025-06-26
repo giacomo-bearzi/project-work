@@ -1,129 +1,189 @@
 import {
   KeyboardArrowDownRounded,
   KeyboardArrowUpRounded,
-  Logout,
+  LogoutRounded,
   NotificationsRounded,
-  Settings,
 } from '@mui/icons-material';
 import Badge from '@mui/material/Badge';
 import IconButton from '@mui/material/IconButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
-import Stack from '@mui/material/Stack';
-import { type MouseEvent, useState } from 'react';
+import Paper from '@mui/material/Paper';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import { useState, useRef, useEffect, type MouseEvent } from 'react';
 import { useAuth } from '../../../log-in/context/AuthContext.tsx';
-import { useThemeMode } from '../../../theme/context/ThemeContext.tsx';
-import { UserInfoDesktop } from '../UserInfo/UserInfoDesktop.tsx';
+import { NotificationsSidebar } from '../NotificationsSidebar.tsx';
+import { markAssignedIssuesAsRead } from '../../../issues/api/api.ts';
+import { useGetAssignedIssues } from '../../../issues/hooks/useIssueQueries.tsx';
+import { ToggleThemeModeButton } from '../../../theme/components/ToggleThemeModeButton.tsx';
+import { Button, Dialog, DialogActions, DialogTitle, Avatar } from '@mui/material';
 
 export const UserMenuDesktop = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [menuWidth, setMenuWidth] = useState<number | undefined>(undefined);
+
+  const { logout, user } = useAuth();
+  const buttonRef = useRef<HTMLDivElement>(null);
+
+  const handleOpenNotifications = () => setNotificationsOpen(true);
+  const handleCloseNotifications = () => setNotificationsOpen(false);
+
+  const { data: assignedIssues, refetch } = useGetAssignedIssues();
+
+  const notifications = (assignedIssues ?? []).map((issue: any) => ({
+    id: issue._id,
+    message: issue.description,
+    read: issue.readBy?.includes(issue.assignedTo?._id),
+  }));
+
+  const handleMarkAllAsRead = async () => {
+    await markAssignedIssuesAsRead();
+    refetch();
+  };
+
   const open = Boolean(anchorEl);
-
-  const { logout } = useAuth();
-
-  const { toggleTheme } = useThemeMode();
 
   const icon = open ? <KeyboardArrowUpRounded /> : <KeyboardArrowDownRounded />;
 
   const handleClick = (event: MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
+    if (buttonRef.current) {
+      setMenuWidth(buttonRef.current.clientWidth);
+    }
   };
 
   const handleClose = () => {
     setAnchorEl(null);
   };
 
+  const handleLogoutClick = () => {
+    handleClose();
+    setDialogOpen(true);
+  };
+
+  const confirmLogout = () => {
+    setDialogOpen(false);
+    logout();
+  };
+
+  useEffect(() => {
+    if (!buttonRef.current) return;
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        setMenuWidth(entry.contentRect.width);
+      }
+    });
+    observer.observe(buttonRef.current);
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <>
-      <Stack
-        display={'flex'}
-        flexDirection={'row'}
-        alignItems={'center'}
-        gap={3}
-      >
-        <IconButton>
+      <Box display="flex" alignItems="center" gap={2}>
+        <IconButton onClick={handleOpenNotifications}>
           <Badge
-            badgeContent={4}
+            badgeContent={notifications.filter((n) => !n.read).length}
             color="secondary"
           >
             <NotificationsRounded />
           </Badge>
         </IconButton>
-        <Stack
+
+        <Paper
+          ref={buttonRef}
           onClick={handleClick}
-          display={'flex'}
-          flexDirection={'row'}
-          alignItems={'center'}
-          gap={2}
-          p={1}
           sx={{
-            ':hover': {
-              borderRadius: 5,
-              cursor: 'pointer',
-              backgroundColor: 'red',
-            },
+            cursor: 'pointer',
+            background: 'rgba(255, 255, 255, 0.07)',
+            backdropFilter: 'blur(20px) saturate(180%)',
+            WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+            boxShadow: '0 4px 30px rgba(0, 0, 0, 0.1)',
+            borderRadius: open ? '32px 32px 0 0' : 8,
+            userSelect: 'none',
+            display: 'flex',
+            alignItems: 'center',
+            px: 2,
+            py: 1,
+            gap: 2,
+            minWidth: 180,
           }}
         >
-          <UserInfoDesktop />
-          <IconButton>{icon}</IconButton>
-        </Stack>
-      </Stack>
+          <Avatar>{user?.fullName?.[0] ?? 'U'}</Avatar>
+          <Box display="flex" flexDirection="column" flex={1}>
+            <Typography variant="body2" fontWeight={600}>
+              {user?.fullName ?? 'Utente'}
+            </Typography>
+            <Typography
+              variant="body2"
+              fontWeight={500}
+              sx={{ opacity: 0.8 }}
+            >
+              {user?.role ?? ''}
+            </Typography>
+          </Box>
+          {icon}
+        </Paper>
+      </Box>
+
       <Menu
         anchorEl={anchorEl}
-        id="account-menu"
-        open={open}
+        open={Boolean(anchorEl)}
         onClose={handleClose}
-        onClick={handleClose}
-        slotProps={{
-          paper: {
-            elevation: 0,
-            sx: {
-              'overflow': 'visible',
-              'filter': 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
-              'mt': 1.5,
-              '& .MuiAvatar-root': {
-                width: 32,
-                height: 32,
-                ml: -0.5,
-                mr: 1,
-              },
-              '&::before': {
-                content: '""',
-                display: 'block',
-                position: 'absolute',
-                top: 0,
-                right: 14,
-                width: 10,
-                height: 10,
-                bgcolor: 'background.paper',
-                transform: 'translateY(-50%) rotate(45deg)',
-                zIndex: 0,
-              },
-            },
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+        PaperProps={{
+          sx: {
+            borderRadius: '0 0 8px 8px',
+            boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)',
+            borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+            width: menuWidth,
           },
         }}
-        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+        disableAutoFocusItem
       >
+        <ToggleThemeModeButton asMenuItem />
+
         <MenuItem
-          onClick={() => {
-            toggleTheme();
-            handleClose();
-          }}
+          onClick={handleLogoutClick}
+          sx={{ padding: '10px 20px' }}
         >
-          <ListItemIcon>
-            <Settings fontSize="small" />
-          </ListItemIcon>
-          Cambia tema
-        </MenuItem>
-        <MenuItem onClick={() => logout()}>
-          <ListItemIcon>
-            <Logout fontSize="small" />
-          </ListItemIcon>
-          Esci
+          <LogoutRounded fontSize="small" sx={{ mr: 1 }} />
+          Logout
         </MenuItem>
       </Menu>
+
+      <NotificationsSidebar
+        open={notificationsOpen}
+        onClose={handleCloseNotifications}
+        notifications={notifications}
+        onMarkAllAsRead={handleMarkAllAsRead}
+      />
+
+      <Dialog
+        open={dialogOpen}
+        onClose={() => setDialogOpen(false)}
+      >
+        <DialogTitle>Sei sicuro di voler effettuare il logout?</DialogTitle>
+        <DialogActions sx={{ justifyContent: 'center', gap: 2 }}>
+          <Button
+            onClick={() => setDialogOpen(false)}
+            color="inherit"
+            variant="outlined"
+          >
+            Annulla
+          </Button>
+          <Button
+            onClick={confirmLogout}
+            color="error"
+            variant="contained"
+          >
+            Conferma
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 };

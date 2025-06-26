@@ -1,13 +1,14 @@
 import express from 'express';
 import { authenticateToken } from '../middleware/auth';
 import {
-  getAllIssues,
-  getIssueById,
-  createIssue,
-  updateIssue,
-  getAssignedIssues,
-  markAssignedIssuesAsRead,
-  getIssueByLineId,
+    getAllIssues,
+    getIssueById,
+    createIssue,
+    updateIssue,
+    getAssignedIssues,
+    getIssueByLineId,
+    markAssignedIssuesAsRead,
+    deleteIssue
 } from '../controllers/issueController';
 
 const router = express.Router();
@@ -25,6 +26,7 @@ router.get('/line/:lineId', authenticateToken, getIssueByLineId);
 router.get('/:id', authenticateToken, getIssueById);
 router.post('/', authenticateToken, createIssue);
 router.put('/:id', authenticateToken, updateIssue);
+router.delete('/:id', authenticateToken, deleteIssue);
 
 // TODO: implement DELETE with role check
 

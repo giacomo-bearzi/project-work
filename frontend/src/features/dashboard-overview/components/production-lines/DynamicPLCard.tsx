@@ -9,6 +9,7 @@ import { useGetProductionLine } from '../../../production-lines/hooks/useProduct
 import { PLCardActive } from './PLCardActive.tsx';
 import { PLCardStopped } from './PLCardStopped.tsx';
 import { PLCardIssue } from './PLCardIssue.tsx';
+import { useNavigate } from 'react-router-dom';
 import type { ApiProductionLine } from '../../../production-lines/types/types.api.ts';
 import { PLCardMaintenance } from './PLCardMaintenance.tsx';
 
@@ -22,6 +23,7 @@ interface ProductionLineCardProps {
 
 export const DynamicPLCard = ({ productionLine }: ProductionLineCardProps) => {
   const { token } = useAuth();
+  const navigate = useNavigate();
 
   const { data: lineTasks } = useQuery({
     queryKey: ['tasks', productionLine.lineId],
@@ -60,6 +62,7 @@ export const DynamicPLCard = ({ productionLine }: ProductionLineCardProps) => {
           lineName={data.name}
           issueCount={issuesCount}
           lastIssue={lastIssue}
+          onClick={() => navigate(`/overview/${data.lineId}`)}
         />
       );
     }
@@ -87,6 +90,7 @@ export const DynamicPLCard = ({ productionLine }: ProductionLineCardProps) => {
         <PLCardActive
           lineId={data.lineId}
           lineName={data.name}
+          onClick={() => navigate(`/overview/${data.lineId}`)}
         />
       );
     }
@@ -97,6 +101,7 @@ export const DynamicPLCard = ({ productionLine }: ProductionLineCardProps) => {
         <PLCardStopped
           lineId={data.lineId}
           lineName={data.name}
+          onClick={() => navigate(`/overview/${data.lineId}`)}
         />
       );
     }

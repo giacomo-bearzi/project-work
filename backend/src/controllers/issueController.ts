@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { query, Request, Response } from 'express';
 import Issue from '../models/Issue';
 
 export const getAllIssues = async (req: Request, res: Response) => {
@@ -57,12 +57,25 @@ export const updateIssue = async (req: Request, res: Response) => {
 
     Object.assign(issue, req.body);
 
-    if (req.body.status === 'risolta' && !issue.resolvedAt) {
-      issue.resolvedAt = new Date();
+    if (req.body.resolvedAt) {
+      const newResolvedAt = new Date(req.body.resolvedAt);
+      if (!isNaN(newResolvedAt.getTime())) {
+        issue.resolvedAt = newResolvedAt;
+      }
     }
-    if (issue.status !== 'risolta' && issue.resolvedAt) {
+
+    if (req.body.createdAt) {
+      const newCreatedAt = new Date(req.body.createdAt);
+      if (!isNaN(newCreatedAt.getTime())) {
+        issue.createdAt = newCreatedAt;
+      }
+    }
+
+    /*
+    if (req.body.status && req.body.status !== 'risolta') {
       issue.resolvedAt = undefined;
     }
+      */
 
     const updatedIssue = await issue.save();
     res.json(updatedIssue);
@@ -133,4 +146,18 @@ export const getIssueByLineId = async (req: Request, res: Response) => {
     console.error('Error fetching issues by line ID:', error);
     res.status(500).json({ message: 'Server Error' });
   }
+};
+
+
+export const deleteIssue = async (req: Request, res: Response) => {
+    try {
+        const issue = await Issue.findByIdAndDelete(req.params.id);
+        if (!issue) {
+            return res.status(404).json({ message: 'Issue not found' });
+        }
+        res.json({ message: 'Issue deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting issue:', error);
+        res.status(500).json({ message: 'Server Error' });
+    }
 };

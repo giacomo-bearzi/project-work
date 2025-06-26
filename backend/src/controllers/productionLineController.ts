@@ -23,3 +23,16 @@ export const getProductionLineById = async (req: Request, res: Response) => {
     res.status(500).json({ message: 'Server Error' });
   }
 };
+
+export const getProductionLineByLineId = async (req: Request, res: Response) => {
+  try {
+    const line = await ProductionLine.findOne({ lineId: req.params.lineId });
+    if (!line) {
+      return res.status(404).json({ message: 'Production line not found' });
+    }
+    res.json(line);
+  } catch (error) {
+    console.error('Error fetching production line by lineId:', error);
+    res.status(500).json({ message: 'Server Error' });
+  }
+};

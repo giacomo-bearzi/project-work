@@ -14,6 +14,7 @@ interface PLCardIssueProps {
   lineName: string;
   issueCount: number;
   lastIssue: ApiIssue;
+  onClick?: () => void;
 }
 
 export const PLCardIssue = ({
@@ -21,14 +22,20 @@ export const PLCardIssue = ({
   lineName,
   issueCount,
   lastIssue,
+  onClick
 }: PLCardIssueProps) => {
   return (
-    <Grid size={{ sm: 4, md: 4, lg: 12 }}>
+    <Grid onClick={onClick} size={{ sm: 4, md: 4, lg: 12 }}>
       <CustomPaper
-        sx={{
+       sx={{
           p: 0,
           borderRadius: 5,
-          height: '100%',
+          height: "100%",
+          cursor: "pointer",
+          transition: "all 0.3s ease",
+          "&:hover": {
+            transform: "scale(1.02)",
+          },
         }}
       >
         <Grid

@@ -43,15 +43,70 @@ interface IssueModalProps {
     username: string;
     role: string;
   };
+  initialValues?: Partial<{
+    _id: string;
+    lineId: string;
+    type: string;
+    priority: string;
+    status: string;
+    description: string;
+    reportedBy: User | null;
+    assignedTo: User | null;
+    createdAt: string;
+    resolvedAt: string;
+  }>;
 }
 
-const statusOptions = [
+export const statusOptions = [
   { value: 'aperta', label: 'Aperta' },
   { value: 'in lavorazione', label: 'In lavorazione' },
   { value: 'risolta', label: 'Risolta' }
 ];
 
-export const IssueModal: React.FC<IssueModalProps> = ({ open, onClose, onSave, lineOptions, typeOptions, priorityOptions, statusOptions, currentUser }) => {
+// Funzione per ottenere la stringa locale compatibile con datetime-local
+function getLocalDateTimeString(date = new Date()) {
+  const pad = (n: number) => n.toString().padStart(2, '0');
+  return (
+    date.getFullYear() +
+    '-' +
+    pad(date.getMonth() + 1) +
+    '-' +
+    pad(date.getDate()) +
+    'T' +
+    pad(date.getHours()) +
+    ':' +
+    pad(date.getMinutes())
+  );
+}
+
+// Funzione per convertire una stringa datetime-local in una data UTC (ISO) mantenendo l'orario scelto dall'utente
+function localDateTimeToUTC(dateTimeStr: string) {
+  if (!dateTimeStr) return '';
+  const [date, time] = dateTimeStr.split('T');
+  const [year, month, day] = date.split('-').map(Number);
+  const [hour, minute] = time.split(':').map(Number);
+  return new Date(Date.UTC(year, month - 1, day, hour, minute)).toISOString();
+}
+
+// Funzione per ottenere la stringa compatibile con datetime-local a partire da una data UTC (senza conversione locale)
+function getUTCDateTimeLocalString(dateStr: string) {
+  if (!dateStr) return '';
+  const date = new Date(dateStr);
+  const pad = (n: number) => n.toString().padStart(2, '0');
+  return (
+    date.getUTCFullYear() +
+    '-' +
+    pad(date.getUTCMonth() + 1) +
+    '-' +
+    pad(date.getUTCDate()) +
+    'T' +
+    pad(date.getUTCHours()) +
+    ':' +
+    pad(date.getUTCMinutes())
+  );
+}
+
+export const IssueModal: React.FC<IssueModalProps> = ({ open, onClose, onSave, lineOptions, typeOptions, priorityOptions, statusOptions, currentUser, initialValues }) => {
   const [description, setDescription] = useState('');
   const [line, setLine] = useState('');
   const [type, setType] = useState('');
@@ -67,20 +122,32 @@ export const IssueModal: React.FC<IssueModalProps> = ({ open, onClose, onSave, l
 
   useEffect(() => {
     if (open) {
-      setDescription('');
-      setLine('');
-      setType('');
-      setPriority('');
-      setStatus('');
-      setAssignedTo(null);
-      setReportedBy(null);
-      setCreatedAt(new Date().toISOString());
-      setResolvedAt('');
+      if (initialValues) {
+        setDescription(initialValues.description || '');
+        setLine(initialValues.lineId || '');
+        setType(initialValues.type || '');
+        setPriority(initialValues.priority || '');
+        setStatus(initialValues.status || '');
+        setAssignedTo(initialValues.assignedTo || null);
+        setReportedBy(initialValues.reportedBy || null);
+        setCreatedAt(initialValues.createdAt ? getUTCDateTimeLocalString(initialValues.createdAt) : '');
+        setResolvedAt(initialValues.resolvedAt ? getUTCDateTimeLocalString(initialValues.resolvedAt) : '');
+      } else {
+        setDescription('');
+        setLine('');
+        setType('');
+        setPriority('');
+        setStatus('');
+        setAssignedTo(null);
+        setReportedBy(null);
+        setCreatedAt(getLocalDateTimeString());
+        setResolvedAt('');
+      }
       setUserOptions([]);
       setSearchAssigned('');
       setSearchReported('');
     }
-  }, [open]);
+  }, [open, initialValues]);
 
   // Funzione per cercare utenti via GraphQL
   const fetchUsers = async (queryTerm: string) => {
@@ -120,18 +187,8 @@ export const IssueModal: React.FC<IssueModalProps> = ({ open, onClose, onSave, l
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
-    let createdAtISO = createdAt;
-    if (createdAt.length === 10) { // solo data, senza orario
-      const now = new Date();
-      const time = now.toTimeString().split(' ')[0]; // HH:MM:SS
-      createdAtISO = `${createdAt}T${time}`;
-    }
-    let resolvedAtISO = resolvedAt;
-    if (resolvedAt.length === 10) { // solo data, senza orario
-      const now = new Date();
-      const time = now.toTimeString().split(' ')[0]; // HH:MM:SS
-      resolvedAtISO = `${resolvedAt}T${time}`;
-    }
+    let createdAtISO = createdAt ? localDateTimeToUTC(createdAt) : '';
+    let resolvedAtISO = resolvedAt ? localDateTimeToUTC(resolvedAt) : '';
     const payload = {
       description,
       lineId: line,
@@ -143,7 +200,7 @@ export const IssueModal: React.FC<IssueModalProps> = ({ open, onClose, onSave, l
       createdAt: createdAtISO,
       resolvedAt: resolvedAtISO,
     };
-    onSave(payload); 
+    onSave(payload);
   };
 
   return (
@@ -252,7 +309,7 @@ export const IssueModal: React.FC<IssueModalProps> = ({ open, onClose, onSave, l
               />
               <TextField
                 label="Creata il"
-                type="date"
+                type="datetime-local"
                 value={createdAt}
                 onChange={e => setCreatedAt(e.target.value)}
                 InputLabelProps={{ shrink: true }}
@@ -261,7 +318,7 @@ export const IssueModal: React.FC<IssueModalProps> = ({ open, onClose, onSave, l
               />
               <TextField
                 label="Risolta il"
-                type="date"
+                type="datetime-local"
                 value={resolvedAt}
                 onChange={e => setResolvedAt(e.target.value)}
                 InputLabelProps={{ shrink: true }}
