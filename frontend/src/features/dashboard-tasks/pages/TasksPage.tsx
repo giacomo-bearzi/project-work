@@ -369,7 +369,7 @@ export const TasksPage = () => {
                   Aggiungi Attività
                 </Button>
               </Stack>
-              <Box sx={{ overflowY: 'auto', maxHeight: '70vh', pr: 1, overflowY: "scroll",
+              <Box sx={{  maxHeight: '70vh', pr: 1, overflowY: "scroll",
         scrollbarWidth: "none",
         "&::-webkit-scrollbar": {
           display: "none",
