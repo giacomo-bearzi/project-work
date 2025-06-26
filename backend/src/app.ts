@@ -7,6 +7,12 @@ import userRoutes from './routes/users';
 import issueRoutes from './routes/issues';
 import productionLineRoutes from './routes/productionLines';
 import taskRoutes from './routes/tasks';
+import subLineRoutes from './routes/subLines';
+import machineRoutes from './routes/machines';
+import temperatureLogRoutes from './routes/temperatureLogs';
+import consumptionLogRoutes from './routes/consumptionLogs';
+import powerLogRoutes from './routes/powerLogs';
+import co2EmissionLogRoutes from './routes/co2EmissionLogs';
 import { graphqlHTTP } from 'express-graphql';
 import schema from './graphql/schema';
 import resolvers from './graphql/resolvers';
@@ -33,6 +39,12 @@ app.use('/api/users', userRoutes);
 app.use('/api/issues', issueRoutes);
 app.use('/api/production-lines', productionLineRoutes);
 app.use('/api/tasks', taskRoutes);
+app.use('/api/sub-lines', subLineRoutes);
+app.use('/api/machines', machineRoutes);
+app.use('/api/temperature-logs', temperatureLogRoutes);
+app.use('/api/consumption-logs', consumptionLogRoutes);
+app.use('/api/power-logs', powerLogRoutes);
+app.use('/api/co2-emission-logs', co2EmissionLogRoutes);
 
 // MongoDB connection
 console.log('Attempting to connect to MongoDB...');
