@@ -63,6 +63,22 @@ export const statusOptions = [
   { value: 'risolta', label: 'Risolta' }
 ];
 
+// Funzione per ottenere la stringa locale compatibile con datetime-local
+function getLocalDateTimeString(date = new Date()) {
+  const pad = (n: number) => n.toString().padStart(2, '0');
+  return (
+    date.getFullYear() +
+    '-' +
+    pad(date.getMonth() + 1) +
+    '-' +
+    pad(date.getDate()) +
+    'T' +
+    pad(date.getHours()) +
+    ':' +
+    pad(date.getMinutes())
+  );
+}
+
 export const IssueModal: React.FC<IssueModalProps> = ({ open, onClose, onSave, lineOptions, typeOptions, priorityOptions, statusOptions, currentUser, initialValues }) => {
   const [description, setDescription] = useState('');
   const [line, setLine] = useState('');
@@ -87,8 +103,8 @@ export const IssueModal: React.FC<IssueModalProps> = ({ open, onClose, onSave, l
         setStatus(initialValues.status || '');
         setAssignedTo(initialValues.assignedTo || null);
         setReportedBy(initialValues.reportedBy || null);
-        setCreatedAt(initialValues.createdAt ? initialValues.createdAt.substring(0, 16) : '');
-        setResolvedAt(initialValues.resolvedAt ? initialValues.resolvedAt.substring(0, 16) : '');
+        setCreatedAt(initialValues.createdAt ? getLocalDateTimeString(new Date(initialValues.createdAt)) : '');
+        setResolvedAt(initialValues.resolvedAt ? getLocalDateTimeString(new Date(initialValues.resolvedAt)) : '');
       } else {
         setDescription('');
         setLine('');
@@ -97,7 +113,7 @@ export const IssueModal: React.FC<IssueModalProps> = ({ open, onClose, onSave, l
         setStatus('');
         setAssignedTo(null);
         setReportedBy(null);
-        setCreatedAt(new Date().toISOString().substring(0, 16));
+        setCreatedAt(getLocalDateTimeString());
         setResolvedAt('');
       }
       setUserOptions([]);
