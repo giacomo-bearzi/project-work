@@ -9,7 +9,7 @@ import {
     getIssueByLineId,
     markAssignedIssuesAsRead,
     deleteIssue,
-    clearReadAssignedIssues
+    hideReadAssignedIssues,
 } from '../controllers/issueController';
 
 const router = express.Router();
@@ -21,10 +21,10 @@ router.patch(
   authenticateToken,
   markAssignedIssuesAsRead,
 );
-router.delete(
-  '/assigned/clear-read',
+router.patch(
+  '/assigned/hide-read',
   authenticateToken,
-  clearReadAssignedIssues
+  hideReadAssignedIssues
 );
 
 router.get('/line/:lineId', authenticateToken, getIssueByLineId);
