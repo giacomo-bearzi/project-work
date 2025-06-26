@@ -1,18 +1,15 @@
 import {
   Box,
-  Button,
   CircularProgress,
   Grid,
   Paper,
   Stack,
-  TextField,
   Typography,
 } from "@mui/material";
 
 import { useAuth } from "../../log-in/context/AuthContext.tsx";
 import { useEffect, useState } from "react";
 import type { User } from "../../../components/Login.tsx";
-import AddIcon from "@mui/icons-material/Add";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { AddUserDialog } from "../components/AddUserDialog.tsx";
@@ -26,8 +23,8 @@ import {
   getUserIssues,
   getUserTasks,
 } from "../api/UsersApi.ts";
-import { HeaderDesktop } from "../../dashboard/components/Header/HeaderDesktop.tsx";
 import { DashboardLayout } from "../../dashboard/layouts/DashboardLayout.tsx";
+import { UserActionsToolbar } from "../components/UserActionsToolbar.tsx";
 
 export interface Issue {
   _id: string;
@@ -313,63 +310,50 @@ export const UsersPage = () => {
               }}
             >
             </Paper> */}
-              <div className="flex justify-between mb-2 mt-2 p-2">
-                <TextField
-                  label="Cerca utente"
-                  variant="outlined"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  size="small"
-                  sx={{ width: 300 }}
-                />
-                <Button
-                  variant="contained"
-                  onClick={handleOpenAddDialog}
-                  startIcon={<AddIcon />}
-                >
-                  Aggiungi Utente
-                </Button>
-              </div>
-
-              {loading ? (
-                <Box
-                  display="flex"
-                  justifyContent="center"
-                  alignItems="center"
-                  height="400px"
-                  width="100%"
-                >
-                  <CircularProgress size="3rem" color="secondary" />
-                </Box>
-              ) : (
-                <UsersTable
-                  users={users}
-                  selectedUser={selectedUser}
-                  editingUserId={editingUserId}
-                  editedUser={editedUser}
-                  searchTerm={searchTerm}
-                  onEditChange={handleEditChange}
-                  onStartEditing={startEditing}
-                  onCancelEditing={cancelEditing}
-                  onSaveEdit={saveEdit}
-                  onSelectUser={handleShowInfo}
-                  onDeleteClick={openConfirmDialog}
-                />
-              )}
-
-              <AddUserDialog
-                open={addDialogOpen}
-                onClose={handleCloseAddDialog}
-                onSave={handleAddUser}
-                newUser={newUser}
-                onChange={handleNewUserChange}
+            <UserActionsToolbar
+              searchTerm={searchTerm}
+              onSearchChange={setSearchTerm}
+              onAddUser={handleOpenAddDialog}
+            />
+            {loading ? (
+              <Box
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+                height="400px"
+                width="100%"
+              >
+                <CircularProgress size={80} color="secondary" />
+              </Box>
+            ) : (
+              <UsersTable
+                users={users}
+                selectedUser={selectedUser}
+                editingUserId={editingUserId}
+                editedUser={editedUser}
+                searchTerm={searchTerm}
+                onEditChange={handleEditChange}
+                onStartEditing={startEditing}
+                onCancelEditing={cancelEditing}
+                onSaveEdit={saveEdit}
+                onSelectUser={handleShowInfo}
+                onDeleteClick={openConfirmDialog}
               />
-              <ConfirmDeleteDialog
-                open={confirmOpen}
-                user={userToDelete}
-                onClose={closeConfirmDialog}
-                onConfirm={handleDeleteUser}
-              />
+            )}
+
+            <AddUserDialog
+              open={addDialogOpen}
+              onClose={handleCloseAddDialog}
+              onSave={handleAddUser}
+              newUser={newUser}
+              onChange={handleNewUserChange}
+            />
+            <ConfirmDeleteDialog
+              open={confirmOpen}
+              user={userToDelete}
+              onClose={closeConfirmDialog}
+              onConfirm={handleDeleteUser}
+            />
           </Grid>
         </Grid>
       </Stack>

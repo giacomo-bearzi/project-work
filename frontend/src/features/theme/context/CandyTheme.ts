@@ -123,7 +123,6 @@ export const getThemeOptions = (mode: "light" | "dark"): ThemeOptions => ({
       },
     },
 
-    // *** Qui aggiungiamo Tabs e Tab ***
     MuiTabs: {
       styleOverrides: {
         root: {
