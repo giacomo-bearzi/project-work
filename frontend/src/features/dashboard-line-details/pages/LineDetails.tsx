@@ -12,7 +12,6 @@ import {
   Card,
   CardContent,
   Grid,
-  styled,
 } from "@mui/material";
 
 import api from "../../../utils/axios.ts";
@@ -46,7 +45,6 @@ export interface SubLine {
   status: string;
   machine: string | Machine;
 }
-
 
 const SimpleLineChart = ({
   data,
@@ -152,11 +150,17 @@ const LineDetails = () => {
     if (!machineId) return;
 
     // Funzione helper per convertire log raw in LogPoint[]
-    const prepareLogPoints = (logs: any[], valueKey: string): LogPoint[] =>
-      logs.map((l) => ({
-        timestamp: l.timestamp,
-        value: l[valueKey],
-      }));
+    const prepareLogPoints = (
+      logs: any[],
+      valueKey: string,
+      machineId: string
+    ): LogPoint[] =>
+      logs
+        .filter((log) => log.machineId._id === machineId) // 👈 filtro per macchina
+        .map((log) => ({
+          timestamp: log.timestamp,
+          value: log[valueKey],
+        }));
 
     Promise.all([
       api.get(`/temperature-logs?machineId=${machineId}`, {
@@ -173,10 +177,16 @@ const LineDetails = () => {
       }),
     ])
       .then(([tempRes, consRes, powerRes, co2Res]) => {
-        setTemperatureLogs(prepareLogPoints(tempRes.data, "temperature"));
-        setConsumptionLogs(prepareLogPoints(consRes.data, "energyConsumed"));
-        setPowerLogs(prepareLogPoints(powerRes.data, "power"));
-        setCo2Logs(prepareLogPoints(co2Res.data, "co2Emission"));
+        console.log(tempRes.data);
+
+        setTemperatureLogs(
+          prepareLogPoints(tempRes.data, "temperature", machineId)
+        );
+        setConsumptionLogs(
+          prepareLogPoints(consRes.data, "energyConsumed", machineId)
+        );
+        setPowerLogs(prepareLogPoints(powerRes.data, "power", machineId));
+        setCo2Logs(prepareLogPoints(co2Res.data, "co2Emission", machineId));
       })
       .catch(() => {
         setTemperatureLogs([]);
@@ -184,6 +194,7 @@ const LineDetails = () => {
         setPowerLogs([]);
         setCo2Logs([]);
       });
+    console.log(temperatureLogs);
   }, [selectedSubLineId, subLines, token]);
 
   if (isLoading) {
@@ -216,101 +227,118 @@ const LineDetails = () => {
 
   return (
     <DashboardLayout>
-      <h1 className="text-3xl">Dettagli di {lineaId.toUpperCase()}</h1>
-      <div>
-        <p>
-          <b>Nome:</b> {line.name}
-        </p>
-        <p>
-          <b>Stato:</b> {line.status}
-        </p>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          height: "100vh",
+        }}
+      >
+        {/* Sticky Header */}
+        <Box
+          sx={{
+            position: "sticky",
+            top: 0,
+            backgroundColor: "background.paper",
+            zIndex: 1000,
+            p: 2,
+          }}
+        >
+          <div className="flex flex-row  p-1 justify-between">
+            <p>
+              <b>{line.name}</b>
+            </p>
+            <p>
+              <b>{line.status}</b>
+            </p>
+          </div>
 
-        <Box sx={{ borderBottom: 1, borderColor: "divider", mt: 3 }}>
-          <Tabs
-            value={selectedTabIndex === -1 ? 0 : selectedTabIndex}
-            onChange={handleTabChange}
-            aria-label="Seleziona subline"
-            variant="scrollable"
-            scrollButtons="auto"
-          >
-            {subLines.map((sl) => (
-              <Tab key={sl._id} label={sl.name} />
-            ))}
-          </Tabs>
+          <Box sx={{ borderBottom: 1, borderColor: "divider", mt: 3 }}>
+            <Tabs
+              value={selectedTabIndex === -1 ? 0 : selectedTabIndex}
+              onChange={handleTabChange}
+              aria-label="Seleziona subline"
+              variant="scrollable"
+              scrollButtons="auto"
+            >
+              {subLines.map((sl) => (
+                <Tab key={sl._id} label={sl.name} />
+              ))}
+            </Tabs>
+          </Box>
+
+          {selectedSubLineId && (
+            <Typography variant="body1" sx={{ mt: 2 }}>
+              <strong>{machineName}</strong>
+            </Typography>
+          )}
         </Box>
 
-        {selectedSubLineId && (
-          <Typography variant="body1" sx={{ mt: 2, mb: 4 }}>
-            Macchina associata: <strong>{machineName}</strong>
-          </Typography>
-        )}
-
-        <Grid container spacing={1}>
-          <Grid size={6}>
-            <Card>
-              <CardContent>
-                <Typography variant="h6" gutterBottom>
-                  Temperatura
-                </Typography>
-                <SimpleLineChart
-                  data={temperatureLogs}
-                  dataKey="value"
-                  color="#FF5722"
-                  yLabel="°C"
-                />
-              </CardContent>
-            </Card>
+        {/* Scrollable content */}
+        <Box
+          sx={{
+            flex: 1,
+            pr: 1,
+            overflowY: "scroll",
+            scrollbarWidth: "none",
+            "&::-webkit-scrollbar": {
+              display: "none",
+            },
+          }}
+        >
+          <Grid container spacing={1} sx={{ mt: 1 }}>
+            {[
+              {
+                title: "Temperatura",
+                color: "#FF5722",
+                data: temperatureLogs,
+                y: "°C",
+              },
+              {
+                title: "Consumo energetico",
+                color: "#2196F3",
+                data: consumptionLogs,
+                y: "kWh",
+              },
+              { title: "Potenza", color: "#4CAF50", data: powerLogs, y: "W" },
+              {
+                title: "Emissioni CO₂",
+                color: "#9C27B0",
+                data: co2Logs,
+                y: "kg",
+              },
+            ].map(({ title, color, data, y }, idx) => (
+              <Grid size={6} key={idx}>
+                <Card
+                  sx={{
+                    borderRadius: 11,
+                    p: 1,
+                    background: "rgba(255, 255, 255, 0.07)",
+                    backdropFilter: "blur(20px) saturate(180%)",
+                    WebkitBackdropFilter: "blur(20px) saturate(180%)",
+                    boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
+                    height: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                  }}
+                >
+                  <CardContent>
+                    <Typography variant="h6" gutterBottom>
+                      {title}
+                    </Typography>
+                    <SimpleLineChart
+                      data={data}
+                      dataKey="value"
+                      color={color}
+                      yLabel={y}
+                    />
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
           </Grid>
-
-          <Grid size={6}>
-            <Card>
-              <CardContent>
-                <Typography variant="h6" gutterBottom>
-                  Consumo energetico
-                </Typography>
-                <SimpleLineChart
-                  data={consumptionLogs}
-                  dataKey="value"
-                  color="#2196F3"
-                  yLabel="kWh"
-                />
-              </CardContent>
-            </Card>
-          </Grid>
-
-          <Grid size={6}>
-            <Card>
-              <CardContent>
-                <Typography variant="h6" gutterBottom>
-                  Potenza
-                </Typography>
-                <SimpleLineChart
-                  data={powerLogs}
-                  dataKey="value"
-                  color="#4CAF50"
-                  yLabel="W"
-                />
-              </CardContent>
-            </Card>
-          </Grid>
-
-          <Grid size={6}>
-            <Card>
-              <CardContent>
-                <Typography variant="h6" gutterBottom>
-                  Emissioni CO₂
-                </Typography>
-                <SimpleLineChart
-                  data={co2Logs}
-                  dataKey="value"
-                  color="#9C27B0"
-                  yLabel="kg"
-                />
-              </CardContent>
-            </Card>
-          </Grid>
-        </Grid>
-      </div>
+        </Box>
+      </Box>
     </DashboardLayout>
   );
 };
