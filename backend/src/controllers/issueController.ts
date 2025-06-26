@@ -161,3 +161,17 @@ export const deleteIssue = async (req: Request, res: Response) => {
         res.status(500).json({ message: 'Server Error' });
     }
 };
+
+export const clearReadAssignedIssues = async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).user.userId;
+    await Issue.deleteMany({
+      assignedTo: userId,
+      readBy: userId,
+    });
+    res.status(200).json({ message: 'Issues lette svuotate' });
+  } catch (error) {
+    console.error('Errore nel cancellare le issues lette:', error);
+    res.status(500).json({ message: 'Errore del server' });
+  }
+};
