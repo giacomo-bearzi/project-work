@@ -244,8 +244,6 @@ export const IssuesPage = () => {
   const handleEditIssue = async (data: any) => {
     if (!issueToEdit) return;
     try {
-
-          
       await api.put(`/issues/${issueToEdit._id}`, data);
       
       const response = await api.get<Issue[]>("/issues");
@@ -623,11 +621,11 @@ export const IssuesPage = () => {
                     ) : null}
                   </TableCell>
                   <TableCell>
-                    {moment(issue.createdAt).format('YYYY-MM-DD HH:mm')}
+                    {moment.utc(issue.createdAt).format('YYYY-MM-DD HH:mm')}
                   </TableCell>
                   <TableCell>
                     {issue.resolvedAt
-                      ? moment(issue.resolvedAt).format('YYYY-MM-DD HH:mm')
+                      ? moment.utc(issue.resolvedAt).format('YYYY-MM-DD HH:mm')
                       : '-'}
                   </TableCell>
                   <TableCell>

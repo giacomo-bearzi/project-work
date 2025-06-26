@@ -57,12 +57,25 @@ export const updateIssue = async (req: Request, res: Response) => {
 
     Object.assign(issue, req.body);
 
-    if (req.body.status === 'risolta' && !issue.resolvedAt) {
-      issue.resolvedAt = new Date();
+    if (req.body.resolvedAt) {
+      const newResolvedAt = new Date(req.body.resolvedAt);
+      if (!isNaN(newResolvedAt.getTime())) {
+        issue.resolvedAt = newResolvedAt;
+      }
     }
-    if (issue.status !== 'risolta' && issue.resolvedAt) {
+
+    if (req.body.createdAt) {
+      const newCreatedAt = new Date(req.body.createdAt);
+      if (!isNaN(newCreatedAt.getTime())) {
+        issue.createdAt = newCreatedAt;
+      }
+    }
+
+    /*
+    if (req.body.status && req.body.status !== 'risolta') {
       issue.resolvedAt = undefined;
     }
+      */
 
     const updatedIssue = await issue.save();
     res.json(updatedIssue);

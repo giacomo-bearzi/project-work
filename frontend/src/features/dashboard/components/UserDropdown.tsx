@@ -20,10 +20,9 @@ import {
 } from '@mui/icons-material';
 import { useEffect, useRef, useState } from 'react';
 import { ToggleThemeModeButton } from '../../theme/components/ToggleThemeModeButton';
-
-import { NotificationsPopover } from './NotificationsPopover';
 import { useGetAssignedIssues } from '../../issues/hooks/useIssueQueries.tsx';
 import { markAssignedIssuesAsRead } from '../../issues/api/api.ts';
+import { NotificationsSidebar } from './NotificationsSidebar.tsx';
 
 interface UserDropdownProps {
   fullName: string;
@@ -39,13 +38,10 @@ export const UserDropdown = ({
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [menuWidth, setMenuWidth] = useState<number | undefined>(undefined);
-  const [notificationAnchorEl, setNotificationAnchorEl] =
-    useState<null | HTMLElement>(null);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
 
-  const handleOpenNotifications = (event: React.MouseEvent<HTMLElement>) => {
-    setNotificationAnchorEl(event.currentTarget);
-  };
-  const handleCloseNotifications = () => setNotificationAnchorEl(null);
+  const handleOpenNotifications = () => setNotificationsOpen(true);
+  const handleCloseNotifications = () => setNotificationsOpen(false);
 
   const { data: assignedIssues, refetch } = useGetAssignedIssues();
 
@@ -195,8 +191,8 @@ export const UserDropdown = ({
         </MenuItem>
       </Menu>
 
-      <NotificationsPopover
-        anchorEl={notificationAnchorEl}
+      <NotificationsSidebar
+        open={notificationsOpen}
         onClose={handleCloseNotifications}
         notifications={notifications}
         onMarkAllAsRead={handleMarkAllAsRead}

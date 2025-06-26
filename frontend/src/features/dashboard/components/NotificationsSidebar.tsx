@@ -1,10 +1,12 @@
 import {
-  Popover,
+  Drawer,
   Typography,
   Box,
   Button,
   Divider,
+  IconButton,
 } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
 
 interface Notification {
   id: string;
@@ -12,33 +14,37 @@ interface Notification {
   read: boolean;
 }
 
-interface NotificationsPopoverProps {
-  anchorEl: HTMLElement | null;
+interface NotificationsSidebarProps {
+  open: boolean;
   onClose: () => void;
   notifications: Notification[];
   onMarkAllAsRead: () => void;
 }
 
-export const NotificationsPopover = ({
-  anchorEl,
+export const NotificationsSidebar = ({
+  open,
   onClose,
   notifications,
   onMarkAllAsRead,
-}: NotificationsPopoverProps) => {
-  const open = Boolean(anchorEl);
+}: NotificationsSidebarProps) => {
   const unread = notifications.filter(n => !n.read);
   const read = notifications.filter(n => n.read);
 
   return (
-    <Popover
+    <Drawer
+      anchor="right"
       open={open}
-      anchorEl={anchorEl}
       onClose={onClose}
-      anchorOrigin={{ vertical: 'center', horizontal: 'left' }}
-      transformOrigin={{ vertical: 'center', horizontal: 'right' }}
-      PaperProps={{ sx: { p: 2, width: 300, maxHeight: 400, overflowY: 'auto' } }}
+      PaperProps={{ sx: { width: 400, maxWidth: '100vw', p: 3 } }}
     >
-      <Typography variant="subtitle1" fontWeight={600}>
+      <IconButton
+        onClick={onClose}
+        sx={{ position: 'absolute', top: 8, right: 8 }}
+        aria-label="close"
+      >
+        <CloseIcon />
+      </IconButton>
+      <Typography variant="h6" fontWeight={600} sx={{ mb: 2 }}>
         Notifiche
       </Typography>
 
@@ -81,6 +87,6 @@ export const NotificationsPopover = ({
       {unread.length === 0 && read.length === 0 && (
         <Typography sx={{ mt: 2, opacity: 0.6 }}>Nessuna notifica</Typography>
       )}
-    </Popover>
+    </Drawer>
   );
 };

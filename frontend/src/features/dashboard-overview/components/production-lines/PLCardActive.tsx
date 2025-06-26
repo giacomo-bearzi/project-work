@@ -10,9 +10,14 @@ import Skeleton from '@mui/material/Skeleton';
 interface PLCardActiveProps {
   lineId: 'line-1' | 'line-2' | 'line-3';
   lineName: string;
+  onClick?: () => void;
 }
 
-export const PLCardActive = ({ lineId, lineName }: PLCardActiveProps) => {
+export const PLCardActive = ({
+  lineId,
+  lineName,
+  onClick,
+}: PLCardActiveProps) => {
   return (
     <Grid size={{ sm: 4, md: 4, lg: 12 }}>
       <CustomPaper
@@ -36,7 +41,7 @@ export const PLCardActive = ({ lineId, lineName }: PLCardActiveProps) => {
               sx={{
                 height: '100%',
                 objectFit: 'cover',
-                borderRadius: 4,
+                borderRadius: 64,
               }}
             />
           </Grid>

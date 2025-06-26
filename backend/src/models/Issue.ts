@@ -56,7 +56,9 @@ const issueSchema = new mongoose.Schema({
         type: [mongoose.Schema.Types.ObjectId],
         ref: 'User',
         default: []
-    }
+    },
+    createdAt: { type: Date, required: true },
+
 }, {
     timestamps: true, // Handles createdAt and updatedAt
     collection: 'Issues' // Explicitly set collection name
