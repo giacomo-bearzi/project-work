@@ -4,7 +4,7 @@ import { DashboardLayout } from "../../dashboard/layouts/DashboardLayout";
 import { useProductionLine } from "../hooks/useProductionLine";
 import { useAuth } from "../../log-in/context/AuthContext";
 
-import { Select, MenuItem, InputLabel, FormControl, Typography } from '@mui/material';
+import { Tabs, Tab, Typography, Box } from '@mui/material';
 import api from '../../../utils/axios.ts';
 
 export interface Machine {
@@ -39,7 +39,6 @@ const LineDetails = () => {
     isError,
   } = useProductionLine(lineaId, token || "");
 
-  // Fetch machines
   useEffect(() => {
     if (!token) return;
 
@@ -50,7 +49,6 @@ const LineDetails = () => {
       .catch(() => setMachines([]));
   }, [token]);
 
-  // Fetch sublines e filtra solo quelle della linea corrente
   useEffect(() => {
     if (!line || !line.subLines?.length || !token) {
       setSubLines([]);
@@ -61,7 +59,6 @@ const LineDetails = () => {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => {
-        // filtra solo sublines che appartengono alla linea
         const filteredSubs: SubLine[] = res.data.filter((sl: SubLine) =>
           line.subLines.includes(sl._id)
         );
@@ -70,7 +67,8 @@ const LineDetails = () => {
       .catch(() => setSubLines([]));
   }, [line, token]);
 
-   useEffect(() => {
+  // Seleziona di default la prima subline
+  useEffect(() => {
     if (subLines.length > 0 && !selectedSubLineId) {
       setSelectedSubLineId(subLines[0]._id);
     }
@@ -84,10 +82,8 @@ const LineDetails = () => {
     return <Navigate to="/overview" replace />;
   }
 
-  // Trova la subline selezionata
   const selectedSubLine = subLines.find(sl => sl._id === selectedSubLineId);
 
-  // Trova il nome macchina associato alla subline selezionata
   let machineName = "";
   if (selectedSubLine) {
     if (typeof selectedSubLine.machine === "string") {
@@ -98,6 +94,13 @@ const LineDetails = () => {
     }
   }
 
+  // Per gestire il valore dell’indice tab, converto da id a indice
+  const selectedTabIndex = subLines.findIndex(sl => sl._id === selectedSubLineId);
+
+  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+    setSelectedSubLineId(subLines[newValue]._id);
+  };
+
   return (
     <DashboardLayout>
       <h1 className="text-3xl">Dettagli di {lineaId.toUpperCase()}</h1>
@@ -105,25 +108,19 @@ const LineDetails = () => {
         <p><b>Nome:</b> {line.name}</p>
         <p><b>Stato:</b> {line.status}</p>
 
-        <FormControl fullWidth sx={{ mt: 2 }}>
-          <InputLabel id="subline-select-label">Seleziona una Subline</InputLabel>
-          <Select
-            labelId="subline-select-label"
-            id="subline-select"
-            value={selectedSubLineId}
-            label="Seleziona una Subline"
-            onChange={(e) => setSelectedSubLineId(e.target.value)}
+        <Box sx={{ borderBottom: 1, borderColor: 'divider', mt: 3 }}>
+          <Tabs
+            value={selectedTabIndex === -1 ? 0 : selectedTabIndex}
+            onChange={handleTabChange}
+            aria-label="Seleziona subline"
+            variant="scrollable"
+            scrollButtons="auto"
           >
-            <MenuItem value="">
-              <em>-- Nessuna --</em>
-            </MenuItem>
-            {subLines.map(sl => (
-              <MenuItem key={sl._id} value={sl._id}>
-                {sl.name}
-              </MenuItem>
+            {subLines.map((sl) => (
+              <Tab key={sl._id} label={sl.name} />
             ))}
-          </Select>
-        </FormControl>
+          </Tabs>
+        </Box>
 
         {selectedSubLineId && (
           <Typography variant="body1" sx={{ mt: 2 }}>
