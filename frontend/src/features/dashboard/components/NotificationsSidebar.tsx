@@ -32,10 +32,10 @@ export const NotificationsSidebar = ({
 
   return (
     <Drawer
-      anchor="left"
+      anchor="right"
       open={open}
       onClose={onClose}
-      PaperProps={{ sx: { width: 400, maxWidth: '100vw', p: 3, position: 'relative' } }}
+      PaperProps={{ sx: { width: 400, maxWidth: '100vw', p: 3 } }}
     >
       <IconButton
         onClick={onClose}
