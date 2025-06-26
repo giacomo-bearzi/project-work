@@ -70,6 +70,12 @@ const LineDetails = () => {
       .catch(() => setSubLines([]));
   }, [line, token]);
 
+   useEffect(() => {
+    if (subLines.length > 0 && !selectedSubLineId) {
+      setSelectedSubLineId(subLines[0]._id);
+    }
+  }, [subLines, selectedSubLineId]);
+
   if (isLoading) {
     return null;
   }
