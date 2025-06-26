@@ -36,7 +36,7 @@ export const PLCardActive = ({ lineId, lineName }: PLCardActiveProps) => {
               sx={{
                 height: '100%',
                 objectFit: 'cover',
-                borderRadius: 4,
+                borderRadius: 64,
               }}
             />
           </Grid>

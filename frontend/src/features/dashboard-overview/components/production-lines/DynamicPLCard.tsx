@@ -10,6 +10,7 @@ import { PLCardActive } from './PLCardActive.tsx';
 import { PLCardStopped } from './PLCardStopped.tsx';
 import { PLCardIssue } from './PLCardIssue.tsx';
 import type { ApiProductionLine } from '../../../production-lines/types/types.api.ts';
+import { PLCardMaintenance } from './PLCardMaintenance.tsx';
 
 interface ProductionLineCardProps {
   productionLine: ApiProductionLine;
@@ -22,7 +23,7 @@ interface ProductionLineCardProps {
 export const DynamicPLCard = ({ productionLine }: ProductionLineCardProps) => {
   const { token } = useAuth();
 
-  const { data: lineActive } = useQuery({
+  const { data: lineTasks } = useQuery({
     queryKey: ['tasks', productionLine.lineId],
     queryFn: async () => {
       const response = await api.get(
@@ -32,7 +33,7 @@ export const DynamicPLCard = ({ productionLine }: ProductionLineCardProps) => {
     },
   });
 
-  const { data: lineIssue } = useQuery({
+  const { data: lineIssues } = useQuery({
     queryKey: ['issues', productionLine.lineId],
     queryFn: async () => {
       const response = await api.get(
@@ -48,12 +49,10 @@ export const DynamicPLCard = ({ productionLine }: ProductionLineCardProps) => {
   );
 
   if (data) {
-    console.log(data);
-
     // Problema linea
-    if (lineIssue) {
-      const issuesCount = lineIssue.length;
-      const lastIssue = lineIssue[0];
+    if (lineIssues) {
+      const issuesCount = lineIssues.length;
+      const lastIssue = lineIssues[0];
 
       return (
         <PLCardIssue
@@ -66,7 +65,24 @@ export const DynamicPLCard = ({ productionLine }: ProductionLineCardProps) => {
     }
 
     // Linea attiva
-    if (lineActive && !lineIssue) {
+    if (lineTasks && !lineIssues) {
+      const maintenanceTasks = lineTasks.filter(
+        (task) => task.type === 'manutenzione',
+      );
+
+      if (maintenanceTasks.length > 0) {
+        console.log(maintenanceTasks[0]);
+
+        return (
+          <PLCardMaintenance
+            lineId={data.lineId}
+            lineName={data.name}
+            maintenanceEnd={maintenanceTasks[0].maintenanceEnd}
+            assignetAt={maintenanceTasks[0].assignedTo.fullName}
+          />
+        );
+      }
+
       return (
         <PLCardActive
           lineId={data.lineId}
@@ -76,7 +92,7 @@ export const DynamicPLCard = ({ productionLine }: ProductionLineCardProps) => {
     }
 
     // Linea ferma
-    if (!lineActive && !lineIssue) {
+    if (!lineTasks && !lineIssues) {
       return (
         <PLCardStopped
           lineId={data.lineId}
