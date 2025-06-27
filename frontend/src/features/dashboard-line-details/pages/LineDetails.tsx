@@ -108,7 +108,7 @@ const MuiLineChartWithGradient = ({
               ]
             : []),
         ]}
-        height={350}
+        height={390}
         // margin={{ top: 10, bottom: 30, left: 60, right: 10 }}
       />
     </>
@@ -394,7 +394,7 @@ const LineDetails = () => {
               </svg>
 
               <LineChart
-                height={350}
+                height={390}
                 series={[
                   {
                     data: powerLogs.map((d) => d.value),
