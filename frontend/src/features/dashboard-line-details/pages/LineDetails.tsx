@@ -18,6 +18,7 @@ import {
 import { LineChart } from "@mui/x-charts";
 import moment from "moment";
 import api from "../../../utils/axios.ts";
+import TemperatureAlertCard from "../components/TemperatureAlertCard .tsx";
 
 export interface LogPoint {
   timestamp: string;
@@ -107,8 +108,8 @@ const MuiLineChartWithGradient = ({
               ]
             : []),
         ]}
-        height={250}
-        margin={{ top: 10, bottom: 30, left: 60, right: 10 }}
+        height={350}
+        // margin={{ top: 10, bottom: 30, left: 60, right: 10 }}
       />
     </>
   );
@@ -200,6 +201,7 @@ const LineDetails = () => {
       setSubLines([]);
       return;
     }
+    console.log(line);
 
     api
       .get("/sub-lines", { headers: { Authorization: `Bearer ${token}` } })
@@ -219,7 +221,7 @@ const LineDetails = () => {
   }, [subLines, selectedSubLineId]);
 
   useEffect(() => {
-    if (!selectedSubLineId || !token) return;
+    if (!selectedSubLineId || !token || line.status === "stopped") return;
 
     const selected = subLines.find((sl) => sl._id === selectedSubLineId);
     if (!selected) return;
@@ -243,7 +245,7 @@ const LineDetails = () => {
             new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
         )
         .map((log) => ({
-          timestamp: moment(log.timestamp).format("DD/MM/YYYY HH:mm"),
+          timestamp: moment(log.timestamp).format("MM/DD HH:mm"),
           value: log[valueKey],
         }));
 
@@ -284,97 +286,201 @@ const LineDetails = () => {
         "Macchina non trovata"
       : selectedSubLine?.machine.name;
 
+  // const warnThreshold =
+  //   typeof selectedSubLine?.machine === "string"
+  //     ? machines.find((m) => m._id === selectedSubLine?.machine)
+  //         ?.warnTemperature
+  //     : selectedSubLine?.machine.warnTemperature;
+
   const selectedTabIndex = subLines.findIndex(
     (sl) => sl._id === selectedSubLineId
   );
+  const maxThreshold =
+    typeof selectedSubLine?.machine === "string"
+      ? machines.find((m) => m._id === selectedSubLine?.machine)?.maxTemperature
+      : selectedSubLine?.machine.maxTemperature;
+
+  const warnThreshold =
+    typeof selectedSubLine?.machine === "string"
+      ? machines.find((m) => m._id === selectedSubLine?.machine)
+          ?.warnTemperature
+      : selectedSubLine?.machine.warnTemperature;
 
   return (
     <DashboardLayout>
-      <Box display="flex" flexDirection="column" height="100vh">
-        <Box
-          position="sticky"
-          top={0}
-          bgcolor="background.paper"
-          zIndex={1000}
-          p={2}
-        >
-          <div className="flex flex-row p-1 justify-between">
-            <p>
-              <b>{line.name}</b>
-            </p>
-            <p>
-              <b>{line.status}</b>
-            </p>
-          </div>
+      <Box
+        position="sticky"
+        top={0}
+        // bgcolor="background.paper"
+        zIndex={1000}
+        p={2}
+        sx={{ borderRadius: 11 }}
+      >
+        <div className="flex flex-row p-1 justify-between">
+          <p>
+            <b>{line.name}</b>
+          </p>
+          <p>
+            <b>{line.status}</b>
+          </p>
+        </div>
 
-          <Box borderBottom={1} borderColor="divider" mt={3}>
-            <Tabs
-              value={selectedTabIndex === -1 ? 0 : selectedTabIndex}
-              onChange={(e, newValue) =>
-                setSelectedSubLineId(subLines[newValue]._id)
-              }
-              variant="scrollable"
-              scrollButtons="auto"
-            >
-              {subLines.map((sl) => (
-                <Tab key={sl._id} label={sl.name} />
-              ))}
-            </Tabs>
-          </Box>
-
-          {selectedSubLineId && (
-            <Typography variant="body1" mt={2}>
-              <strong>{machineName}</strong>
-            </Typography>
-          )}
+        <Box borderBottom={1} borderColor="divider" mt={3}>
+          <Tabs
+            value={selectedTabIndex === -1 ? 0 : selectedTabIndex}
+            onChange={(e, newValue) =>
+              setSelectedSubLineId(subLines[newValue]._id)
+            }
+            variant="scrollable"
+            scrollButtons="auto"
+          >
+            {subLines.map((sl) => (
+              <Tab key={sl._id} label={sl.name} />
+            ))}
+          </Tabs>
         </Box>
 
-        <Grid container spacing={1} mt={1}>
-        {[
-  {
-    title: "Temperatura",
-    data: temperatureLogs,
-    y: "°C",
-    maxThreshold: typeof selectedSubLine?.machine === "string"
-      ? machines.find((m) => m._id === selectedSubLine?.machine)?.maxTemperature
-      : selectedSubLine?.machine.maxTemperature,
-    warnThreshold: typeof selectedSubLine?.machine === "string"
-      ? machines.find((m) => m._id === selectedSubLine?.machine)?.warnTemperature
-      : selectedSubLine?.machine.warnTemperature
-  },
-  { title: "Consumo energetico", data: consumptionLogs, y: "kWh" },
-  { title: "Potenza", data: powerLogs, y: "W" },
-  { title: "Emissioni CO₂", data: co2Logs, y: "kg" },
-].map(({ title, data, y, maxThreshold, warnThreshold }, idx) => (
-  <Grid size={6} key={idx}>
-    <Card sx={{
-      borderRadius: 11,
-      p: 1,
-      background: "rgba(255, 255, 255, 0.07)",
-      backdropFilter: "blur(20px) saturate(180%)",
-      WebkitBackdropFilter: "blur(20px) saturate(180%)",
-      boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
-      height: "100%",
-      display: "flex",
-      flexDirection: "column",
-    }}>
-      <CardContent>
-        <Typography variant="h6" gutterBottom>
-          {title}
-        </Typography>
-        <MuiLineChartWithGradient
-          data={data}
-          yLabel={y}
-          gradientId={`grad-${idx}`}
-          maxThreshold={title === "Temperatura" ? maxThreshold : undefined}
-          warnThreshold={title === "Temperatura" ? warnThreshold : undefined}
-        />
-      </CardContent>
-    </Card>
-  </Grid>
-))}
-        </Grid>
+        {selectedSubLineId && (
+          <Typography variant="body1" mt={2}>
+            <strong>{machineName}</strong>
+          </Typography>
+        )}
       </Box>
+
+      <Grid container spacing={1} mt={1}>
+        <Grid size={5}>
+          <Card
+            sx={{
+              borderRadius: 11,
+              p: 1,
+              background: "rgba(255, 255, 255, 0.07)",
+              backdropFilter: "blur(20px) saturate(180%)",
+              height: "100%",
+            }}
+          >
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                Metriche Energetiche
+              </Typography>
+
+              {/* Definizione dei gradienti SVG */}
+              <svg width="0" height="0">
+                <defs>
+                  <linearGradient
+                    id="power-gradient"
+                    x1="0"
+                    y1="0"
+                    x2="0"
+                    y2="1"
+                  >
+                    <stop offset="5%" stopColor="#4dabf5" stopOpacity={0.8} />
+                    <stop offset="95%" stopColor="#4dabf5" stopOpacity={0} />
+                  </linearGradient>
+                  <linearGradient
+                    id="consumption-gradient"
+                    x1="0"
+                    y1="0"
+                    x2="0"
+                    y2="1"
+                  >
+                    <stop offset="5%" stopColor="#ffa733" stopOpacity={0.8} />
+                    <stop offset="95%" stopColor="#ffa733" stopOpacity={0} />
+                  </linearGradient>
+                  <linearGradient id="co2-gradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#51cf66" stopOpacity={0.8} />
+                    <stop offset="95%" stopColor="#51cf66" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+              </svg>
+
+              <LineChart
+                height={350}
+                series={[
+                  {
+                    data: powerLogs.map((d) => d.value),
+                    label: "Potenza (W)",
+                    color: "#4dabf5",
+                    showMark: false,
+                    curve: "monotoneX",
+                    area: true,
+                    fill: "url(#power-gradient)",
+                  },
+                  {
+                    data: consumptionLogs.map((d) => d.value),
+                    label: "Consumo (kWh)",
+                    color: "#ffa733",
+                    showMark: false,
+                    curve: "monotoneX",
+                    area: true,
+                    fill: "url(#consumption-gradient)",
+                  },
+                  {
+                    data: co2Logs.map((d) => d.value),
+                    label: "CO₂ (kg)",
+                    color: "#51cf66",
+                    showMark: false,
+                    curve: "monotoneX",
+                    area: true,
+                    fill: "url(#co2-gradient)",
+                  },
+                ]}
+                xAxis={[
+                  {
+                    data: powerLogs.map((d) => d.timestamp),
+                    scaleType: "band",
+                    label: "Orario",
+                  },
+                ]}
+                margin={{ left: 70, right: 20 }}
+                sx={{
+                  ".MuiAreaElement-root": {
+                    fillOpacity: 0.6,
+                  },
+                }}
+              />
+            </CardContent>
+          </Card>
+        </Grid>
+
+        <Grid size={5}>
+          <Card
+            sx={{
+              borderRadius: 11,
+              p: 1,
+              background: "rgba(255, 255, 255, 0.07)",
+              backdropFilter: "blur(20px) saturate(180%)",
+              WebkitBackdropFilter: "blur(20px) saturate(180%)",
+              boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
+              height: "100%",
+            }}
+          >
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                Temperatura
+                {selectedSubLine && (
+                  <Typography variant="subtitle2" color="text.secondary">
+                    Soglia: {warnThreshold}°C | Max: {maxThreshold}°C
+                  </Typography>
+                )}
+              </Typography>
+              <MuiLineChartWithGradient
+                data={temperatureLogs}
+                yLabel="°C"
+                gradientId="temp-gradient"
+                maxThreshold={maxThreshold}
+                warnThreshold={warnThreshold}
+              />
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid size={2}>
+          <TemperatureAlertCard
+            temperatureLogs={temperatureLogs}
+            warnThreshold={warnThreshold || 0}
+            machineName={machineName!}
+          />
+        </Grid>
+      </Grid>
     </DashboardLayout>
   );
 };
