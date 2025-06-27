@@ -4,6 +4,7 @@ import { DashboardLayout } from "../../dashboard/layouts/DashboardLayout";
 import { useProductionLine } from "../hooks/useProductionLine";
 import { useAuth } from "../../log-in/context/AuthContext";
 import type { NodeJS } from "node";
+import CircleIcon from "@mui/icons-material/Circle";
 
 import {
   Tabs,
@@ -133,6 +134,21 @@ const LineDetails = () => {
   const [powerLogs, setPowerLogs] = useState<LogPoint[]>([]);
   const [co2Logs, setCo2Logs] = useState<LogPoint[]>([]);
 
+  const getStatusStyle = (status: string) => {
+    switch (status.toLowerCase()) {
+      case "active":
+        return { color: "#4CAF50", label: "Attiva" }; // Verde
+      case "maintenance":
+        return { color: "#FF9800", label: "Manutenzione" }; // Arancio
+      case "stopped":
+        return { color: "#F44336", label: "Fermata" }; // Rosso
+      case "issue":
+        return { color: "#E64A19", label: "Problema" }; // Arancione scuro
+      default:
+        return { color: "#9E9E9E", label: status }; // Grigio per sconosciuti
+    }
+  };
+
   useEffect(() => {
     let interval1: NodeJS.Timeout;
     let interval2: NodeJS.Timeout;
@@ -186,6 +202,7 @@ const LineDetails = () => {
     isLoading,
     isError,
   } = useProductionLine(lineaId, token || "");
+  const { color, label } = getStatusStyle(line.status);
 
   useEffect(() => {
     if (!token) return;
@@ -316,13 +333,14 @@ const LineDetails = () => {
         p={2}
         sx={{ borderRadius: 11 }}
       >
-        <div className="flex flex-row p-1 justify-between">
+        <div className="flex flex-row p-1 justify-between items-center">
           <p>
             <b>{line.name}</b>
           </p>
-          <p>
-            <b>{line.status}</b>
-          </p>
+          <div className="flex items-center gap-2">
+            <CircleIcon sx={{ fontSize: 24, color }} />
+            <b>{label}</b>
+          </div>
         </div>
 
         <Box borderBottom={1} borderColor="divider" mt={3}>
