@@ -96,18 +96,9 @@ export const TasksPage = () => {
   useEffect(() => {
     setLoading(true);
     api
-      .get('/tasks')
-      .then(async (res) => {
-        const today = new Date().toISOString().slice(0, 10);
-        const tasksFetched = res.data;
-        // Trova le task non completate e con data < oggi
-        const toUpdate = tasksFetched.filter((t: Task) => t.status !== 'completata' && t.date.slice(0, 10) < today);
-        // Aggiorna la data di queste task al giorno corrente
-        await Promise.all(toUpdate.map((t: Task) => api.put(`/tasks/${t._id}`, { ...t, date: today })));
-        // Ricarica le task dopo eventuali update
-        const finalTasks = toUpdate.length > 0 ? (await api.get('/tasks')).data : tasksFetched;
-        setTasks(finalTasks.filter((t: Task) => t.date.slice(0, 10) === selectedDate));
-      })
+      .get('/tasks', { params: { date: selectedDate } })
+      .then(res => setTasks(res.data))
+      .catch(() => setTasks([]))
       .finally(() => setLoading(false));
   }, [selectedDate]);
 
@@ -121,12 +112,23 @@ export const TasksPage = () => {
       const s = t.status?.toLowerCase();
       return s === 'in_corso' || s === 'in corso' || s === 'incorso';
     }),
-    done: tasks.filter((t) => t.status === 'done' || t.status === 'completata'),
+    done: tasks.filter(
+      (t) =>
+        (t.status === 'done' || t.status === 'completata') &&
+        t.completedAt && t.completedAt.slice(0, 10) === selectedDate
+    ),
   };
 
-  // Progress tracker
-  const completedCount = tasksByStatus.done.length;
-  const totalCount = tasks.length;
+  // Nuova logica per il conteggio
+  const incompleteTasks = tasks.filter(
+    t =>
+      (t.status === 'in_attesa' || t.status === 'in_corso' || t.status === 'waiting' || t.status === 'in corso' || t.status === 'incorso') &&
+      t.date.slice(0, 10) === selectedDate
+  );
+  const completedCount = tasksByStatus.done.filter(
+    t => incompleteTasks.some(it => it._id === t._id)
+  ).length;
+  const totalCount = incompleteTasks.length + completedCount;
 
   // Drag-and-drop handler
   const handleDragEnd = async (result: any) => {
@@ -143,10 +145,7 @@ export const TasksPage = () => {
     if (destCol === 'done') {
       newChecklist = task.checklist.map((item) => ({ ...item, done: true }));
       newStatus = 'completata';
-      completedAt = new Date().toLocaleTimeString([], {
-        hour: '2-digit',
-        minute: '2-digit',
-      });
+      completedAt = new Date().toISOString();
     } else if (destCol === 'in_corso') {
       newStatus = 'in_corso';
       completedAt = undefined;
@@ -204,6 +203,17 @@ export const TasksPage = () => {
     });
   };
 
+  // Funzione per eliminare una task
+  const handleDeleteTask = async (taskId: string) => {
+    try {
+      await api.delete(`/tasks/${taskId}`);
+      setTasks(prev => prev.filter(t => t._id !== taskId));
+      setSnackbar({ open: true, message: 'Attività eliminata', severity: 'success' });
+    } catch (err) {
+      setSnackbar({ open: true, message: 'Errore eliminazione attività', severity: 'error' });
+    }
+  };
+
   // Card stile MUI
   const TaskCard = ({ task }: { task: Task }) => (
     <Paper
@@ -248,9 +258,16 @@ export const TasksPage = () => {
           )}
         </Box>
         {canEdit && (
-          <Button size="small" variant="outlined" sx={{ mt: 1, whiteSpace: 'nowrap' }} onClick={() => handleOpenEdit(task)}>
-            Modifica
-          </Button>
+          <Stack direction="row" spacing={1}>
+            <Button size="small" variant="outlined" sx={{ mt: 1, whiteSpace: 'nowrap' }} onClick={() => handleOpenEdit(task)}>
+              Modifica
+            </Button>
+            {(task.status === 'in_attesa' || task.status === 'in_corso' || task.status === 'waiting' || task.status === 'in corso' || task.status === 'incorso') && (
+              <Button size="small" color="error" variant="outlined" sx={{ mt: 1, whiteSpace: 'nowrap' }} onClick={() => handleDeleteTask(task._id)}>
+                Elimina
+              </Button>
+            )}
+          </Stack>
         )}
       </Stack>
     </Paper>
@@ -369,11 +386,13 @@ export const TasksPage = () => {
                   Aggiungi Attività
                 </Button>
               </Stack>
-              <Box sx={{  maxHeight: '70vh', pr: 1, overflowY: "scroll",
-        scrollbarWidth: "none",
-        "&::-webkit-scrollbar": {
-          display: "none",
-        }, }}>
+              <Box sx={{
+                maxHeight: '70vh', pr: 1, overflowY: "scroll",
+                scrollbarWidth: "none",
+                "&::-webkit-scrollbar": {
+                  display: "none",
+                },
+              }}>
                 {/* Da Fare */}
                 <Typography
                   variant="subtitle1"
@@ -509,13 +528,7 @@ export const TasksPage = () => {
                     </Stack>
                     <Box sx={{ overflowY: 'auto', maxHeight: '70vh', pr: 1 }}>
                       <Paper sx={{ p: 2, borderRadius: 2 }}>
-                        <Typography
-                          fontWeight={700}
-                          fontSize={15}
-                          mb={1}
-                        >
-                          Completate ({completedCount}/{totalCount})
-                        </Typography>
+
                         {tasksByStatus.done.map((task, idx) => (
                           <Paper
                             key={task._id}

@@ -216,7 +216,7 @@ export const EditTaskModal: React.FC<EditTaskModalProps> = ({
                 estimatedMinutes: Number(editingTask.estimatedMinutes),
                 status: editingTask.status,
                 checklist: editingTask.checklist,
-                type: editingTask.type,
+                type: editingTask.type || 'standard',
             };
             if (editingTask.type === 'manutenzione') {
                 payload.maintenanceStart = editingTask.maintenanceStart;
