@@ -53,7 +53,7 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <Router>
       <AuthProvider>
-        <ToastNotification/>
+        {/* <ToastNotification/> */}
         <AppContent />
       </AuthProvider>
     </Router>

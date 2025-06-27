@@ -29,6 +29,7 @@ export interface Machine {
   name: string;
   type: string;
   maxTemperature: number;
+  warnTemperature: number;
 }
 
 export interface SubLine {
@@ -37,17 +38,24 @@ export interface SubLine {
   status: string;
   machine: string | Machine;
 }
+interface MuiLineChartWithGradientProps {
+  data: LogPoint[];
+  yLabel: string;
+  gradientId: string;
+  maxThreshold?: number;
+  warnThreshold?: number;
+}
 
 const MuiLineChartWithGradient = ({
   data,
   yLabel,
   gradientId,
-}: {
-  data: LogPoint[];
-  yLabel: string;
-  gradientId: string;
-}) => {
+  maxThreshold,
+  warnThreshold,
+}: MuiLineChartWithGradientProps) => {
   const color = "#FB4376";
+  const warnColor = "#FFA500"; // Arancione per la soglia di warning
+  const maxColor = "#FF0000"; // Rosso per la soglia massima
 
   return (
     <>
@@ -76,6 +84,28 @@ const MuiLineChartWithGradient = ({
             color: `url(#${gradientId})`,
             curve: "monotoneX",
           },
+          ...(warnThreshold
+            ? [
+                {
+                  data: data.map(() => warnThreshold),
+                  showMark: false,
+                  color: warnColor,
+                  curve: "linear",
+                  label: "Warning Temperature",
+                },
+              ]
+            : []),
+          ...(maxThreshold
+            ? [
+                {
+                  data: data.map(() => maxThreshold),
+                  showMark: false,
+                  color: maxColor,
+                  curve: "linear",
+                  label: "Max Temperature",
+                },
+              ]
+            : []),
         ]}
         height={250}
         margin={{ top: 10, bottom: 30, left: 60, right: 10 }}
@@ -234,6 +264,8 @@ const LineDetails = () => {
       setAllTemperatureLogs(
         prepareLogPoints(tempRes.data, "temperature", machineId)
       );
+      console.log(allTemperatureLogs);
+
       setAllConsumptionLogs(
         prepareLogPoints(consRes.data, "energyConsumed", machineId)
       );
@@ -298,39 +330,49 @@ const LineDetails = () => {
         </Box>
 
         <Grid container spacing={1} mt={1}>
-          {[
-            { title: "Temperatura", data: temperatureLogs, y: "°C" },
-            { title: "Consumo energetico", data: consumptionLogs, y: "kWh" },
-            { title: "Potenza", data: powerLogs, y: "W" },
-            { title: "Emissioni CO₂", data: co2Logs, y: "kg" },
-          ].map(({ title, data, y }, idx) => (
-            <Grid size={6} key={idx}>
-              <Card
-                sx={{
-                  borderRadius: 11,
-                  p: 1,
-                  background: "rgba(255, 255, 255, 0.07)",
-                  backdropFilter: "blur(20px) saturate(180%)",
-                  WebkitBackdropFilter: "blur(20px) saturate(180%)",
-                  boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
-                  height: "100%",
-                  display: "flex",
-                  flexDirection: "column",
-                }}
-              >
-                <CardContent>
-                  <Typography variant="h6" gutterBottom>
-                    {title}
-                  </Typography>
-                  <MuiLineChartWithGradient
-                    data={data}
-                    yLabel={y}
-                    gradientId={`grad-${idx}`}
-                  />
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
+        {[
+  {
+    title: "Temperatura",
+    data: temperatureLogs,
+    y: "°C",
+    maxThreshold: typeof selectedSubLine?.machine === "string"
+      ? machines.find((m) => m._id === selectedSubLine?.machine)?.maxTemperature
+      : selectedSubLine?.machine.maxTemperature,
+    warnThreshold: typeof selectedSubLine?.machine === "string"
+      ? machines.find((m) => m._id === selectedSubLine?.machine)?.warnTemperature
+      : selectedSubLine?.machine.warnTemperature
+  },
+  { title: "Consumo energetico", data: consumptionLogs, y: "kWh" },
+  { title: "Potenza", data: powerLogs, y: "W" },
+  { title: "Emissioni CO₂", data: co2Logs, y: "kg" },
+].map(({ title, data, y, maxThreshold, warnThreshold }, idx) => (
+  <Grid size={6} key={idx}>
+    <Card sx={{
+      borderRadius: 11,
+      p: 1,
+      background: "rgba(255, 255, 255, 0.07)",
+      backdropFilter: "blur(20px) saturate(180%)",
+      WebkitBackdropFilter: "blur(20px) saturate(180%)",
+      boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
+      height: "100%",
+      display: "flex",
+      flexDirection: "column",
+    }}>
+      <CardContent>
+        <Typography variant="h6" gutterBottom>
+          {title}
+        </Typography>
+        <MuiLineChartWithGradient
+          data={data}
+          yLabel={y}
+          gradientId={`grad-${idx}`}
+          maxThreshold={title === "Temperatura" ? maxThreshold : undefined}
+          warnThreshold={title === "Temperatura" ? warnThreshold : undefined}
+        />
+      </CardContent>
+    </Card>
+  </Grid>
+))}
         </Grid>
       </Box>
     </DashboardLayout>
