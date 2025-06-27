@@ -7,6 +7,7 @@ import {
   IconButton,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 
 interface Notification {
   id: string;
@@ -19,6 +20,7 @@ interface NotificationsSidebarProps {
   onClose: () => void;
   notifications: Notification[];
   onMarkAllAsRead: () => void;
+  onClearRead?: () => void;
 }
 
 export const NotificationsSidebar = ({
@@ -26,6 +28,7 @@ export const NotificationsSidebar = ({
   onClose,
   notifications,
   onMarkAllAsRead,
+  onClearRead
 }: NotificationsSidebarProps) => {
   const unread = notifications.filter(n => !n.read);
   const read = notifications.filter(n => n.read);
@@ -87,6 +90,25 @@ export const NotificationsSidebar = ({
       {unread.length === 0 && read.length === 0 && (
         <Typography sx={{ mt: 2, opacity: 0.6 }}>Nessuna notifica</Typography>
       )}
+
+      {read.length > 0 && onClearRead && (
+  <Box
+    position="fixed"
+    bottom={32}
+    right={32}
+    zIndex={1301}
+    sx={{ display: 'flex', justifyContent: 'flex-end', width: 400, maxWidth: '100vw' }}
+  >
+    <Button
+      variant="outlined"
+      color="error"
+      startIcon={<DeleteOutlineIcon />}
+      onClick={onClearRead}
+    >
+      Svuota lette
+    </Button>
+  </Box>
+)}
     </Drawer>
   );
 };

@@ -16,6 +16,7 @@ import NotificationPoller from "./components/NotificationPoller.tsx";
 import { OverviewPage } from "./features/dashboard-overview/pages/OverviewPage.tsx";
 import { TasksPage } from "./features/dashboard-tasks/pages/TasksPage.tsx";
 import LineDetails from "./features/dashboard-line-details/pages/LineDetails.tsx";
+import { ProtectedLineRoute } from "./components/ProtectedLineRoute.tsx";
 
 const queryClient = new QueryClient();
 
@@ -29,7 +30,14 @@ const AppContent = () => {
         }
       >
         <Route path="/overview" element={<OverviewPage />} />
-        <Route path="/overview/:lineaId" element={<LineDetails />} />
+        <Route
+          path="/overview/:lineaId"
+          element={
+            <ProtectedLineRoute>
+              <LineDetails />
+            </ProtectedLineRoute>
+          }
+        />
 
         <Route path="/issues" element={<IssuesPage />} />
         <Route path="/tasks" element={<TasksPage />} />

@@ -82,6 +82,7 @@ export const DynamicPLCard = ({ productionLine }: ProductionLineCardProps) => {
             lineName={data.name}
             maintenanceEnd={maintenanceTasks[0].maintenanceEnd}
             assignetAt={maintenanceTasks[0].assignedTo.fullName}
+            onClick={() => navigate(`/overview/${data.lineId}`)}
           />
         );
       }

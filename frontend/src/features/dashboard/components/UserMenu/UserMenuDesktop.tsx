@@ -14,7 +14,7 @@ import Typography from '@mui/material/Typography';
 import { useState, useRef, useEffect, type MouseEvent } from 'react';
 import { useAuth } from '../../../log-in/context/AuthContext.tsx';
 import { NotificationsSidebar } from '../NotificationsSidebar.tsx';
-import { markAssignedIssuesAsRead } from '../../../issues/api/api.ts';
+import { hideReadAssignedIssues, markAssignedIssuesAsRead } from '../../../issues/api/api.ts';
 import { useGetAssignedIssues } from '../../../issues/hooks/useIssueQueries.tsx';
 import { ToggleThemeModeButton } from '../../../theme/components/ToggleThemeModeButton.tsx';
 import { Button, Dialog, DialogActions, DialogTitle, Avatar } from '@mui/material';
@@ -25,12 +25,6 @@ export const UserMenuDesktop = () => {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [menuWidth, setMenuWidth] = useState<number | undefined>(undefined);
 
-  const { logout, user } = useAuth();
-  const buttonRef = useRef<HTMLDivElement>(null);
-
-  const handleOpenNotifications = () => setNotificationsOpen(true);
-  const handleCloseNotifications = () => setNotificationsOpen(false);
-
   const { data: assignedIssues, refetch } = useGetAssignedIssues();
 
   const notifications = (assignedIssues ?? []).map((issue: any) => ({
@@ -39,10 +33,21 @@ export const UserMenuDesktop = () => {
     read: issue.readBy?.includes(issue.assignedTo?._id),
   }));
 
+  const { logout, user } = useAuth();
+  const buttonRef = useRef<HTMLDivElement>(null);
+
+  const handleOpenNotifications = () => setNotificationsOpen(true);
+  const handleCloseNotifications = () => setNotificationsOpen(false);
+
   const handleMarkAllAsRead = async () => {
     await markAssignedIssuesAsRead();
     refetch();
   };
+
+  const handleClearRead = async () => {
+  await hideReadAssignedIssues();
+  refetch(); 
+};
 
   const open = Boolean(anchorEl);
 
@@ -160,6 +165,7 @@ export const UserMenuDesktop = () => {
         onClose={handleCloseNotifications}
         notifications={notifications}
         onMarkAllAsRead={handleMarkAllAsRead}
+        onClearRead={handleClearRead}
       />
 
       <Dialog

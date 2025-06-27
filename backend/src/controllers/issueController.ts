@@ -89,7 +89,10 @@ export const getAssignedIssues = async (req: Request, res: Response) => {
   try {
     const userId = (req as any).user.userId;
 
-    const assignedIssues = await Issue.find({ assignedTo: userId })
+    const assignedIssues = await Issue.find({
+      assignedTo: userId,
+      hiddenFor: { $ne: userId }
+    })
       .populate('reportedBy assignedTo', 'username fullName role')
       .sort({ createdAt: -1 });
 
@@ -150,14 +153,32 @@ export const getIssueByLineId = async (req: Request, res: Response) => {
 
 
 export const deleteIssue = async (req: Request, res: Response) => {
-    try {
-        const issue = await Issue.findByIdAndDelete(req.params.id);
-        if (!issue) {
-            return res.status(404).json({ message: 'Issue not found' });
-        }
-        res.json({ message: 'Issue deleted successfully' });
-    } catch (error) {
-        console.error('Error deleting issue:', error);
-        res.status(500).json({ message: 'Server Error' });
+  try {
+    const issue = await Issue.findByIdAndDelete(req.params.id);
+    if (!issue) {
+      return res.status(404).json({ message: 'Issue not found' });
     }
+    res.json({ message: 'Issue deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting issue:', error);
+    res.status(500).json({ message: 'Server Error' });
+  }
+};
+
+export const hideReadAssignedIssues = async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).user.userId;
+    await Issue.updateMany(
+      {
+        assignedTo: userId,
+        readBy: userId,
+        hiddenFor: { $ne: userId }
+      },
+      { $push: { hiddenFor: userId } }
+    );
+    res.status(200).json({ message: 'Notifiche lette archiviate' });
+  } catch (error) {
+    console.error('Errore nel nascondere le notifiche:', error);
+    res.status(500).json({ message: 'Errore del server' });
+  }
 };
