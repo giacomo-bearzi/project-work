@@ -14,21 +14,11 @@ import {
   Grid,
 } from "@mui/material";
 
-import api from "../../../utils/axios.ts";
+import { LineChart } from "@mui/x-charts";
+import { useTheme } from "@mui/material/styles";
+import moment from "moment";
 
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-  AreaChart,
-  Area,
-  Brush,
-} from "recharts";
+import api from "../../../utils/axios.ts";
 
 interface LogPoint {
   timestamp: string;
@@ -49,38 +39,52 @@ export interface SubLine {
   machine: string | Machine;
 }
 
-const SimpleLineChart = ({
+// Component per ogni grafico con area gradient
+const MuiLineChartWithGradient = ({
   data,
-  dataKey,
-  color,
   yLabel,
+  gradientId,
 }: {
   data: LogPoint[];
-  dataKey: string;
-  color: string;
   yLabel: string;
-}) => (
-  <ResponsiveContainer width="100%" height={250}>
-    <AreaChart data={data}>
-      <CartesianGrid strokeDasharray="3 3" />
-      <XAxis
-        dataKey="timestamp"
-        tickFormatter={(time) => new Date(time).toLocaleTimeString()}
+  gradientId: string;
+}) => {
+  const color = "#FB4376";
+
+  return (
+    <>
+      <svg width="0" height="0">
+        <defs>
+          <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="5%" stopColor={color} stopOpacity={0.8} />
+            <stop offset="95%" stopColor={color} stopOpacity={0} />
+          </linearGradient>
+        </defs>
+      </svg>
+      <LineChart
+        xAxis={[
+          {
+            data: data.map((d) => d.timestamp),
+            scaleType: "band",
+            label: "Orario",
+          },
+        ]}
+        yAxis={[{ label: yLabel }]}
+        series={[
+          {
+            data: data.map((d) => d.value),
+            showMark: false,
+            area: true,
+            color: `url(#${gradientId})`,
+            curve: "monotoneX", // Per replicare stile smooth di Recharts
+          },
+        ]}
+        height={250}
+        margin={{ top: 10, bottom: 30, left: 60, right: 10 }}
       />
-      <YAxis label={{ value: yLabel, angle: -90, position: "insideLeft" }} />
-      <Tooltip />
-      <Legend />
-      <Area
-        type="monotone"
-        dataKey={dataKey}
-        stroke={color}
-        dot={false}
-        fill={color}
-      />
-    <Brush />
-    </AreaChart>
-  </ResponsiveContainer>
-);
+    </>
+  );
+};
 
 const LineDetails = () => {
   const { lineaId } = useParams();
@@ -95,9 +99,7 @@ const LineDetails = () => {
   const [powerLogs, setPowerLogs] = useState<LogPoint[]>([]);
   const [co2Logs, setCo2Logs] = useState<LogPoint[]>([]);
 
-  if (!lineaId) {
-    return <Navigate to="/overview" replace />;
-  }
+  if (!lineaId) return <Navigate to="/overview" replace />;
 
   const {
     data: line,
@@ -141,15 +143,12 @@ const LineDetails = () => {
     }
   }, [subLines, selectedSubLineId]);
 
-  // Carica i log ogni volta che cambia la selectedSubLineId
   useEffect(() => {
     if (!selectedSubLineId || !token) return;
 
-    // Assumendo che la subline abbia una proprietà machine con id macchina
     const selectedSubLine = subLines.find((sl) => sl._id === selectedSubLineId);
     if (!selectedSubLine) return;
 
-    // Ottieni machineId (stringa)
     let machineId = "";
     if (typeof selectedSubLine.machine === "string") {
       machineId = selectedSubLine.machine;
@@ -159,16 +158,19 @@ const LineDetails = () => {
 
     if (!machineId) return;
 
-    // Funzione helper per convertire log raw in LogPoint[]
     const prepareLogPoints = (
       logs: any[],
       valueKey: string,
       machineId: string
     ): LogPoint[] =>
       logs
-        .filter((log) => log.machineId._id === machineId) // 👈 filtro per macchina
+        .filter((log) => log.machineId._id === machineId)
+        .sort(
+          (a, b) =>
+            new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+        )
         .map((log) => ({
-          timestamp: log.timestamp,
+          timestamp: moment(log.timestamp).format("DD/MM/YYYY HH:mm"),
           value: log[valueKey],
         }));
 
@@ -187,8 +189,6 @@ const LineDetails = () => {
       }),
     ])
       .then(([tempRes, consRes, powerRes, co2Res]) => {
-        console.log(tempRes.data);
-
         setTemperatureLogs(
           prepareLogPoints(tempRes.data, "temperature", machineId)
         );
@@ -204,16 +204,10 @@ const LineDetails = () => {
         setPowerLogs([]);
         setCo2Logs([]);
       });
-    console.log(temperatureLogs);
   }, [selectedSubLineId, subLines, token]);
 
-  if (isLoading) {
-    return null;
-  }
-
-  if (isError || !line) {
-    return <Navigate to="/overview" replace />;
-  }
+  if (isLoading) return null;
+  if (isError || !line) return <Navigate to="/overview" replace />;
 
   const selectedSubLine = subLines.find((sl) => sl._id === selectedSubLineId);
 
@@ -237,24 +231,15 @@ const LineDetails = () => {
 
   return (
     <DashboardLayout>
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          height: "100vh",
-        }}
-      >
-        {/* Sticky Header */}
+      <Box display="flex" flexDirection="column" height="100vh">
         <Box
-          sx={{
-            position: "sticky",
-            top: 0,
-            backgroundColor: "background.paper",
-            zIndex: 1000,
-            p: 2,
-          }}
+          position="sticky"
+          top={0}
+          bgcolor="background.paper"
+          zIndex={1000}
+          p={2}
         >
-          <div className="flex flex-row  p-1 justify-between">
+          <div className="flex flex-row p-1 justify-between">
             <p>
               <b>{line.name}</b>
             </p>
@@ -263,11 +248,10 @@ const LineDetails = () => {
             </p>
           </div>
 
-          <Box sx={{ borderBottom: 1, borderColor: "divider", mt: 3 }}>
+          <Box borderBottom={1} borderColor="divider" mt={3}>
             <Tabs
               value={selectedTabIndex === -1 ? 0 : selectedTabIndex}
               onChange={handleTabChange}
-              aria-label="Seleziona subline"
               variant="scrollable"
               scrollButtons="auto"
             >
@@ -278,25 +262,24 @@ const LineDetails = () => {
           </Box>
 
           {selectedSubLineId && (
-            <Typography variant="body1" sx={{ mt: 2 }}>
+            <Typography variant="body1" mt={2}>
               <strong>{machineName}</strong>
             </Typography>
           )}
         </Box>
 
-        {/* Scrollable content */}
         <Box
+          flex={1}
+          pr={1}
+          overflowY="scroll"
           sx={{
-            flex: 1,
-            pr: 1,
-            overflowY: "scroll",
             scrollbarWidth: "none",
             "&::-webkit-scrollbar": {
               display: "none",
             },
           }}
         >
-          <Grid container spacing={1} sx={{ mt: 1 }}>
+          <Grid container spacing={1} mt={1}>
             {[
               {
                 title: "Temperatura",
@@ -336,11 +319,11 @@ const LineDetails = () => {
                     <Typography variant="h6" gutterBottom>
                       {title}
                     </Typography>
-                    <SimpleLineChart
+                    <MuiLineChartWithGradient
                       data={data}
-                      dataKey="value"
-                      color={color}
                       yLabel={y}
+                      gradientId={`grad-${idx}`}
+                      color={color}
                     />
                   </CardContent>
                 </Card>
