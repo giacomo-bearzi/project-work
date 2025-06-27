@@ -473,12 +473,79 @@ const LineDetails = () => {
             </CardContent>
           </Card>
         </Grid>
-        <Grid size={2}>
-          <TemperatureAlertCard
-            temperatureLogs={temperatureLogs}
-            warnThreshold={warnThreshold || 0}
-            machineName={machineName!}
-          />
+
+        <Grid container spacing={2} size={2}>
+          <Grid size={12}>
+            {" "}
+            <TemperatureAlertCard
+              temperatureLogs={temperatureLogs}
+              warnThreshold={warnThreshold || 0}
+              machineName={machineName!}
+            />
+          </Grid>{" "}
+          <Grid size={12}>
+            <Card
+              variant="outlined"
+              sx={{
+                p: 1.5,
+                textAlign: "center",
+                borderRadius: 11,
+                borderLeft: "4px solid #4dabf5",
+              }}
+            >
+              <Typography variant="subtitle2" color="text.secondary">
+                Potenza Massima
+              </Typography>
+              <Typography variant="h4" color="#4dabf5">
+                {powerLogs.length > 0
+                  ? Math.max(...powerLogs.map((d) => d.value)).toFixed(2)
+                  : "N/D"}{" "}
+                W
+              </Typography>
+              <Typography variant="caption" display="block">
+                {powerLogs.length > 0
+                  ? `il ${new Date(
+                      powerLogs.find(
+                        (d) =>
+                          d.value === Math.max(...powerLogs.map((d) => d.value))
+                      )!.timestamp
+                    ).toLocaleString()}`
+                  : ""}
+              </Typography>
+            </Card>
+          </Grid>
+          <Grid size={12}>
+            <Card
+              variant="outlined"
+              sx={{
+                p: 1.5,
+                textAlign: "center",
+                borderRadius: 11,
+                borderLeft: "4px solid #FFB34F",
+              }}
+            >
+              <Typography variant="subtitle2" color="text.secondary">
+                Consumo Massimo
+              </Typography>
+              <Typography variant="h4" color="#ffa733">
+                {consumptionLogs.length > 0
+                  ? Math.max(...consumptionLogs.map((d) => d.value)).toFixed(2)
+                  : "N/D"}{" "}
+                kWh
+              </Typography>
+              <Typography variant="caption" display="block">
+                {consumptionLogs.length > 0
+                  ? `il ${new Date(
+                      consumptionLogs.find(
+                        (d) =>
+                          d.value ===
+                          Math.max(...consumptionLogs.map((d) => d.value))
+                      )!.timestamp
+                    ).toLocaleString()}`
+                  : ""}
+              </Typography>
+            </Card>
+          </Grid>
         </Grid>
       </Grid>
     </DashboardLayout>
