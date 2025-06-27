@@ -5,8 +5,6 @@ import {
   Stack,
   Typography,
   Button,
-  Grid,
-  Chip,
   Avatar,
   Snackbar,
   Alert,
@@ -24,7 +22,6 @@ import CheckIcon from "@mui/icons-material/Check";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-import { HeaderDesktop } from "../../dashboard/components/Header/HeaderDesktop.tsx";
 import { TaskModal } from "../../dashboard/components/TaskModal.tsx";
 import { EditTaskModal } from "../../dashboard/components/EditTaskModal.tsx";
 import { DashboardLayout } from "../../dashboard/layouts/DashboardLayout.tsx";
@@ -118,6 +115,7 @@ export const TasksPage = () => {
           finalTasks.filter((t: Task) => t.date.slice(0, 10) === selectedDate)
         );
       })
+      .catch(() => setTasks([]))
       .finally(() => setLoading(false));
   }, [selectedDate]);
 
@@ -131,12 +129,26 @@ export const TasksPage = () => {
       const s = t.status?.toLowerCase();
       return s === "in_corso" || s === "in corso" || s === "incorso";
     }),
-    done: tasks.filter((t) => t.status === "done" || t.status === "completata"),
+    done: tasks.filter(
+      (t) =>
+        (t.status === "done" || t.status === "completata") &&
+        t.completedAt &&
+        t.date.slice(0, 10) === selectedDate
+    ),
   };
 
-  // Progress tracker
+  // Nuova logica per il conteggio
+  const incompleteTasks = tasks.filter(
+    (t) =>
+      (t.status === "in_attesa" ||
+        t.status === "in_corso" ||
+        t.status === "waiting" ||
+        t.status === "in corso" ||
+        t.status === "incorso") &&
+      t.date.slice(0, 10) === selectedDate
+  );
   const completedCount = tasksByStatus.done.length;
-  const totalCount = tasks.length;
+  const totalCount = incompleteTasks.length + completedCount;
 
   // Drag-and-drop handler
   const handleDragEnd = async (result: any) => {
@@ -168,11 +180,11 @@ export const TasksPage = () => {
       prev.map((t) =>
         t._id === taskId
           ? {
-              ...t,
-              checklist: newChecklist,
-              status: newStatus,
-              completedAt,
-            }
+            ...t,
+            checklist: newChecklist,
+            status: newStatus,
+            completedAt,
+          }
           : t
       )
     );
@@ -192,13 +204,13 @@ export const TasksPage = () => {
     let newStatus = allChecked
       ? "completata"
       : task.status === "completata"
-      ? "in_corso"
-      : task.status;
+        ? "in_corso"
+        : task.status;
     let completedAt = allChecked
       ? new Date().toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        })
+        hour: "2-digit",
+        minute: "2-digit",
+      })
       : undefined;
     setTasks((prev) =>
       prev.map((t) =>
@@ -214,6 +226,25 @@ export const TasksPage = () => {
     });
   };
 
+  // Funzione per eliminare una task
+  const handleDeleteTask = async (taskId: string) => {
+    try {
+      await api.delete(`/tasks/${taskId}`);
+      setTasks((prev) => prev.filter((t) => t._id !== taskId));
+      setSnackbar({
+        open: true,
+        message: "Attività eliminata",
+        severity: "success",
+      });
+    } catch (err) {
+      setSnackbar({
+        open: true,
+        message: "Errore eliminazione attività",
+        severity: "error",
+      });
+    }
+  };
+
   // Card stile MUI
   const TaskCard = ({ task }: { task: Task }) => (
     <Paper
@@ -222,11 +253,10 @@ export const TasksPage = () => {
         p: 2,
         borderRadius: 2,
         boxShadow: 1,
-        borderLeft: `4px solid ${
-          task.status === "in_corso"
+        borderLeft: `4px solid ${task.status === "in_corso"
             ? "#ff9800" // arancione
             : "#1976d2" // blu default
-        }`,
+          }`,
       }}
     >
       <Stack
@@ -242,12 +272,11 @@ export const TasksPage = () => {
               ? `${task.startTime} - ${task.endTime}`
               : ""}
             {task.assignedTo
-              ? ` | ${
-                  typeof task.assignedTo === "object" &&
-                  task.assignedTo !== null
-                    ? task.assignedTo.fullName
-                    : task.assignedTo
-                }`
+              ? ` | ${typeof task.assignedTo === "object" &&
+                task.assignedTo !== null
+                ? task.assignedTo.fullName
+                : task.assignedTo
+              }`
               : ""}
           </Typography>
           {task.checklist && task.checklist.length > 0 && (
@@ -268,14 +297,31 @@ export const TasksPage = () => {
           )}
         </Box>
         {canEdit && (
-          <Button
-            size="small"
-            variant="outlined"
-            sx={{ mt: 1, whiteSpace: "nowrap" }}
-            onClick={() => handleOpenEdit(task)}
-          >
-            Modifica
-          </Button>
+          <Stack direction="row" spacing={1}>
+            <Button
+              size="small"
+              variant="outlined"
+              sx={{ mt: 1, whiteSpace: "nowrap" }}
+              onClick={() => handleOpenEdit(task)}
+            >
+              Modifica
+            </Button>
+            {(task.status === "in_attesa" ||
+              task.status === "in_corso" ||
+              task.status === "waiting" ||
+              task.status === "in corso" ||
+              task.status === "incorso") && (
+                <Button
+                  size="small"
+                  color="error"
+                  variant="outlined"
+                  sx={{ mt: 1, whiteSpace: "nowrap" }}
+                  onClick={() => handleDeleteTask(task._id)}
+                >
+                  Elimina
+                </Button>
+              )}
+          </Stack>
         )}
       </Stack>
     </Paper>
@@ -335,7 +381,6 @@ export const TasksPage = () => {
               width: "100%",
               maxWidth: "100vw",
               overflowX: "hidden",
-              // mt: 2,
             }}
           >
             <Box
@@ -405,12 +450,19 @@ export const TasksPage = () => {
                   }}
                 >
                   {/* Da Fare */}
-                  <Typography variant="subtitle1" fontWeight={700} mb={1}>
+                  <Typography
+                    variant="subtitle1"
+                    fontWeight={700}
+                    mb={1}
+                  >
                     Da Fare
                   </Typography>
                   <Droppable droppableId="todo">
                     {(provided) => (
-                      <Box ref={provided.innerRef} {...provided.droppableProps}>
+                      <Box
+                        ref={provided.innerRef}
+                        {...provided.droppableProps}
+                      >
                         {tasksByStatus.waiting.length === 0 ? (
                           <Typography color="text.secondary" mb={2}>
                             Nessuna attività da fare
@@ -439,12 +491,19 @@ export const TasksPage = () => {
                     )}
                   </Droppable>
                   {/* In Corso (draggabile) */}
-                  <Typography variant="subtitle1" fontWeight={700} mb={1}>
+                  <Typography
+                    variant="subtitle1"
+                    fontWeight={700}
+                    mb={1}
+                  >
                     In Corso
                   </Typography>
                   <Droppable droppableId="in_corso">
                     {(provided) => (
-                      <Box ref={provided.innerRef} {...provided.droppableProps}>
+                      <Box
+                        ref={provided.innerRef}
+                        {...provided.droppableProps}
+                      >
                         {tasksByStatus.in_corso.length === 0 ? (
                           <Typography color="text.secondary" mb={2}>
                             Nessuna attività in corso
@@ -519,49 +578,55 @@ export const TasksPage = () => {
                           <Typography fontWeight={700} fontSize={15} mb={1}>
                             Completate ({completedCount}/{totalCount})
                           </Typography>
-                          {tasksByStatus.done.map((task, idx) => (
-                            <Paper
-                              key={task._id}
-                              sx={{
-                                mb: 1,
-                                p: 1.5,
-                                borderRadius: 2,
-                                boxShadow: 1,
-                                borderLeft: "4px solid #43a047",
-                              }}
-                            >
-                              <Stack
-                                direction="row"
-                                alignItems="center"
-                                spacing={1}
+                          {tasksByStatus.done.length === 0 ? (
+                            <Typography color="text.secondary" mb={2}>
+                              Nessuna attività completata
+                            </Typography>
+                          ) : (
+                            tasksByStatus.done.map((task, idx) => (
+                              <Paper
+                                key={task._id}
+                                sx={{
+                                  mb: 1,
+                                  p: 1.5,
+                                  borderRadius: 2,
+                                  boxShadow: 1,
+                                  borderLeft: "4px solid #43a047",
+                                }}
                               >
-                                <Avatar
-                                  sx={{
-                                    bgcolor: "#43a047",
-                                    width: 24,
-                                    height: 24,
-                                    fontSize: 16,
-                                  }}
+                                <Stack
+                                  direction="row"
+                                  alignItems="center"
+                                  spacing={1}
                                 >
-                                  <CheckIcon
-                                    sx={{ color: "#fff", fontSize: 18 }}
-                                  />
-                                </Avatar>
-                                <Box>
-                                  <Typography fontWeight={700} fontSize={15}>
-                                    {task.description}
-                                  </Typography>
-                                  <Typography
-                                    variant="body2"
-                                    color="text.secondary"
+                                  <Avatar
+                                    sx={{
+                                      bgcolor: "#43a047",
+                                      width: 24,
+                                      height: 24,
+                                      fontSize: 16,
+                                    }}
                                   >
-                                    Completato alle{" "}
-                                    {task.completedAt || "--:--"}
-                                  </Typography>
-                                </Box>
-                              </Stack>
-                            </Paper>
-                          ))}
+                                    <CheckIcon
+                                      sx={{ color: "#fff", fontSize: 18 }}
+                                    />
+                                  </Avatar>
+                                  <Box>
+                                    <Typography fontWeight={700} fontSize={15}>
+                                      {task.description}
+                                    </Typography>
+                                    <Typography
+                                      variant="body2"
+                                      color="text.secondary"
+                                    >
+                                      Completato alle{" "}
+                                      {task.completedAt || "--:--"}
+                                    </Typography>
+                                  </Box>
+                                </Stack>
+                              </Paper>
+                            ))
+                          )}
                           {provided.placeholder}
                         </Paper>
                       </Box>

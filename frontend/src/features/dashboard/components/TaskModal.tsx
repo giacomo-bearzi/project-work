@@ -210,16 +210,6 @@ export const TaskModal: React.FC<TaskModalProps> = ({
         }
     };
 
-    const handleChecklistItemToggle = (idx: number) => {
-        if (selectedAssignedUserLocal) {
-            setSelectedAssignedUserLocal(prev => {
-                if (!prev) return null;
-                const updatedUser = { ...prev, done: !prev.done };
-                return updatedUser;
-            });
-        }
-    };
-
     const handleAddChecklist = () => {
         setForm((prev) => ({ ...prev, checklist: [...prev.checklist, ''] }));
     };

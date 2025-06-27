@@ -47,6 +47,12 @@ export const updateTask = async (req: Request, res: Response) => {
         if (!task) {
             return res.status(404).json({ message: 'Task not found' });
         }
+        if (!req.body.type && task.type) {
+            req.body.type = task.type;
+        }
+        if (req.body.assignedTo && typeof req.body.assignedTo === 'object' && req.body.assignedTo._id) {
+            req.body.assignedTo = req.body.assignedTo._id;
+        }
         Object.assign(task, req.body);
         const updatedTask = await task.save();
         res.json(updatedTask);
