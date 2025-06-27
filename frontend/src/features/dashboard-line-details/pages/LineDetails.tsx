@@ -3,6 +3,7 @@ import { Navigate, useParams } from "react-router-dom";
 import { DashboardLayout } from "../../dashboard/layouts/DashboardLayout";
 import { useProductionLine } from "../hooks/useProductionLine";
 import { useAuth } from "../../log-in/context/AuthContext";
+import type { NodeJS } from "node";
 
 import {
   Tabs,
@@ -14,23 +15,11 @@ import {
   Grid,
 } from "@mui/material";
 
+import { LineChart } from "@mui/x-charts";
+import moment from "moment";
 import api from "../../../utils/axios.ts";
 
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-  AreaChart,
-  Area,
-  Brush,
-} from "recharts";
-
-interface LogPoint {
+export interface LogPoint {
   timestamp: string;
   value: number;
 }
@@ -49,38 +38,51 @@ export interface SubLine {
   machine: string | Machine;
 }
 
-const SimpleLineChart = ({
+const MuiLineChartWithGradient = ({
   data,
-  dataKey,
-  color,
   yLabel,
+  gradientId,
 }: {
   data: LogPoint[];
-  dataKey: string;
-  color: string;
   yLabel: string;
-}) => (
-  <ResponsiveContainer width="100%" height={250}>
-    <AreaChart data={data}>
-      <CartesianGrid strokeDasharray="3 3" />
-      <XAxis
-        dataKey="timestamp"
-        tickFormatter={(time) => new Date(time).toLocaleTimeString()}
+  gradientId: string;
+}) => {
+  const color = "#FB4376";
+
+  return (
+    <>
+      <svg width="0" height="0">
+        <defs>
+          <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="5%" stopColor={color} stopOpacity={0.8} />
+            <stop offset="95%" stopColor={color} stopOpacity={0} />
+          </linearGradient>
+        </defs>
+      </svg>
+      <LineChart
+        xAxis={[
+          {
+            data: data.map((d) => d.timestamp),
+            scaleType: "band",
+            label: "Orario",
+          },
+        ]}
+        yAxis={[{ label: yLabel }]}
+        series={[
+          {
+            data: data.map((d) => d.value),
+            showMark: false,
+            area: true,
+            color: `url(#${gradientId})`,
+            curve: "monotoneX",
+          },
+        ]}
+        height={250}
+        margin={{ top: 10, bottom: 30, left: 60, right: 10 }}
       />
-      <YAxis label={{ value: yLabel, angle: -90, position: "insideLeft" }} />
-      <Tooltip />
-      <Legend />
-      <Area
-        type="monotone"
-        dataKey={dataKey}
-        stroke={color}
-        dot={false}
-        fill={color}
-      />
-    <Brush />
-    </AreaChart>
-  </ResponsiveContainer>
-);
+    </>
+  );
+};
 
 const LineDetails = () => {
   const { lineaId } = useParams();
@@ -90,14 +92,63 @@ const LineDetails = () => {
   const [machines, setMachines] = useState<Machine[]>([]);
   const [selectedSubLineId, setSelectedSubLineId] = useState<string>("");
 
+  const [allTemperatureLogs, setAllTemperatureLogs] = useState<LogPoint[]>([]);
+  const [allConsumptionLogs, setAllConsumptionLogs] = useState<LogPoint[]>([]);
+  const [allPowerLogs, setAllPowerLogs] = useState<LogPoint[]>([]);
+  const [allCo2Logs, setAllCo2Logs] = useState<LogPoint[]>([]);
+
   const [temperatureLogs, setTemperatureLogs] = useState<LogPoint[]>([]);
   const [consumptionLogs, setConsumptionLogs] = useState<LogPoint[]>([]);
   const [powerLogs, setPowerLogs] = useState<LogPoint[]>([]);
   const [co2Logs, setCo2Logs] = useState<LogPoint[]>([]);
 
-  if (!lineaId) {
-    return <Navigate to="/overview" replace />;
-  }
+  useEffect(() => {
+    let interval1: NodeJS.Timeout;
+    let interval2: NodeJS.Timeout;
+    let interval3: NodeJS.Timeout;
+    let interval4: NodeJS.Timeout;
+
+    const createProgressiveUpdater = (
+      source: LogPoint[],
+      setter: (val: LogPoint[]) => void
+    ) => {
+      let index = 15;
+      setter(source.slice(0, 15));
+
+      return setInterval(() => {
+        setter((prev) => {
+          if (index >= source.length) return prev;
+          const next = [...prev, source[index]];
+          index++;
+          return next;
+        });
+      }, 5000);
+    };
+
+    if (allTemperatureLogs.length > 15)
+      interval1 = createProgressiveUpdater(
+        allTemperatureLogs,
+        setTemperatureLogs
+      );
+    if (allConsumptionLogs.length > 15)
+      interval2 = createProgressiveUpdater(
+        allConsumptionLogs,
+        setConsumptionLogs
+      );
+    if (allPowerLogs.length > 15)
+      interval3 = createProgressiveUpdater(allPowerLogs, setPowerLogs);
+    if (allCo2Logs.length > 15)
+      interval4 = createProgressiveUpdater(allCo2Logs, setCo2Logs);
+
+    return () => {
+      clearInterval(interval1);
+      clearInterval(interval2);
+      clearInterval(interval3);
+      clearInterval(interval4);
+    };
+  }, [allTemperatureLogs, allConsumptionLogs, allPowerLogs, allCo2Logs]);
+
+  if (!lineaId) return <Navigate to="/overview" replace />;
 
   const {
     data: line,
@@ -109,9 +160,7 @@ const LineDetails = () => {
     if (!token) return;
 
     api
-      .get("/machine", {
-        headers: { Authorization: `Bearer ${token}` },
-      })
+      .get("/machine", { headers: { Authorization: `Bearer ${token}` } })
       .then((res) => setMachines(res.data))
       .catch(() => setMachines([]));
   }, [token]);
@@ -123,14 +172,12 @@ const LineDetails = () => {
     }
 
     api
-      .get("/sub-lines", {
-        headers: { Authorization: `Bearer ${token}` },
-      })
+      .get("/sub-lines", { headers: { Authorization: `Bearer ${token}` } })
       .then((res) => {
-        const filteredSubs = res.data.filter((sl: any) =>
+        const filtered = res.data.filter((sl: any) =>
           line.subLines.includes(sl._id)
         );
-        setSubLines(filteredSubs);
+        setSubLines(filtered);
       })
       .catch(() => setSubLines([]));
   }, [line, token]);
@@ -141,34 +188,32 @@ const LineDetails = () => {
     }
   }, [subLines, selectedSubLineId]);
 
-  // Carica i log ogni volta che cambia la selectedSubLineId
   useEffect(() => {
     if (!selectedSubLineId || !token) return;
 
-    // Assumendo che la subline abbia una proprietà machine con id macchina
-    const selectedSubLine = subLines.find((sl) => sl._id === selectedSubLineId);
-    if (!selectedSubLine) return;
+    const selected = subLines.find((sl) => sl._id === selectedSubLineId);
+    if (!selected) return;
 
-    // Ottieni machineId (stringa)
-    let machineId = "";
-    if (typeof selectedSubLine.machine === "string") {
-      machineId = selectedSubLine.machine;
-    } else if (selectedSubLine.machine?._id) {
-      machineId = selectedSubLine.machine._id;
-    }
+    const machineId =
+      typeof selected.machine === "string"
+        ? selected.machine
+        : selected.machine?._id;
 
     if (!machineId) return;
 
-    // Funzione helper per convertire log raw in LogPoint[]
     const prepareLogPoints = (
       logs: any[],
       valueKey: string,
       machineId: string
     ): LogPoint[] =>
       logs
-        .filter((log) => log.machineId._id === machineId) // 👈 filtro per macchina
+        .filter((log) => log.machineId._id === machineId)
+        .sort(
+          (a, b) =>
+            new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+        )
         .map((log) => ({
-          timestamp: log.timestamp,
+          timestamp: moment(log.timestamp).format("DD/MM/YYYY HH:mm"),
           value: log[valueKey],
         }));
 
@@ -185,76 +230,43 @@ const LineDetails = () => {
       api.get(`/co2-emission-logs?machineId=${machineId}`, {
         headers: { Authorization: `Bearer ${token}` },
       }),
-    ])
-      .then(([tempRes, consRes, powerRes, co2Res]) => {
-        console.log(tempRes.data);
-
-        setTemperatureLogs(
-          prepareLogPoints(tempRes.data, "temperature", machineId)
-        );
-        setConsumptionLogs(
-          prepareLogPoints(consRes.data, "energyConsumed", machineId)
-        );
-        setPowerLogs(prepareLogPoints(powerRes.data, "power", machineId));
-        setCo2Logs(prepareLogPoints(co2Res.data, "co2Emission", machineId));
-      })
-      .catch(() => {
-        setTemperatureLogs([]);
-        setConsumptionLogs([]);
-        setPowerLogs([]);
-        setCo2Logs([]);
-      });
-    console.log(temperatureLogs);
+    ]).then(([tempRes, consRes, powerRes, co2Res]) => {
+      setAllTemperatureLogs(
+        prepareLogPoints(tempRes.data, "temperature", machineId)
+      );
+      setAllConsumptionLogs(
+        prepareLogPoints(consRes.data, "energyConsumed", machineId)
+      );
+      setAllPowerLogs(prepareLogPoints(powerRes.data, "power", machineId));
+      setAllCo2Logs(prepareLogPoints(co2Res.data, "co2Emission", machineId));
+    });
   }, [selectedSubLineId, subLines, token]);
 
-  if (isLoading) {
-    return null;
-  }
-
-  if (isError || !line) {
-    return <Navigate to="/overview" replace />;
-  }
+  if (isLoading) return null;
+  if (isError || !line) return <Navigate to="/overview" replace />;
 
   const selectedSubLine = subLines.find((sl) => sl._id === selectedSubLineId);
-
-  let machineName = "";
-  if (selectedSubLine) {
-    if (typeof selectedSubLine.machine === "string") {
-      const mach = machines.find((m) => m._id === selectedSubLine.machine);
-      machineName = mach ? mach.name : "Macchina non trovata";
-    } else {
-      machineName = selectedSubLine.machine.name;
-    }
-  }
+  const machineName =
+    typeof selectedSubLine?.machine === "string"
+      ? machines.find((m) => m._id === selectedSubLine?.machine)?.name ??
+        "Macchina non trovata"
+      : selectedSubLine?.machine.name;
 
   const selectedTabIndex = subLines.findIndex(
     (sl) => sl._id === selectedSubLineId
   );
 
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
-    setSelectedSubLineId(subLines[newValue]._id);
-  };
-
   return (
     <DashboardLayout>
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          height: "100vh",
-        }}
-      >
-        {/* Sticky Header */}
+      <Box display="flex" flexDirection="column" height="100vh">
         <Box
-          sx={{
-            position: "sticky",
-            top: 0,
-            backgroundColor: "background.paper",
-            zIndex: 1000,
-            p: 2,
-          }}
+          position="sticky"
+          top={0}
+          bgcolor="background.paper"
+          zIndex={1000}
+          p={2}
         >
-          <div className="flex flex-row  p-1 justify-between">
+          <div className="flex flex-row p-1 justify-between">
             <p>
               <b>{line.name}</b>
             </p>
@@ -263,11 +275,12 @@ const LineDetails = () => {
             </p>
           </div>
 
-          <Box sx={{ borderBottom: 1, borderColor: "divider", mt: 3 }}>
+          <Box borderBottom={1} borderColor="divider" mt={3}>
             <Tabs
               value={selectedTabIndex === -1 ? 0 : selectedTabIndex}
-              onChange={handleTabChange}
-              aria-label="Seleziona subline"
+              onChange={(e, newValue) =>
+                setSelectedSubLineId(subLines[newValue]._id)
+              }
               variant="scrollable"
               scrollButtons="auto"
             >
@@ -278,76 +291,47 @@ const LineDetails = () => {
           </Box>
 
           {selectedSubLineId && (
-            <Typography variant="body1" sx={{ mt: 2 }}>
+            <Typography variant="body1" mt={2}>
               <strong>{machineName}</strong>
             </Typography>
           )}
         </Box>
 
-        {/* Scrollable content */}
-        <Box
-          sx={{
-            flex: 1,
-            pr: 1,
-            overflowY: "scroll",
-            scrollbarWidth: "none",
-            "&::-webkit-scrollbar": {
-              display: "none",
-            },
-          }}
-        >
-          <Grid container spacing={1} sx={{ mt: 1 }}>
-            {[
-              {
-                title: "Temperatura",
-                color: "#FF5722",
-                data: temperatureLogs,
-                y: "°C",
-              },
-              {
-                title: "Consumo energetico",
-                color: "#2196F3",
-                data: consumptionLogs,
-                y: "kWh",
-              },
-              { title: "Potenza", color: "#4CAF50", data: powerLogs, y: "W" },
-              {
-                title: "Emissioni CO₂",
-                color: "#9C27B0",
-                data: co2Logs,
-                y: "kg",
-              },
-            ].map(({ title, color, data, y }, idx) => (
-              <Grid size={6} key={idx}>
-                <Card
-                  sx={{
-                    borderRadius: 11,
-                    p: 1,
-                    background: "rgba(255, 255, 255, 0.07)",
-                    backdropFilter: "blur(20px) saturate(180%)",
-                    WebkitBackdropFilter: "blur(20px) saturate(180%)",
-                    boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
-                    height: "100%",
-                    display: "flex",
-                    flexDirection: "column",
-                  }}
-                >
-                  <CardContent>
-                    <Typography variant="h6" gutterBottom>
-                      {title}
-                    </Typography>
-                    <SimpleLineChart
-                      data={data}
-                      dataKey="value"
-                      color={color}
-                      yLabel={y}
-                    />
-                  </CardContent>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
-        </Box>
+        <Grid container spacing={1} mt={1}>
+          {[
+            { title: "Temperatura", data: temperatureLogs, y: "°C" },
+            { title: "Consumo energetico", data: consumptionLogs, y: "kWh" },
+            { title: "Potenza", data: powerLogs, y: "W" },
+            { title: "Emissioni CO₂", data: co2Logs, y: "kg" },
+          ].map(({ title, data, y }, idx) => (
+            <Grid size={6} key={idx}>
+              <Card
+                sx={{
+                  borderRadius: 11,
+                  p: 1,
+                  background: "rgba(255, 255, 255, 0.07)",
+                  backdropFilter: "blur(20px) saturate(180%)",
+                  WebkitBackdropFilter: "blur(20px) saturate(180%)",
+                  boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
+                  height: "100%",
+                  display: "flex",
+                  flexDirection: "column",
+                }}
+              >
+                <CardContent>
+                  <Typography variant="h6" gutterBottom>
+                    {title}
+                  </Typography>
+                  <MuiLineChartWithGradient
+                    data={data}
+                    yLabel={y}
+                    gradientId={`grad-${idx}`}
+                  />
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
       </Box>
     </DashboardLayout>
   );
