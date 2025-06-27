@@ -19,6 +19,8 @@ import { useAuth } from "../../log-in/context/AuthContext.tsx";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import BarChartIcon from "@mui/icons-material/BarChart";
 import CheckIcon from "@mui/icons-material/Check";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
@@ -316,11 +318,12 @@ export const TasksPage = () => {
           <Stack direction="row" spacing={1}>
             <Button
               size="small"
-              variant="outlined"
-              sx={{ mt: 1, whiteSpace: "nowrap" }}
+              variant="text"
+              color="inherit"
+              sx={{ mt: 1, minWidth: 36, p: 0, color: '#888' }}
               onClick={() => handleOpenEdit(task)}
             >
-              Modifica
+              <EditIcon />
             </Button>
             {(task.status === "in_attesa" ||
               task.status === "in_corso" ||
@@ -329,12 +332,12 @@ export const TasksPage = () => {
               task.status === "incorso") && (
                 <Button
                   size="small"
-                  color="error"
-                  variant="outlined"
-                  sx={{ mt: 1, whiteSpace: "nowrap" }}
+                  color="inherit"
+                  variant="text"
+                  sx={{ mt: 1, minWidth: 36, p: 0, color: '#888' }}
                   onClick={() => handleDeleteTask(task._id)}
                 >
-                  Elimina
+                  <DeleteIcon />
                 </Button>
               )}
           </Stack>
