@@ -3,7 +3,7 @@ import { Navigate, useParams } from "react-router-dom";
 import { DashboardLayout } from "../../dashboard/layouts/DashboardLayout";
 import { useProductionLine } from "../hooks/useProductionLine";
 import { useAuth } from "../../log-in/context/AuthContext";
-import type { NodeJS } from 'node';
+import type { NodeJS } from "node";
 
 import {
   Tabs,
@@ -19,7 +19,7 @@ import { LineChart } from "@mui/x-charts";
 import moment from "moment";
 import api from "../../../utils/axios.ts";
 
-interface LogPoint {
+export interface LogPoint {
   timestamp: string;
   value: number;
 }
@@ -297,51 +297,41 @@ const LineDetails = () => {
           )}
         </Box>
 
-        <Box
-          flex={1}
-          pr={1}
-          overflowY="scroll"
-          sx={{
-            scrollbarWidth: "none",
-            "&::-webkit-scrollbar": { display: "none" },
-          }}
-        >
-          <Grid container spacing={1} mt={1}>
-            {[
-              { title: "Temperatura", data: temperatureLogs, y: "°C" },
-              { title: "Consumo energetico", data: consumptionLogs, y: "kWh" },
-              { title: "Potenza", data: powerLogs, y: "W" },
-              { title: "Emissioni CO₂", data: co2Logs, y: "kg" },
-            ].map(({ title, data, y }, idx) => (
-              <Grid size={6} key={idx}>
-                <Card
-                  sx={{
-                    borderRadius: 11,
-                    p: 1,
-                    background: "rgba(255, 255, 255, 0.07)",
-                    backdropFilter: "blur(20px) saturate(180%)",
-                    WebkitBackdropFilter: "blur(20px) saturate(180%)",
-                    boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
-                    height: "100%",
-                    display: "flex",
-                    flexDirection: "column",
-                  }}
-                >
-                  <CardContent>
-                    <Typography variant="h6" gutterBottom>
-                      {title}
-                    </Typography>
-                    <MuiLineChartWithGradient
-                      data={data}
-                      yLabel={y}
-                      gradientId={`grad-${idx}`}
-                    />
-                  </CardContent>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
-        </Box>
+        <Grid container spacing={1} mt={1}>
+          {[
+            { title: "Temperatura", data: temperatureLogs, y: "°C" },
+            { title: "Consumo energetico", data: consumptionLogs, y: "kWh" },
+            { title: "Potenza", data: powerLogs, y: "W" },
+            { title: "Emissioni CO₂", data: co2Logs, y: "kg" },
+          ].map(({ title, data, y }, idx) => (
+            <Grid size={6} key={idx}>
+              <Card
+                sx={{
+                  borderRadius: 11,
+                  p: 1,
+                  background: "rgba(255, 255, 255, 0.07)",
+                  backdropFilter: "blur(20px) saturate(180%)",
+                  WebkitBackdropFilter: "blur(20px) saturate(180%)",
+                  boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
+                  height: "100%",
+                  display: "flex",
+                  flexDirection: "column",
+                }}
+              >
+                <CardContent>
+                  <Typography variant="h6" gutterBottom>
+                    {title}
+                  </Typography>
+                  <MuiLineChartWithGradient
+                    data={data}
+                    yLabel={y}
+                    gradientId={`grad-${idx}`}
+                  />
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
       </Box>
     </DashboardLayout>
   );
