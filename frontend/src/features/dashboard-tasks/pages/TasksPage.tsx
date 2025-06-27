@@ -43,6 +43,7 @@ interface Task {
   endTime?: string;
   completedAt?: string;
   date: string;
+  type: string;
 }
 
 interface User {
@@ -97,25 +98,38 @@ export const TasksPage = () => {
       .get("/tasks")
       .then(async (res) => {
         const today = new Date().toISOString().slice(0, 10);
+        const isToday = selectedDate === today;
         const tasksFetched = res.data;
-        // Trova le task non completate e con data < oggi
-        const toUpdate = tasksFetched.filter(
-          (t: Task) => t.status !== "completata" && t.date.slice(0, 10) < today
-        );
-        // Aggiorna la data di queste task al giorno corrente
-        await Promise.all(
-          toUpdate.map((t: Task) =>
-            api.put(`/tasks/${t._id}`, { ...t, date: today })
-          )
-        );
-        // Ricarica le task dopo eventuali update
-        const finalTasks =
-          toUpdate.length > 0 ? (await api.get("/tasks")).data : tasksFetched;
-        setTasks(
-          finalTasks.filter((t: Task) => t.date.slice(0, 10) === selectedDate)
-        );
+        console.log("[DEBUG] Tasks from first GET:", tasksFetched);
+        // Mostra subito le task filtrate per la data selezionata
+        const filtered = tasksFetched.filter((t: Task) => t.date.slice(0, 10) === selectedDate);
+        console.log(`[DEBUG] Tasks filtrate per la data ${selectedDate}:`, filtered);
+        setTasks(filtered);
+        // Solo se la data selezionata è oggi, aggiorna in background le task incomplete con data < oggi
+        if (isToday) {
+          const toUpdate = tasksFetched.filter(
+            (t: Task) => t.status !== "completata" && t.date.slice(0, 10) < today
+          );
+          console.log("[DEBUG] Tasks da aggiornare a oggi:", toUpdate);
+          if (toUpdate.length > 0) {
+            await Promise.all(
+              toUpdate.map((t: Task) =>
+                api.put(`/tasks/${t._id}`, { ...t, date: today, type: t.type })
+              )
+            );
+            // Dopo l'update, aggiorna la lista solo se la data selezionata è ancora oggi
+            const updated = (await api.get("/tasks")).data;
+            console.log("[DEBUG] Tasks from second GET dopo update:", updated);
+            const filteredUpdated = updated.filter((t: Task) => t.date.slice(0, 10) === selectedDate);
+            console.log(`[DEBUG] Tasks filtrate per la data ${selectedDate} dopo update:`, filteredUpdated);
+            setTasks(filteredUpdated);
+          }
+        }
       })
-      .catch(() => setTasks([]))
+      .catch((err) => {
+        console.error("[DEBUG] Errore nella GET /tasks:", err);
+        setTasks([]);
+      })
       .finally(() => setLoading(false));
   }, [selectedDate]);
 
@@ -192,6 +206,7 @@ export const TasksPage = () => {
       checklist: newChecklist,
       status: newStatus,
       completedAt,
+      type: task.type,
     });
   };
 
@@ -223,6 +238,7 @@ export const TasksPage = () => {
       checklist: newChecklist,
       status: newStatus,
       completedAt,
+      type: task.type,
     });
   };
 
@@ -254,8 +270,8 @@ export const TasksPage = () => {
         borderRadius: 2,
         boxShadow: 1,
         borderLeft: `4px solid ${task.status === "in_corso"
-            ? "#ff9800" // arancione
-            : "#1976d2" // blu default
+          ? "#ff9800" // arancione
+          : "#1976d2" // blu default
           }`,
       }}
     >
