@@ -114,6 +114,15 @@ function normalizeUser(user: any): {
   };
 }
 
+// Funzione per convertire una stringa datetime-local in una data UTC (ISO) mantenendo l'orario scelto dall'utente
+function localDateTimeToUTC(dateTimeStr: string) {
+  if (!dateTimeStr) return '';
+  const [date, time] = dateTimeStr.split('T');
+  const [year, month, day] = date.split('-').map(Number);
+  const [hour, minute] = time.split(':').map(Number);
+  return new Date(Date.UTC(year, month - 1, day, hour, minute)).toISOString();
+}
+
 export const IssuesPage = () => {
   const [issues, setIssues] = useState<Issue[]>([]);
   const [loading, setLoading] = useState(true);
@@ -285,6 +294,7 @@ export const IssuesPage = () => {
       alert("Errore nella modifica della issue");
     }
   };
+  
 
   // Funzione per eliminare una issue
   const openDeleteDialog = (issue: Issue) => {
@@ -302,6 +312,32 @@ export const IssuesPage = () => {
       setIssueToDelete(null);
     } catch (err) {
       alert("Errore nell'eliminazione della issue");
+    }
+  };
+
+  const handleResolveIssue = async (issue: Issue) => {
+    try {
+      // Prendi la data/ora locale attuale e convertila in formato ISO UTC per il db
+      const now = new Date();
+      const pad = (n: number) => n.toString().padStart(2, '0');
+      const localDateTime =
+        now.getFullYear() +
+        '-' + pad(now.getMonth() + 1) +
+        '-' + pad(now.getDate()) +
+        'T' + pad(now.getHours()) +
+        ':' + pad(now.getMinutes());
+      const resolvedAtUTC = localDateTimeToUTC(localDateTime);
+      await api.put(`/issues/${issue._id}`, {
+        ...issue,
+        status: "risolta",
+        resolvedAt: resolvedAtUTC,
+        assignedTo: issue.assignedTo ? issue.assignedTo._id : null,
+        reportedBy: issue.reportedBy ? issue.reportedBy._id : null,
+      });
+      const response = await api.get<Issue[]>("/issues");
+      setIssues(response.data);
+    } catch (err) {
+      alert("Errore nella risoluzione della issue");
     }
   };
 
@@ -708,8 +744,10 @@ export const IssuesPage = () => {
                           >
                             <EditIcon />
                           </IconButton>
-                          <IconButton onClick={() => openDeleteDialog(issue)}>
-                            <Delete />
+                          <IconButton onClick={() => handleResolveIssue(issue)} disabled={issue.status === "risolta"}>
+                            <span style={{ color: issue.status === "risolta" ? '#aaa' : '#00B67A' }}>
+                              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 12l2 2l4 -4" /><circle cx="12" cy="12" r="10" /></svg>
+                            </span>
                           </IconButton>
                         </Box>
                       </TableCell>
@@ -743,29 +781,19 @@ export const IssuesPage = () => {
           statusOptions={statusOptions}
           currentUser={user!}
           initialValues={issueToEdit || undefined}
+          onDelete={async () => {
+            if (!issueToEdit) return;
+            try {
+              await api.delete(`/issues/${issueToEdit._id}`);
+              const response = await api.get<Issue[]>("/issues");
+              setIssues(response.data);
+              setEditModalOpen(false);
+              setIssueToEdit(null);
+            } catch (err) {
+              alert("Errore nell'eliminazione della issue");
+            }
+          }}
         />
-        <Dialog
-          open={deleteDialogOpen}
-          onClose={() => setDeleteDialogOpen(false)}
-        >
-          <DialogTitle>Conferma eliminazione</DialogTitle>
-          <DialogContent>
-            Sei sicuro di voler eliminare la issue
-            <b> {issueToDelete?.description}</b>?
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setDeleteDialogOpen(false)} color="inherit">
-              Annulla
-            </Button>
-            <Button
-              onClick={confirmDeleteIssue}
-              color="error"
-              variant="contained"
-            >
-              Elimina
-            </Button>
-          </DialogActions>
-        </Dialog>
       </Box>
     </DashboardLayout>
   );

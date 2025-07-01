@@ -16,6 +16,7 @@ import {
 } from '@mui/material';
 import { CustomPaper } from '../../../components/CustomPaper';
 import api from '../../../utils/axios';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 interface User {
   _id: string;
@@ -55,6 +56,7 @@ interface IssueModalProps {
     createdAt: string;
     resolvedAt: string;
   }>;
+  onDelete?: () => void;
 }
 
 export const statusOptions = [
@@ -106,7 +108,7 @@ function getUTCDateTimeLocalString(dateStr: string) {
   );
 }
 
-export const IssueModal: React.FC<IssueModalProps> = ({ open, onClose, onSave, lineOptions, typeOptions, priorityOptions, statusOptions, currentUser, initialValues }) => {
+export const IssueModal: React.FC<IssueModalProps> = ({ open, onClose, onSave, lineOptions, typeOptions, priorityOptions, statusOptions, currentUser, initialValues, onDelete }) => {
   const [description, setDescription] = useState('');
   const [line, setLine] = useState('');
   const [type, setType] = useState('');
@@ -206,7 +208,19 @@ export const IssueModal: React.FC<IssueModalProps> = ({ open, onClose, onSave, l
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <CustomPaper sx={{ p: 2 }}>
-        <DialogTitle sx={{ fontWeight: 600, fontSize: 22 }}>Nuova Issue</DialogTitle>
+        <DialogTitle sx={{ fontWeight: 600, fontSize: 22, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          {initialValues ? 'Modifica Issue' : 'Nuova Issue'}
+          {initialValues && onDelete && (
+            <Button
+              onClick={onDelete}
+              color="error"
+              startIcon={<DeleteIcon />}
+              sx={{ ml: 2 }}
+            >
+              Elimina
+            </Button>
+          )}
+        </DialogTitle>
         <DialogContent>
           <form onSubmit={handleSave}>
             <Stack spacing={2}>
