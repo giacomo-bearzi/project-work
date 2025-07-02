@@ -295,7 +295,7 @@ export const IssuesPage = () => {
       alert("Errore nella modifica della issue");
     }
   };
-  
+
 
   // Funzione per eliminare una issue
   const openDeleteDialog = (issue: Issue) => {
@@ -357,12 +357,17 @@ export const IssuesPage = () => {
               // p: 2,
             }}
           >
-            {/* Titolo a sinistra */}
-            <Box fontWeight="bold" fontSize={18} letterSpacing={1}>
-              ISSUES
-            </Box>
             {/* Filtri e bottone a destra */}
-            <Stack direction="row" spacing={2} alignItems="center">
+            <Stack
+              direction={{ xs: "column", sm: "row" }}
+              spacing={2}
+              alignItems={{ xs: "stretch", sm: "center" }}
+              flexWrap="wrap"
+              sx={{
+                width: "100%",
+                gap: { xs: 1.5, sm: 2 },
+              }}
+            >
               <TextField
                 placeholder="Cerca la descrizione"
                 size="small"
@@ -377,7 +382,8 @@ export const IssuesPage = () => {
                   ),
                 }}
                 sx={{
-                  minWidth: 160,
+                  minWidth: { xs: 0, sm: 160 },
+                  flex: { xs: 1, sm: "unset" },
                   "& .MuiInputBase-input::placeholder": {
                     color: theme.palette.mode === "dark" ? "#B0B3B8" : "#222",
                     opacity: 1,
@@ -397,7 +403,10 @@ export const IssuesPage = () => {
                 }
                 renderValue={() => "Stato"}
                 size="small"
-                sx={{ minWidth: 120 }}
+                sx={{
+                  minWidth: { xs: 0, sm: 120 },
+                  flex: { xs: 1, sm: "unset" },
+                }}
               >
                 {statusOptions.map((option) => (
                   <MenuItem key={option.value} value={option.value}>
@@ -421,7 +430,10 @@ export const IssuesPage = () => {
                 }
                 renderValue={() => "Priorità"}
                 size="small"
-                sx={{ minWidth: 120 }}
+                sx={{
+                  minWidth: { xs: 0, sm: 120 },
+                  flex: { xs: 1, sm: "unset" },
+                }}
               >
                 {priorityOptions.map((option) => (
                   <MenuItem key={option.value} value={option.value}>
@@ -445,7 +457,10 @@ export const IssuesPage = () => {
                 }
                 renderValue={() => "Linea"}
                 size="small"
-                sx={{ minWidth: 120 }}
+                sx={{
+                  minWidth: { xs: 0, sm: 120 },
+                  flex: { xs: 1, sm: "unset" },
+                }}
               >
                 {lineOptions.map((option) => (
                   <MenuItem key={option.value} value={option.value}>
@@ -469,7 +484,10 @@ export const IssuesPage = () => {
                 }
                 renderValue={() => "Tipo"}
                 size="small"
-                sx={{ minWidth: 120 }}
+                sx={{
+                  minWidth: { xs: 0, sm: 120 },
+                  flex: { xs: 1, sm: "unset" },
+                }}
               >
                 {typeOptions.map((option) => (
                   <MenuItem key={option.value} value={option.value}>
@@ -480,22 +498,31 @@ export const IssuesPage = () => {
                   </MenuItem>
                 ))}
               </Select>
-              <LocalizationProvider dateAdapter={AdapterDateFns}>
-                <DatePicker
-                  label="Data"
-                  value={selectedDate ? new Date(selectedDate) : null}
-                  onChange={(newValue) =>
-                    setSelectedDate(
-                      newValue ? newValue.toISOString().slice(0, 10) : ""
-                    )
-                  }
-                  slotProps={{
-                    textField: {
-                      size: "small",
-                      sx: { minWidth: 140 },
-                    },
-                  }}
-                />
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  minWidth: { xs: 0, sm: 140 },
+                  flex: { xs: 1, sm: "unset" },
+                }}
+              >
+                <LocalizationProvider dateAdapter={AdapterDateFns}>
+                  <DatePicker
+                    label="Data"
+                    value={selectedDate ? new Date(selectedDate) : null}
+                    onChange={(newValue) =>
+                      setSelectedDate(
+                        newValue ? newValue.toISOString().slice(0, 10) : ""
+                      )
+                    }
+                    slotProps={{
+                      textField: {
+                        size: "small",
+                        sx: { minWidth: { xs: 0, sm: 140 }, flex: 1 },
+                      },
+                    }}
+                  />
+                </LocalizationProvider>
                 {selectedDate && (
                   <IconButton
                     aria-label="Cancella filtro data"
@@ -506,20 +533,16 @@ export const IssuesPage = () => {
                     <ClearIcon fontSize="small" />
                   </IconButton>
                 )}
-              </LocalizationProvider>
-              {/* <TextField
-              type="date"
-              size="small"
-              variant="outlined"
-              sx={{ minWidth: 140 }}
-              InputLabelProps={{ shrink: true }}
-              value={selectedDate}
-              onChange={(e) => setSelectedDate(e.target.value)}
-            /> */}
+              </Box>
               <Button
                 variant="contained"
                 startIcon={<AddIcon />}
                 onClick={() => setModalOpen(true)}
+                sx={{
+                  whiteSpace: "nowrap",
+                  minWidth: { xs: "unset", sm: 110 },
+                  alignSelf: { xs: "stretch", sm: "center" },
+                }}
               >
                 Segnala
               </Button>
@@ -612,8 +635,8 @@ export const IssuesPage = () => {
                                 issue.priority === "alta"
                                   ? "#FF3B3B"
                                   : issue.priority === "media"
-                                  ? "#FFB800"
-                                  : "#00B67A",
+                                    ? "#FFB800"
+                                    : "#00B67A",
                               fontWeight: 600,
                               marginRight: 6,
                               fontSize: 30,
@@ -721,8 +744,8 @@ export const IssuesPage = () => {
                       <TableCell>
                         {issue.resolvedAt
                           ? moment
-                              .utc(issue.resolvedAt)
-                              .format("YYYY-MM-DD HH:mm")
+                            .utc(issue.resolvedAt)
+                            .format("YYYY-MM-DD HH:mm")
                           : "-"}
                       </TableCell>
                       <TableCell>
@@ -738,12 +761,12 @@ export const IssuesPage = () => {
                               const assignedToUser =
                                 issue.assignedTo && issue.assignedTo.username
                                   ? normalizeUser(
-                                      users.find(
-                                        (u: any) =>
-                                          u.username ===
-                                          issue.assignedTo!.username
-                                      ) || issue.assignedTo
-                                    )
+                                    users.find(
+                                      (u: any) =>
+                                        u.username ===
+                                        issue.assignedTo!.username
+                                    ) || issue.assignedTo
+                                  )
                                   : null;
                               setIssueToEdit({
                                 ...issue,
