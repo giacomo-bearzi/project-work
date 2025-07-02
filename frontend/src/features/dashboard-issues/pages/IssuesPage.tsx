@@ -45,6 +45,7 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { DashboardLayout } from "../../dashboard/layouts/DashboardLayout.tsx";
+import ClearIcon from '@mui/icons-material/Clear';
 
 interface Issue {
   _id: string;
@@ -495,6 +496,16 @@ export const IssuesPage = () => {
                     },
                   }}
                 />
+                {selectedDate && (
+                  <IconButton
+                    aria-label="Cancella filtro data"
+                    onClick={() => setSelectedDate("")}
+                    size="small"
+                    sx={{ ml: 1 }}
+                  >
+                    <ClearIcon fontSize="small" />
+                  </IconButton>
+                )}
               </LocalizationProvider>
               {/* <TextField
               type="date"
