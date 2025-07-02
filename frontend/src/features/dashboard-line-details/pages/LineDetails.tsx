@@ -3,7 +3,6 @@ import { Navigate, useParams } from "react-router-dom";
 import { DashboardLayout } from "../../dashboard/layouts/DashboardLayout";
 import { useProductionLine } from "../hooks/useProductionLine";
 import { useAuth } from "../../log-in/context/AuthContext";
-import type { NodeJS } from "node";
 import CircleIcon from "@mui/icons-material/Circle";
 
 import {
@@ -85,6 +84,7 @@ const MuiLineChartWithGradient = ({
             area: true,
             color: `url(#${gradientId})`,
             curve: "monotoneX",
+            label: "Temperatura (°C)",
           },
           ...(warnThreshold
             ? [
@@ -110,7 +110,6 @@ const MuiLineChartWithGradient = ({
             : []),
         ]}
         height={390}
-        // margin={{ top: 10, bottom: 30, left: 60, right: 10 }}
       />
     </>
   );
@@ -148,12 +147,17 @@ const LineDetails = () => {
         return { color: "#9E9E9E", label: status }; // Grigio per sconosciuti
     }
   };
+  const {
+    data: line,
+    isLoading,
+    isError,
+  } = useProductionLine(lineaId!, token || "");
 
   useEffect(() => {
-    let interval1: NodeJS.Timeout;
-    let interval2: NodeJS.Timeout;
-    let interval3: NodeJS.Timeout;
-    let interval4: NodeJS.Timeout;
+    let interval1: number;
+    let interval2: number;
+    let interval3: number;
+    let interval4: number;
 
     const createProgressiveUpdater = (
       source: LogPoint[],
@@ -194,16 +198,6 @@ const LineDetails = () => {
       clearInterval(interval4);
     };
   }, [allTemperatureLogs, allConsumptionLogs, allPowerLogs, allCo2Logs]);
-
-  if (!lineaId) return <Navigate to="/overview" replace />;
-
-  const {
-    data: line,
-    isLoading,
-    isError,
-  } = useProductionLine(lineaId, token || "");
-  const { color, label } = getStatusStyle(line.status);
-
   useEffect(() => {
     if (!token) return;
 
@@ -218,7 +212,6 @@ const LineDetails = () => {
       setSubLines([]);
       return;
     }
-    console.log(line);
 
     api
       .get("/sub-lines", { headers: { Authorization: `Bearer ${token}` } })
@@ -292,6 +285,11 @@ const LineDetails = () => {
       setAllCo2Logs(prepareLogPoints(co2Res.data, "co2Emission", machineId));
     });
   }, [selectedSubLineId, subLines, token]);
+  if (!lineaId) return <Navigate to="/overview" replace />;
+
+  const { color, label } = getStatusStyle(line.status);
+
+  console.log(line);
 
   if (isLoading) return null;
   if (isError || !line) return <Navigate to="/overview" replace />;
@@ -302,12 +300,6 @@ const LineDetails = () => {
       ? machines.find((m) => m._id === selectedSubLine?.machine)?.name ??
         "Macchina non trovata"
       : selectedSubLine?.machine.name;
-
-  // const warnThreshold =
-  //   typeof selectedSubLine?.machine === "string"
-  //     ? machines.find((m) => m._id === selectedSubLine?.machine)
-  //         ?.warnTemperature
-  //     : selectedSubLine?.machine.warnTemperature;
 
   const selectedTabIndex = subLines.findIndex(
     (sl) => sl._id === selectedSubLineId
@@ -328,7 +320,6 @@ const LineDetails = () => {
       <Box
         position="sticky"
         top={0}
-        // bgcolor="background.paper"
         zIndex={1000}
         p={2}
         sx={{ borderRadius: 11 }}
@@ -417,29 +408,29 @@ const LineDetails = () => {
                   {
                     data: powerLogs.map((d) => d.value),
                     label: "Potenza (W)",
-                    color: "#4dabf5",
+                    color: "url(#power-gradient)",
                     showMark: false,
                     curve: "monotoneX",
                     area: true,
-                    fill: "url(#power-gradient)",
+                    // fill: "url(#power-gradient)",
                   },
                   {
                     data: consumptionLogs.map((d) => d.value),
                     label: "Consumo (kWh)",
-                    color: "#ffa733",
+                    color: "url(#consumption-gradient)",
                     showMark: false,
                     curve: "monotoneX",
                     area: true,
-                    fill: "url(#consumption-gradient)",
+                    // fill: "url(#consumption-gradient)",
                   },
                   {
                     data: co2Logs.map((d) => d.value),
                     label: "CO₂ (kg)",
-                    color: "#51cf66",
+                    color: "url(#co2-gradient)",
                     showMark: false,
                     curve: "monotoneX",
                     area: true,
-                    fill: "url(#co2-gradient)",
+                    // fill: "url(#co2-gradient)",
                   },
                 ]}
                 xAxis={[

@@ -73,7 +73,7 @@ const TemperatureAlertCard = ({
         <Box display="flex" alignItems="center" justifyContent="center" mt={2}>
           <animated.div
             style={{
-              fontSize: "3rem",
+              fontSize: "2rem",
               fontWeight: "bold",
               color: exceedCount > 0 ? "#ff3d00" : "inherit",
             }}
@@ -94,11 +94,11 @@ const TemperatureAlertCard = ({
           Soglia warning: <strong>{warnThreshold}°C</strong>
         </Typography>
 
-        {exceedCount > 0 && (
+        {/* {exceedCount > 0 && (
           <Typography variant="caption" display="block" color="error" mt={1}>
             Attenzione: temperatura di warning superata!
           </Typography>
-        )}
+        )} */}
       </CardContent>
     </Card>
   );
