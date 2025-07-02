@@ -151,7 +151,7 @@ export const IssueModal: React.FC<IssueModalProps> = ({ open, onClose, onSave, l
     }
   }, [open, initialValues]);
 
-  // Svuota resolvedAt se lo stato non è più 'risolta'
+    // Svuota resolvedAt se lo stato non è più 'risolta'
   useEffect(() => {
     if (status !== 'risolta') {
       setResolvedAt('');
@@ -238,54 +238,58 @@ export const IssueModal: React.FC<IssueModalProps> = ({ open, onClose, onSave, l
                 required
                 fullWidth
               />
-              <FormControl fullWidth required>
-                <InputLabel>Linea</InputLabel>
-                <Select
-                  value={line}
-                  label="Linea"
-                  onChange={e => setLine(e.target.value)}
-                >
-                  {lineOptions.map(opt => (
-                    <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              <FormControl fullWidth required>
-                <InputLabel>Tipo</InputLabel>
-                <Select
-                  value={type}
-                  label="Tipo"
-                  onChange={e => setType(e.target.value)}
-                >
-                  {typeOptions.map(opt => (
-                    <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              <FormControl fullWidth required>
-                <InputLabel>Priorità</InputLabel>
-                <Select
-                  value={priority}
-                  label="Priorità"
-                  onChange={e => setPriority(e.target.value)}
-                >
-                  {priorityOptions.map(opt => (
-                    <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              <FormControl fullWidth required>
-                <InputLabel>Stato</InputLabel>
-                <Select
-                  value={status}
-                  label="Stato"
-                  onChange={e => setStatus(e.target.value)}
-                >
-                  {statusOptions.map(opt => (
-                    <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+              <Stack direction="row" spacing={2}>
+                <FormControl fullWidth required>
+                  <InputLabel>Linea</InputLabel>
+                  <Select
+                    value={line}
+                    label="Linea"
+                    onChange={e => setLine(e.target.value)}
+                  >
+                    {lineOptions.map(opt => (
+                      <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+                <FormControl fullWidth required>
+                  <InputLabel>Tipo</InputLabel>
+                  <Select
+                    value={type}
+                    label="Tipo"
+                    onChange={e => setType(e.target.value)}
+                  >
+                    {typeOptions.map(opt => (
+                      <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Stack>
+              <Stack direction="row" spacing={2}>
+                <FormControl fullWidth required>
+                  <InputLabel>Priorità</InputLabel>
+                  <Select
+                    value={priority}
+                    label="Priorità"
+                    onChange={e => setPriority(e.target.value)}
+                  >
+                    {priorityOptions.map(opt => (
+                      <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+                <FormControl fullWidth required>
+                  <InputLabel>Stato</InputLabel>
+                  <Select
+                    value={status}
+                    label="Stato"
+                    onChange={e => setStatus(e.target.value)}
+                  >
+                    {statusOptions.map(opt => (
+                      <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Stack>
               {currentUser.role === 'operator' ? (
                 <TextField
                   label="Segnalata da"
