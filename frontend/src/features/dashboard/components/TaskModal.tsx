@@ -269,6 +269,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({
                             }}
                         />
                     </LocalizationProvider>
+
                     <TextField
                         label="Descrizione"
                         name="description"
@@ -279,21 +280,34 @@ export const TaskModal: React.FC<TaskModalProps> = ({
                         multiline
                         minRows={3}
                     />
-                    <TextField
-                        select
-                        label="Linea"
-                        name="lineId"
-                        value={form.lineId}
-                        onChange={handleFormChange}
-                        required
-                        fullWidth
-                    >
-                        {productionLines.map((line) => (
-                            <MenuItem key={line._id} value={line.lineId}>
-                                {line.name}
-                            </MenuItem>
-                        ))}
-                    </TextField>
+                    <Stack direction='row' spacing={2}>
+                        <TextField
+                            select
+                            label="Linea"
+                            name="lineId"
+                            value={form.lineId}
+                            onChange={handleFormChange}
+                            required
+                            fullWidth
+                        >
+                            {productionLines.map((line) => (
+                                <MenuItem key={line._id} value={line.lineId}>
+                                    {line.name}
+                                </MenuItem>
+                            ))}
+                        </TextField>
+
+                        <TextField
+                            label="Durata stimata (min)"
+                            name="estimatedMinutes"
+                            type="number"
+                            value={form.estimatedMinutes}
+                            onChange={handleFormChange}
+                            required
+                            fullWidth
+                        />
+                    </Stack>
+
                     <Autocomplete
                         options={users}
                         getOptionLabel={(option) =>
@@ -326,63 +340,57 @@ export const TaskModal: React.FC<TaskModalProps> = ({
                         )}
                         isOptionEqualToValue={(option, value) => option?._id === value?._id}
                     />
-                    <TextField
-                        label="Durata stimata (min)"
-                        name="estimatedMinutes"
-                        type="number"
-                        value={form.estimatedMinutes}
-                        onChange={handleFormChange}
-                        required
-                        fullWidth
-                    />
-                    <TextField
-                        select
-                        label="Stato"
-                        name="status"
-                        value={form.status}
-                        onChange={handleFormChange}
-                        required
-                        fullWidth
-                    >
-                        <MenuItem value="in_attesa">In attesa</MenuItem>
-                        <MenuItem value="in_corso">In corso</MenuItem>
-                    </TextField>
-                    <TextField
-                        select
-                        label="Tipo"
-                        name="type"
-                        value={form.type}
-                        onChange={handleFormChange}
-                        required
-                        fullWidth
-                    >
-                        <MenuItem value="standard">Standard</MenuItem>
-                        <MenuItem value="manutenzione">Manutenzione</MenuItem>
-                    </TextField>
-                    {form.type === 'manutenzione' && (
-                        <>
-                            <TextField
-                                label="Inizio manutenzione"
-                                name="maintenanceStart"
-                                type="datetime-local"
-                                value={form.maintenanceStart}
-                                onChange={handleFormChange}
-                                fullWidth
-                                InputLabelProps={{ shrink: true }}
-                                sx={{ mt: 1 }}
-                            />
-                            <TextField
-                                label="Fine manutenzione"
-                                name="maintenanceEnd"
-                                type="datetime-local"
-                                value={form.maintenanceEnd}
-                                onChange={handleFormChange}
-                                fullWidth
-                                InputLabelProps={{ shrink: true }}
-                                sx={{ mt: 1 }}
-                            />
-                        </>
-                    )}
+                    <Stack direction="row" spacing={2}>
+                        <TextField
+                            select
+                            label="Stato"
+                            name="status"
+                            value={form.status}
+                            onChange={handleFormChange}
+                            required
+                            fullWidth
+                        >
+                            <MenuItem value="in_attesa">In attesa</MenuItem>
+                            <MenuItem value="in_corso">In corso</MenuItem>
+                        </TextField>
+                        <TextField
+                            select
+                            label="Tipo"
+                            name="type"
+                            value={form.type}
+                            onChange={handleFormChange}
+                            required
+                            fullWidth
+                        >
+                            <MenuItem value="standard">Standard</MenuItem>
+                            <MenuItem value="manutenzione">Manutenzione</MenuItem>
+                        </TextField>
+                        {form.type === 'manutenzione' && (
+                            <>
+                                <TextField
+                                    label="Inizio manutenzione"
+                                    name="maintenanceStart"
+                                    type="datetime-local"
+                                    value={form.maintenanceStart}
+                                    onChange={handleFormChange}
+                                    fullWidth
+                                    InputLabelProps={{ shrink: true }}
+                                    sx={{ mt: 1 }}
+                                />
+                                <TextField
+                                    label="Fine manutenzione"
+                                    name="maintenanceEnd"
+                                    type="datetime-local"
+                                    value={form.maintenanceEnd}
+                                    onChange={handleFormChange}
+                                    fullWidth
+                                    InputLabelProps={{ shrink: true }}
+                                    sx={{ mt: 1 }}
+                                />
+                            </>
+                        )}
+                    </Stack>
+
                     <Typography variant="subtitle1" sx={{ mt: 1 }}>Sotto attività</Typography>
                     <List>
                         {form.checklist.map((item: string, idx: number) => (
