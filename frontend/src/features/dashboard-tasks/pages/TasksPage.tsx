@@ -454,7 +454,7 @@ export const TasksPage = () => {
                       setOpenModal(true);
                     }}
                   >
-                    Aggiungi Attività
+                    + Attività
                   </Button>
                 </Stack>
                 <Box

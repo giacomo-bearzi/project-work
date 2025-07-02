@@ -45,6 +45,7 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { DashboardLayout } from "../../dashboard/layouts/DashboardLayout.tsx";
+import ClearIcon from '@mui/icons-material/Clear';
 
 interface Issue {
   _id: string;
@@ -112,6 +113,15 @@ function normalizeUser(user: any): {
     fullName: user && user.fullName ? user.fullName : "",
     role: user && user.role ? user.role : "",
   };
+}
+
+// Funzione per convertire una stringa datetime-local in una data UTC (ISO) mantenendo l'orario scelto dall'utente
+function localDateTimeToUTC(dateTimeStr: string) {
+  if (!dateTimeStr) return '';
+  const [date, time] = dateTimeStr.split('T');
+  const [year, month, day] = date.split('-').map(Number);
+  const [hour, minute] = time.split(':').map(Number);
+  return new Date(Date.UTC(year, month - 1, day, hour, minute)).toISOString();
 }
 
 export const IssuesPage = () => {
@@ -286,6 +296,7 @@ export const IssuesPage = () => {
     }
   };
 
+
   // Funzione per eliminare una issue
   const openDeleteDialog = (issue: Issue) => {
     setIssueToDelete(issue);
@@ -305,6 +316,32 @@ export const IssuesPage = () => {
     }
   };
 
+  const handleResolveIssue = async (issue: Issue) => {
+    try {
+      // Prendi la data/ora locale attuale e convertila in formato ISO UTC per il db
+      const now = new Date();
+      const pad = (n: number) => n.toString().padStart(2, '0');
+      const localDateTime =
+        now.getFullYear() +
+        '-' + pad(now.getMonth() + 1) +
+        '-' + pad(now.getDate()) +
+        'T' + pad(now.getHours()) +
+        ':' + pad(now.getMinutes());
+      const resolvedAtUTC = localDateTimeToUTC(localDateTime);
+      await api.put(`/issues/${issue._id}`, {
+        ...issue,
+        status: "risolta",
+        resolvedAt: resolvedAtUTC,
+        assignedTo: issue.assignedTo ? issue.assignedTo._id : null,
+        reportedBy: issue.reportedBy ? issue.reportedBy._id : null,
+      });
+      const response = await api.get<Issue[]>("/issues");
+      setIssues(response.data);
+    } catch (err) {
+      alert("Errore nella risoluzione della issue");
+    }
+  };
+
   return (
     <DashboardLayout>
       <Box p={1}>
@@ -320,12 +357,17 @@ export const IssuesPage = () => {
               // p: 2,
             }}
           >
-            {/* Titolo a sinistra */}
-            <Box fontWeight="bold" fontSize={18} letterSpacing={1}>
-              ISSUES
-            </Box>
             {/* Filtri e bottone a destra */}
-            <Stack direction="row" spacing={2} alignItems="center">
+            <Stack
+              direction={{ xs: "column", sm: "row" }}
+              spacing={2}
+              alignItems={{ xs: "stretch", sm: "center" }}
+              flexWrap="wrap"
+              sx={{
+                width: "100%",
+                gap: { xs: 1.5, sm: 2 },
+              }}
+            >
               <TextField
                 placeholder="Cerca la descrizione"
                 size="small"
@@ -340,7 +382,8 @@ export const IssuesPage = () => {
                   ),
                 }}
                 sx={{
-                  minWidth: 160,
+                  minWidth: { xs: 0, sm: 160 },
+                  flex: { xs: 1, sm: "unset" },
                   "& .MuiInputBase-input::placeholder": {
                     color: theme.palette.mode === "dark" ? "#B0B3B8" : "#222",
                     opacity: 1,
@@ -360,7 +403,10 @@ export const IssuesPage = () => {
                 }
                 renderValue={() => "Stato"}
                 size="small"
-                sx={{ minWidth: 120 }}
+                sx={{
+                  minWidth: { xs: 0, sm: 120 },
+                  flex: { xs: 1, sm: "unset" },
+                }}
               >
                 {statusOptions.map((option) => (
                   <MenuItem key={option.value} value={option.value}>
@@ -384,7 +430,10 @@ export const IssuesPage = () => {
                 }
                 renderValue={() => "Priorità"}
                 size="small"
-                sx={{ minWidth: 120 }}
+                sx={{
+                  minWidth: { xs: 0, sm: 120 },
+                  flex: { xs: 1, sm: "unset" },
+                }}
               >
                 {priorityOptions.map((option) => (
                   <MenuItem key={option.value} value={option.value}>
@@ -408,7 +457,10 @@ export const IssuesPage = () => {
                 }
                 renderValue={() => "Linea"}
                 size="small"
-                sx={{ minWidth: 120 }}
+                sx={{
+                  minWidth: { xs: 0, sm: 120 },
+                  flex: { xs: 1, sm: "unset" },
+                }}
               >
                 {lineOptions.map((option) => (
                   <MenuItem key={option.value} value={option.value}>
@@ -432,7 +484,10 @@ export const IssuesPage = () => {
                 }
                 renderValue={() => "Tipo"}
                 size="small"
-                sx={{ minWidth: 120 }}
+                sx={{
+                  minWidth: { xs: 0, sm: 120 },
+                  flex: { xs: 1, sm: "unset" },
+                }}
               >
                 {typeOptions.map((option) => (
                   <MenuItem key={option.value} value={option.value}>
@@ -443,36 +498,51 @@ export const IssuesPage = () => {
                   </MenuItem>
                 ))}
               </Select>
-              <LocalizationProvider dateAdapter={AdapterDateFns}>
-                <DatePicker
-                  label="Data"
-                  value={selectedDate ? new Date(selectedDate) : null}
-                  onChange={(newValue) =>
-                    setSelectedDate(
-                      newValue ? newValue.toISOString().slice(0, 10) : ""
-                    )
-                  }
-                  slotProps={{
-                    textField: {
-                      size: "small",
-                      sx: { minWidth: 140 },
-                    },
-                  }}
-                />
-              </LocalizationProvider>
-              {/* <TextField
-              type="date"
-              size="small"
-              variant="outlined"
-              sx={{ minWidth: 140 }}
-              InputLabelProps={{ shrink: true }}
-              value={selectedDate}
-              onChange={(e) => setSelectedDate(e.target.value)}
-            /> */}
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  minWidth: { xs: 0, sm: 140 },
+                  flex: { xs: 1, sm: "unset" },
+                }}
+              >
+                <LocalizationProvider dateAdapter={AdapterDateFns}>
+                  <DatePicker
+                    label="Data"
+                    value={selectedDate ? new Date(selectedDate) : null}
+                    onChange={(newValue) =>
+                      setSelectedDate(
+                        newValue ? newValue.toISOString().slice(0, 10) : ""
+                      )
+                    }
+                    slotProps={{
+                      textField: {
+                        size: "small",
+                        sx: { minWidth: { xs: 0, sm: 140 }, flex: 1 },
+                      },
+                    }}
+                  />
+                </LocalizationProvider>
+                {selectedDate && (
+                  <IconButton
+                    aria-label="Cancella filtro data"
+                    onClick={() => setSelectedDate("")}
+                    size="small"
+                    sx={{ ml: 1 }}
+                  >
+                    <ClearIcon fontSize="small" />
+                  </IconButton>
+                )}
+              </Box>
               <Button
                 variant="contained"
                 startIcon={<AddIcon />}
                 onClick={() => setModalOpen(true)}
+                sx={{
+                  whiteSpace: "nowrap",
+                  minWidth: { xs: "unset", sm: 110 },
+                  alignSelf: { xs: "stretch", sm: "center" },
+                }}
               >
                 Segnala
               </Button>
@@ -565,8 +635,8 @@ export const IssuesPage = () => {
                                 issue.priority === "alta"
                                   ? "#FF3B3B"
                                   : issue.priority === "media"
-                                  ? "#FFB800"
-                                  : "#00B67A",
+                                    ? "#FFB800"
+                                    : "#00B67A",
                               fontWeight: 600,
                               marginRight: 6,
                               fontSize: 30,
@@ -674,8 +744,8 @@ export const IssuesPage = () => {
                       <TableCell>
                         {issue.resolvedAt
                           ? moment
-                              .utc(issue.resolvedAt)
-                              .format("YYYY-MM-DD HH:mm")
+                            .utc(issue.resolvedAt)
+                            .format("YYYY-MM-DD HH:mm")
                           : "-"}
                       </TableCell>
                       <TableCell>
@@ -691,12 +761,12 @@ export const IssuesPage = () => {
                               const assignedToUser =
                                 issue.assignedTo && issue.assignedTo.username
                                   ? normalizeUser(
-                                      users.find(
-                                        (u: any) =>
-                                          u.username ===
-                                          issue.assignedTo!.username
-                                      ) || issue.assignedTo
-                                    )
+                                    users.find(
+                                      (u: any) =>
+                                        u.username ===
+                                        issue.assignedTo!.username
+                                    ) || issue.assignedTo
+                                  )
                                   : null;
                               setIssueToEdit({
                                 ...issue,
@@ -708,8 +778,10 @@ export const IssuesPage = () => {
                           >
                             <EditIcon />
                           </IconButton>
-                          <IconButton onClick={() => openDeleteDialog(issue)}>
-                            <Delete />
+                          <IconButton onClick={() => handleResolveIssue(issue)} disabled={issue.status === "risolta"}>
+                            <span style={{ color: issue.status === "risolta" ? '#aaa' : '#00B67A' }}>
+                              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 12l2 2l4 -4" /><circle cx="12" cy="12" r="10" /></svg>
+                            </span>
                           </IconButton>
                         </Box>
                       </TableCell>
@@ -743,29 +815,19 @@ export const IssuesPage = () => {
           statusOptions={statusOptions}
           currentUser={user!}
           initialValues={issueToEdit || undefined}
+          onDelete={async () => {
+            if (!issueToEdit) return;
+            try {
+              await api.delete(`/issues/${issueToEdit._id}`);
+              const response = await api.get<Issue[]>("/issues");
+              setIssues(response.data);
+              setEditModalOpen(false);
+              setIssueToEdit(null);
+            } catch (err) {
+              alert("Errore nell'eliminazione della issue");
+            }
+          }}
         />
-        <Dialog
-          open={deleteDialogOpen}
-          onClose={() => setDeleteDialogOpen(false)}
-        >
-          <DialogTitle>Conferma eliminazione</DialogTitle>
-          <DialogContent>
-            Sei sicuro di voler eliminare la issue
-            <b> {issueToDelete?.description}</b>?
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setDeleteDialogOpen(false)} color="inherit">
-              Annulla
-            </Button>
-            <Button
-              onClick={confirmDeleteIssue}
-              color="error"
-              variant="contained"
-            >
-              Elimina
-            </Button>
-          </DialogActions>
-        </Dialog>
       </Box>
     </DashboardLayout>
   );

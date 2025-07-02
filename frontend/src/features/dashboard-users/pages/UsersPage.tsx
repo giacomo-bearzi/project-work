@@ -239,7 +239,7 @@ export const UsersPage = () => {
             height: "100%",
           }}
         >
-          <Grid container size={3}>
+          <Grid container size={3} spacing={1}>
             <Grid size={12}>
               <Paper
                 elevation={1}
@@ -250,7 +250,7 @@ export const UsersPage = () => {
                   backdropFilter: "blur(20px) saturate(180%)",
                   WebkitBackdropFilter: "blur(20px) saturate(180%)",
                   boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
-                  maxHeight: "400px",
+                  maxHeight: "200px",
                   overflowY: "scroll",
                   scrollbarWidth: "none",
                   "&::-webkit-scrollbar": {
@@ -262,14 +262,15 @@ export const UsersPage = () => {
                   <UserDetails
                     user={selectedUser}
                     issues={issues}
-                    tasks={tasks}
+                    tasks={[]}
                     loading={loading}
                     onNavigateToIssues={() => navigate("/issues")}
-                    onNavigateToPlanning={() => navigate("/tasks")}
+                    onNavigateToPlanning={() => {}}
+                    show="issues"
                   />
                 ) : (
                   <Typography variant="body2" color="textSecondary">
-                    Seleziona un utente per visualizzare i dettagli.
+                    Seleziona un utente per visualizzare le issues.
                   </Typography>
                 )}
               </Paper>
@@ -284,6 +285,43 @@ export const UsersPage = () => {
                   backdropFilter: "blur(20px) saturate(180%)",
                   WebkitBackdropFilter: "blur(20px) saturate(180%)",
                   boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
+                  maxHeight: "200px",
+                  overflowY: "scroll",
+                  scrollbarWidth: "none",
+                  "&::-webkit-scrollbar": {
+                    display: "none",
+                  },
+                }}
+              >
+                {selectedUser ? (
+                  <UserDetails
+                    user={selectedUser}
+                    issues={[]}
+                    tasks={tasks}
+                    loading={loading}
+                    onNavigateToIssues={() => {}}
+                    onNavigateToPlanning={() => navigate("/tasks")}
+                    show="tasks"
+                  />
+                ) : (
+                  <Typography variant="body2" color="textSecondary">
+                    Seleziona un utente per visualizzare le task.
+                  </Typography>
+                )}
+              </Paper>
+            </Grid>
+            <Grid size={12}>
+              <Paper
+                elevation={1}
+                sx={{
+                  borderRadius: 11,
+                  p: 2,
+                  background: "rgba(255, 255, 255, 0.07)",
+                  backdropFilter: "blur(20px) saturate(180%)",
+                  WebkitBackdropFilter: "blur(20px) saturate(180%)",
+                  boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
+
+
                 }}
               >
                 <UserActivityChart

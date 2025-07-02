@@ -16,6 +16,7 @@ import {
 } from '@mui/material';
 import { CustomPaper } from '../../../components/CustomPaper';
 import api from '../../../utils/axios';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 interface User {
   _id: string;
@@ -55,6 +56,7 @@ interface IssueModalProps {
     createdAt: string;
     resolvedAt: string;
   }>;
+  onDelete?: () => void;
 }
 
 export const statusOptions = [
@@ -106,7 +108,7 @@ function getUTCDateTimeLocalString(dateStr: string) {
   );
 }
 
-export const IssueModal: React.FC<IssueModalProps> = ({ open, onClose, onSave, lineOptions, typeOptions, priorityOptions, statusOptions, currentUser, initialValues }) => {
+export const IssueModal: React.FC<IssueModalProps> = ({ open, onClose, onSave, lineOptions, typeOptions, priorityOptions, statusOptions, currentUser, initialValues, onDelete }) => {
   const [description, setDescription] = useState('');
   const [line, setLine] = useState('');
   const [type, setType] = useState('');
@@ -148,6 +150,13 @@ export const IssueModal: React.FC<IssueModalProps> = ({ open, onClose, onSave, l
       setSearchReported('');
     }
   }, [open, initialValues]);
+
+    // Svuota resolvedAt se lo stato non è più 'risolta'
+  useEffect(() => {
+    if (status !== 'risolta') {
+      setResolvedAt('');
+    }
+  }, [status]);
 
   // Funzione per cercare utenti via GraphQL
   const fetchUsers = async (queryTerm: string) => {
@@ -206,7 +215,19 @@ export const IssueModal: React.FC<IssueModalProps> = ({ open, onClose, onSave, l
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <CustomPaper sx={{ p: 2 }}>
-        <DialogTitle sx={{ fontWeight: 600, fontSize: 22 }}>Nuova Issue</DialogTitle>
+        <DialogTitle sx={{ fontWeight: 600, fontSize: 22, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          {initialValues ? 'Modifica Issue' : 'Nuova Issue'}
+          {initialValues && onDelete && (
+            <Button
+              onClick={onDelete}
+              color="error"
+              startIcon={<DeleteIcon />}
+              sx={{ ml: 2 }}
+            >
+              Elimina
+            </Button>
+          )}
+        </DialogTitle>
         <DialogContent>
           <form onSubmit={handleSave}>
             <Stack spacing={2}>
@@ -217,54 +238,58 @@ export const IssueModal: React.FC<IssueModalProps> = ({ open, onClose, onSave, l
                 required
                 fullWidth
               />
-              <FormControl fullWidth required>
-                <InputLabel>Linea</InputLabel>
-                <Select
-                  value={line}
-                  label="Linea"
-                  onChange={e => setLine(e.target.value)}
-                >
-                  {lineOptions.map(opt => (
-                    <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              <FormControl fullWidth required>
-                <InputLabel>Tipo</InputLabel>
-                <Select
-                  value={type}
-                  label="Tipo"
-                  onChange={e => setType(e.target.value)}
-                >
-                  {typeOptions.map(opt => (
-                    <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              <FormControl fullWidth required>
-                <InputLabel>Priorità</InputLabel>
-                <Select
-                  value={priority}
-                  label="Priorità"
-                  onChange={e => setPriority(e.target.value)}
-                >
-                  {priorityOptions.map(opt => (
-                    <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              <FormControl fullWidth required>
-                <InputLabel>Stato</InputLabel>
-                <Select
-                  value={status}
-                  label="Stato"
-                  onChange={e => setStatus(e.target.value)}
-                >
-                  {statusOptions.map(opt => (
-                    <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+              <Stack direction="row" spacing={2}>
+                <FormControl fullWidth required>
+                  <InputLabel>Linea</InputLabel>
+                  <Select
+                    value={line}
+                    label="Linea"
+                    onChange={e => setLine(e.target.value)}
+                  >
+                    {lineOptions.map(opt => (
+                      <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+                <FormControl fullWidth required>
+                  <InputLabel>Tipo</InputLabel>
+                  <Select
+                    value={type}
+                    label="Tipo"
+                    onChange={e => setType(e.target.value)}
+                  >
+                    {typeOptions.map(opt => (
+                      <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Stack>
+              <Stack direction="row" spacing={2}>
+                <FormControl fullWidth required>
+                  <InputLabel>Priorità</InputLabel>
+                  <Select
+                    value={priority}
+                    label="Priorità"
+                    onChange={e => setPriority(e.target.value)}
+                  >
+                    {priorityOptions.map(opt => (
+                      <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+                <FormControl fullWidth required>
+                  <InputLabel>Stato</InputLabel>
+                  <Select
+                    value={status}
+                    label="Stato"
+                    onChange={e => setStatus(e.target.value)}
+                  >
+                    {statusOptions.map(opt => (
+                      <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Stack>
               {currentUser.role === 'operator' ? (
                 <TextField
                   label="Segnalata da"
@@ -323,6 +348,8 @@ export const IssueModal: React.FC<IssueModalProps> = ({ open, onClose, onSave, l
                 onChange={e => setResolvedAt(e.target.value)}
                 InputLabelProps={{ shrink: true }}
                 fullWidth
+                disabled={status !== 'risolta'}
+                required={status === 'risolta'}
               />
             </Stack>
             <DialogActions sx={{ justifyContent: 'flex-end', gap: 2 }}>
