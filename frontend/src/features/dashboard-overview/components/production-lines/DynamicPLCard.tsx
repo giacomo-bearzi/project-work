@@ -1,112 +1,130 @@
 import { Alert, Skeleton, Stack } from '@mui/material';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
-import { useQuery } from '@tanstack/react-query';
-import { CustomPaper } from '../../../../components/CustomPaper.tsx';
-import api from '../../../../utils/axios.ts';
-import { useAuth } from '../../../log-in/context/AuthContext.tsx';
-import { useGetProductionLine } from '../../../production-lines/hooks/useProductionLinesQueries.ts';
-import { PLCardActive } from './PLCardActive.tsx';
-import { PLCardStopped } from './PLCardStopped.tsx';
-import { PLCardIssue } from './PLCardIssue.tsx';
 import { useNavigate } from 'react-router-dom';
+import { CustomPaper } from '../../../../components/CustomPaper.tsx';
+import { useGetIssueByLineId } from '../../../issues/hooks/useIssueQueries.tsx';
+import type { ApiIssue } from '../../../issues/types/types.api.ts';
+import { useGetProductionLine } from '../../../production-lines/hooks/useProductionLinesQueries.ts';
 import type { ApiProductionLine } from '../../../production-lines/types/types.api.ts';
+import { useGetTaskByLineId } from '../../../task/hooks/useTaskQueries.ts';
+import type { GetApiTask } from '../../../task/types/taskTypes.ts';
+import { PLCardActive } from './PLCardActive.tsx';
+import { PLCardIssue } from './PLCardIssue.tsx';
 import { PLCardMaintenance } from './PLCardMaintenance.tsx';
+import { PLCardStopped } from './PLCardStopped.tsx';
 
 interface ProductionLineCardProps {
   productionLine: ApiProductionLine;
 }
 
-// @NOTE: Attiva o Ferma in base a se c'è qualcuno assegnato nelle task o se non in orario di lavoro.
-// @NOTE: Manutenzione se viene creata una task.
-// @NOTE: Problema se viene creata una issue.
-
 export const DynamicPLCard = ({ productionLine }: ProductionLineCardProps) => {
-  const { token } = useAuth();
   const navigate = useNavigate();
 
-  const { data: lineTasks } = useQuery({
-    queryKey: ['tasks', productionLine.lineId],
-    queryFn: async () => {
-      const response = await api.get(
-        `/tasks/line/${productionLine.lineId}?status=in_corso`,
-      );
-      return response.data;
-    },
-  });
+  // Informazioni della singola linea produttiva.
+  const {
+    data: productionLineData,
+    isPending,
+    isError,
+  } = useGetProductionLine(productionLine._id);
 
-  const { data: lineIssues } = useQuery({
-    queryKey: ['issues', productionLine.lineId],
-    queryFn: async () => {
-      const response = await api.get(
-        `/issues/line/${productionLine.lineId}?status=in lavorazione`,
-      );
-      return response.data;
-    },
-  });
-
-  const { data, isPending, isError } = useGetProductionLine(
-    productionLine['_id'],
-    token!,
+  // Recupera le task di tipo `standard` e di stato `in corso`.
+  const { data: taskStandardData } = useGetTaskByLineId(
+    productionLine.lineId,
+    'in_corso',
+    'standard'
   );
 
-  if (data) {
-    // Problema linea
-    if (lineIssues) {
-      const issuesCount = lineIssues.length;
-      const lastIssue = lineIssues[0];
+  // Inizializzazione array vuoto per le task standard.
+  let productionLineStandardTasks: GetApiTask[] = [];
 
-      return (
-        <PLCardIssue
-          lineId={data.lineId}
-          lineName={data.name}
-          issueCount={issuesCount}
-          lastIssue={lastIssue}
-          onClick={() => navigate(`/overview/${data.lineId}`)}
-        />
-      );
-    }
+  // Se ci sono task, aggiorna l'array.
+  if (taskStandardData && taskStandardData.length > 0) {
+    productionLineStandardTasks = taskStandardData;
+  }
 
-    // Linea attiva
-    if (lineTasks && !lineIssues) {
-      const maintenanceTasks = lineTasks.filter(
-        (task) => task.type === 'manutenzione',
-      );
+  // Recupera le task di tipo `manutenzione` e di stato `in corso`.
+  const { data: taskMaintenanceData } = useGetTaskByLineId(
+    productionLine.lineId,
+    'in_corso',
+    'manutenzione'
+  );
 
-      if (maintenanceTasks.length > 0) {
-        console.log(maintenanceTasks[0]);
+  // Inizializzazione array vuoto per le task di manutenzione.
+  let productionLineMaintenanceTasks: GetApiTask[] = [];
 
+  // Se ci sono task di manutenzione, aggiorna l'array.
+  if (taskMaintenanceData && taskMaintenanceData.length > 0) {
+    productionLineMaintenanceTasks = taskMaintenanceData;
+  }
+
+  // Recupera le issue di stato `aperta`.
+  const { data: issueData } = useGetIssueByLineId(
+    productionLine.lineId,
+    'aperta'
+  );
+
+  // Inizializzazione array vuoto per le issue.
+  let productionLineIssues: ApiIssue[] = [];
+
+  // Se ci sono issue, aggiorna l'array.
+  if (issueData) {
+    productionLineIssues = issueData;
+  }
+
+  // Linee produttive caricate correttamente.
+  if (productionLineData) {
+    switch (productionLineData.status) {
+      case 'active':
+        if (productionLineStandardTasks.length > 0) {
+          return (
+            <PLCardActive
+              lineId={productionLineData.lineId}
+              lineName={productionLineData.name}
+              description={productionLineStandardTasks[0].description}
+              assignedTo={productionLineStandardTasks[0].assignedTo}
+              onClick={() => navigate(`/overview/${productionLineData.lineId}`)}
+            />
+          );
+        }
+        break;
+      case 'maintenance':
+        if (productionLineMaintenanceTasks.length > 0) {
+          return (
+            <PLCardMaintenance
+              lineId={productionLineData.lineId}
+              lineName={productionLineData.name}
+              maintenanceEnd={productionLineMaintenanceTasks[0].maintenanceEnd}
+              assignedTo={productionLineMaintenanceTasks[0].assignedTo}
+              onClick={() => navigate(`/overview/${productionLineData.lineId}`)}
+            />
+          );
+        }
+        break;
+      case 'issue':
+        if (productionLineIssues.length > 0) {
+          return (
+            <PLCardIssue
+              lineId={productionLineData.lineId}
+              lineName={productionLineData.name}
+              issueCount={productionLineIssues.length}
+              lastIssue={productionLineIssues[0]}
+              onClick={() => navigate(`/overview/${productionLineData.lineId}`)}
+            />
+          );
+        }
+        break;
+      case 'stopped':
         return (
-          <PLCardMaintenance
-            lineId={data.lineId}
-            lineName={data.name}
-            maintenanceEnd={maintenanceTasks[0].maintenanceEnd}
-            assignetAt={maintenanceTasks[0].assignedTo.fullName}
-            onClick={() => navigate(`/overview/${data.lineId}`)}
+          <PLCardStopped
+            lineId={productionLineData.lineId}
+            lineName={productionLineData.name}
+            onClick={() => navigate(`/overview/${productionLineData.lineId}`)}
           />
         );
-      }
-
-      return (
-        <PLCardActive
-          lineId={data.lineId}
-          lineName={data.name}
-          onClick={() => navigate(`/overview/${data.lineId}`)}
-        />
-      );
     }
 
-    // Linea ferma
-    if (!lineTasks && !lineIssues) {
-      return (
-        <PLCardStopped
-          lineId={data.lineId}
-          lineName={data.name}
-          onClick={() => navigate(`/overview/${data.lineId}`)}
-        />
-      );
-    }
-
+    // Card "di mezzo" tra gli stati della linea produttiva.
     return (
       <Grid size={{ sm: 4, md: 4, lg: 12 }}>
         <CustomPaper
@@ -126,7 +144,7 @@ export const DynamicPLCard = ({ productionLine }: ProductionLineCardProps) => {
             <Grid size={3}>
               <Box
                 component={'img'}
-                src={`/${productionLine.lineId}-background.svg`}
+                src={`/${productionLineData.lineId}-background.svg`}
                 sx={{
                   height: '100%',
                   objectFit: 'cover',
@@ -165,6 +183,7 @@ export const DynamicPLCard = ({ productionLine }: ProductionLineCardProps) => {
     );
   }
 
+  // Caricamento linee produttive in corso.
   if (isPending) {
     return (
       <Grid size={{ sm: 4, md: 4, lg: 12 }}>
@@ -229,6 +248,7 @@ export const DynamicPLCard = ({ productionLine }: ProductionLineCardProps) => {
     );
   }
 
+  // Errore durante il caricamento delle linee produttive.
   if (isError) {
     return (
       <Grid size={{ sm: 4, md: 4, lg: 12 }}>

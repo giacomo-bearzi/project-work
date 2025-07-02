@@ -1,5 +1,7 @@
 import Grid from '@mui/material/Grid';
-import { CustomPaper } from '../../../../components/CustomPaper.tsx';
+import { KpiEfficiency } from './KpiEfficiency.tsx';
+import { KpiInactivity } from './KpiInactivity.tsx';
+import { KpiProductivity } from './KpiProductivity.tsx';
 
 export const KpiList = () => {
   return (
@@ -7,22 +9,12 @@ export const KpiList = () => {
       container
       size={12}
       spacing={1}
+      sx={{ borderRadius: 6, overflow: 'hidden' }}
     >
-      <Grid size={4}>
-        <CustomPaper sx={{ p: 2, borderRadius: 5 }}>
-          Produttività oraria
-        </CustomPaper>
-      </Grid>
-      <Grid size={4}>
-        <CustomPaper sx={{ p: 2, borderRadius: 5 }}>
-          Efficienza complessiva
-        </CustomPaper>
-      </Grid>
-      <Grid size={4}>
-        <CustomPaper sx={{ p: 2, borderRadius: 5 }}>
-          Tempo di fermo macchine
-        </CustomPaper>
-      </Grid>
+      <KpiEfficiency />
+      <KpiProductivity />
+      <KpiInactivity />
+      {/* <KpiShiftInfo /> */}
     </Grid>
   );
 };

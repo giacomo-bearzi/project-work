@@ -36,7 +36,10 @@ export const IssuesDistributionChart = () => {
   if (data) {
     return (
       <Grid size={6}>
-        <CustomPaper sx={{ p: 2, borderRadius: 5 }}>
+        <CustomPaper
+          elevation={2}
+          sx={{ p: 2, borderRadius: 5 }}
+        >
           <Stack
             gap={2}
             alignItems={'center'}

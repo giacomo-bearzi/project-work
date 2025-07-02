@@ -5,30 +5,39 @@ import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { CustomPaper } from '../../../../components/CustomPaper.tsx';
-import Skeleton from '@mui/material/Skeleton';
+import type { ApiUser } from '../../../log-in/types/types.api.ts';
+import { CustomAvatar } from '../../../dashboard/components/CustomAvatar.tsx';
 
 interface PLCardActiveProps {
   lineId: 'line-1' | 'line-2' | 'line-3';
   lineName: string;
+  description: string;
+  assignedTo: ApiUser;
   onClick?: () => void;
 }
 
 export const PLCardActive = ({
   lineId,
   lineName,
+  description,
+  assignedTo,
   onClick,
 }: PLCardActiveProps) => {
   return (
-    <Grid onClick={onClick} size={{ sm: 4, md: 4, lg: 12 }}>
+    <Grid
+      onClick={onClick}
+      size={{ sm: 4, md: 4, lg: 12 }}
+    >
       <CustomPaper
+        elevation={2}
         sx={{
           p: 0,
           borderRadius: 5,
-          height: "100%",
-          cursor: "pointer",
-          transition: "all 0.3s ease",
-          "&:hover": {
-            transform: "scale(1.02)",
+          cursor: 'pointer',
+          height: '100%',
+          transition: 'all 0.3s ease',
+          '&:hover': {
+            transform: 'scale(1.01)',
           },
         }}
       >
@@ -82,17 +91,38 @@ export const PLCardActive = ({
                   }
                   label={'ATTIVA'}
                   sx={{
-                    backgroundColor: '#0FD70F',
+                    backgroundColor: '#21BF76',
                     fontWeight: 500,
                   }}
                 />
               </Stack>
-              <Skeleton
-                variant="rectangular"
+              <Stack
+                alignItems={'center'}
                 width={'100%'}
-                height={64}
-                sx={{ borderRadius: 3 }}
-              />
+                gap={1}
+              >
+                <Typography
+                  component={'span'}
+                  fontWeight={600}
+                  pl={1}
+                >
+                  {description}
+                </Typography>
+                <Stack direction={'row'}>
+                  <CustomAvatar
+                    size={'24px'}
+                    role={assignedTo.role}
+                    fullName={assignedTo.fullName}
+                  />
+                  <Typography
+                    component={'span'}
+                    fontWeight={500}
+                    pl={1}
+                  >
+                    {assignedTo.fullName}
+                  </Typography>
+                </Stack>
+              </Stack>
             </Stack>
           </Grid>
         </Grid>

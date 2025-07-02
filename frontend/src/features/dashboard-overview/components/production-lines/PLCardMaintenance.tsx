@@ -5,33 +5,51 @@ import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { CustomPaper } from '../../../../components/CustomPaper.tsx';
+import { CustomAvatar } from '../../../dashboard/components/CustomAvatar.tsx';
+import type { ApiUser } from '../../../log-in/types/types.api.ts';
 
 interface PLCardMaintenanceProps {
   lineId: 'line-1' | 'line-2' | 'line-3';
   lineName: string;
-  maintenanceEnd: string;
-  assignetAt: string;
-  onClick?: () => void;
+  maintenanceEnd?: string;
+  assignedTo: ApiUser;
+  onClick: () => void;
 }
 
 export const PLCardMaintenance = ({
   lineId,
   lineName,
   maintenanceEnd,
-  assignetAt,
-  onClick
+  assignedTo,
+  onClick,
 }: PLCardMaintenanceProps) => {
+  let formattedMaintenanceEnd = '';
+
+  if (maintenanceEnd) {
+    formattedMaintenanceEnd = new Date(maintenanceEnd).toLocaleTimeString(
+      'it-IT',
+      {
+        hour: '2-digit',
+        minute: '2-digit',
+      }
+    );
+  }
+
   return (
-    <Grid onClick={onClick} size={{ sm: 4, md: 4, lg: 12 }}>
+    <Grid
+      onClick={onClick}
+      size={{ sm: 4, md: 4, lg: 12 }}
+    >
       <CustomPaper
+        elevation={2}
         sx={{
           p: 0,
           borderRadius: 5,
-          height: "100%",
-          cursor: "pointer",
-          transition: "all 0.3s ease",
-          "&:hover": {
-            transform: "scale(1.02)",
+          cursor: 'pointer',
+          height: '100%',
+          transition: 'all 0.3s ease',
+          '&:hover': {
+            transform: 'scale(1.01)',
           },
         }}
       >
@@ -93,12 +111,9 @@ export const PLCardMaintenance = ({
               <Stack
                 alignItems={'center'}
                 width={'100%'}
+                gap={1}
               >
-                <Stack
-                  display={'flex'}
-                  flexDirection={'row'}
-                  alignItems={'center'}
-                >
+                <Stack direction={'row'}>
                   <Typography
                     component={'span'}
                     pl={1}
@@ -110,26 +125,21 @@ export const PLCardMaintenance = ({
                     fontWeight={600}
                     pl={1}
                   >
-                    {maintenanceEnd}
+                    {formattedMaintenanceEnd}
                   </Typography>
                 </Stack>
-                <Stack
-                  display={'flex'}
-                  flexDirection={'row'}
-                  alignItems={'center'}
-                >
+                <Stack direction={'row'}>
+                  <CustomAvatar
+                    size={'24px'}
+                    role={assignedTo.role}
+                    fullName={assignedTo.fullName}
+                  />
                   <Typography
                     component={'span'}
+                    fontWeight={500}
                     pl={1}
                   >
-                    Tecnico
-                  </Typography>
-                  <Typography
-                    component={'span'}
-                    fontWeight={600}
-                    pl={1}
-                  >
-                    {assignetAt}
+                    {assignedTo.fullName}
                   </Typography>
                 </Stack>
               </Stack>

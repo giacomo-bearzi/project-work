@@ -12,18 +12,26 @@ interface PLCardStoppedProps {
   onClick?: () => void;
 }
 
-export const PLCardStopped = ({ lineId, lineName, onClick }: PLCardStoppedProps) => {
+export const PLCardStopped = ({
+  lineId,
+  lineName,
+  onClick,
+}: PLCardStoppedProps) => {
   return (
-    <Grid onClick={onClick} size={{ sm: 4, md: 4, lg: 12 }}>
+    <Grid
+      onClick={onClick}
+      size={{ sm: 4, md: 4, lg: 12 }}
+    >
       <CustomPaper
-       sx={{
+        elevation={2}
+        sx={{
           p: 0,
           borderRadius: 5,
-          height: "100%",
-          cursor: "pointer",
-          transition: "all 0.3s ease",
-          "&:hover": {
-            transform: "scale(1.02)",
+          cursor: 'pointer',
+          height: '100%',
+          transition: 'all 0.3s ease',
+          '&:hover': {
+            transform: 'scale(1.01)',
           },
         }}
       >

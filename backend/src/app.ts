@@ -16,6 +16,9 @@ import co2EmissionLogRoutes from './routes/co2EmissionLogs';
 import { graphqlHTTP } from 'express-graphql';
 import schema from './graphql/schema';
 import resolvers from './graphql/resolvers';
+import cron from 'node-cron';
+import { resetDailyStoppedTime, resetShiftStoppedTime, updateProductionLineStatus } from './controllers/productionLineController';
+import { getCurrentShift, shouldForceStopForLunch } from './utils/shiftCalculator';
 dotenv.config();
 
 const app = express();
@@ -58,6 +61,40 @@ mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/project-wor
         console.error('MongoDB connection error details:', err);
         process.exit(1); // Termina il processo se non riesce a connettersi al database
     });
+
+// Reset stopped time at midnight every day
+cron.schedule('0 0 * * *', () => {
+  resetDailyStoppedTime();
+});
+
+// Reset shift stopped time at shift start times
+cron.schedule('0 8 * * *', () => {
+  console.log('Morning shift starting - resetting shift stopped time');
+  resetShiftStoppedTime();
+});
+
+cron.schedule('0 13 * * *', () => {
+  console.log('Afternoon shift starting - resetting shift stopped time');
+  resetShiftStoppedTime();
+});
+
+// Enforce lunch break - stop all lines at 12:00
+cron.schedule('0 12 * * *', async () => {
+  console.log('Lunch break starting - stopping all production lines');
+  try {
+    // Get all active production lines and stop them
+    const { default: ProductionLine } = await import('./models/ProductionLine');
+    const activeLines = await ProductionLine.find({ status: 'active' });
+    
+    for (const line of activeLines) {
+      await updateProductionLineStatus(line.lineId, 'stopped');
+    }
+    
+    console.log(`Stopped ${activeLines.length} production lines for lunch break`);
+  } catch (error) {
+    console.error('Error enforcing lunch break:', error);
+  }
+});
 
 // Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {

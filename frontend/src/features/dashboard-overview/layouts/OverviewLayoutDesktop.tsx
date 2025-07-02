@@ -4,7 +4,7 @@ import { ProductionLineList } from '../components/production-lines/ProductionLin
 import { KpiList } from '../components/kpi/KpiList.tsx';
 import { ChartList } from '../components/charts/ChartList.tsx';
 
-export const OverviewLayout = () => {
+export const OverviewLayoutDesktop = () => {
   return (
     <Grid
       container
@@ -17,6 +17,13 @@ export const OverviewLayout = () => {
         container
         size={{ sm: 12, md: 12, lg: 8 }}
         spacing={2}
+        height={'100%'}
+        sx={{
+          borderRadius: 5,
+          overflowY: { xs: 'scroll', md: 'scroll', lg: 'auto' },
+          scrollbarWidth: 'none',
+          '&::-webkit-scrollbar': { display: 'none' },
+        }}
       >
         <KpiList />
         <ChartList />

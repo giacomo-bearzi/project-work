@@ -2,52 +2,37 @@ import {
   KeyboardArrowDownRounded,
   KeyboardArrowUpRounded,
   LogoutRounded,
-  NotificationsRounded,
 } from '@mui/icons-material';
-import Badge from '@mui/material/Badge';
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogTitle,
+  Stack,
+} from '@mui/material';
+import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
-import Paper from '@mui/material/Paper';
-import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import { useState, useRef, useEffect, type MouseEvent } from 'react';
+import { CustomPaper } from '../../../../components/CustomPaper.tsx';
 import { useAuth } from '../../../log-in/context/AuthContext.tsx';
-import { NotificationsSidebar } from '../NotificationsSidebar.tsx';
-import { hideReadAssignedIssues, markAssignedIssuesAsRead } from '../../../issues/api/api.ts';
-import { useGetAssignedIssues } from '../../../issues/hooks/useIssueQueries.tsx';
 import { ToggleThemeModeButton } from '../../../theme/components/ToggleThemeModeButton.tsx';
-import { Button, Dialog, DialogActions, DialogTitle, Avatar } from '@mui/material';
+import { CustomAvatar } from '../CustomAvatar.tsx';
+import { Notifications } from '../Header/Notifications.tsx';
+import { useState, useRef } from 'react';
+
+const roles = {
+  admin: 'Amministratore',
+  manager: 'Responsabile',
+  operator: 'Operatore',
+};
 
 export const UserMenuDesktop = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [notificationsOpen, setNotificationsOpen] = useState(false);
-  const [menuWidth, setMenuWidth] = useState<number | undefined>(undefined);
-
-  const { data: assignedIssues, refetch } = useGetAssignedIssues();
-
-  const notifications = (assignedIssues ?? []).map((issue: any) => ({
-    id: issue._id,
-    message: issue.description,
-    read: issue.readBy?.includes(issue.assignedTo?._id),
-  }));
 
   const { logout, user } = useAuth();
-  const buttonRef = useRef<HTMLDivElement>(null);
-
-  const handleOpenNotifications = () => setNotificationsOpen(true);
-  const handleCloseNotifications = () => setNotificationsOpen(false);
-
-  const handleMarkAllAsRead = async () => {
-    await markAssignedIssuesAsRead();
-    refetch();
-  };
-
-  const handleClearRead = async () => {
-  await hideReadAssignedIssues();
-  refetch(); 
-};
 
   const open = Boolean(anchorEl);
 
@@ -55,9 +40,6 @@ export const UserMenuDesktop = () => {
 
   const handleClick = (event: MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
-    if (buttonRef.current) {
-      setMenuWidth(buttonRef.current.clientWidth);
-    }
   };
 
   const handleClose = () => {
@@ -74,99 +56,83 @@ export const UserMenuDesktop = () => {
     logout();
   };
 
-  useEffect(() => {
-    if (!buttonRef.current) return;
-    const observer = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        setMenuWidth(entry.contentRect.width);
-      }
-    });
-    observer.observe(buttonRef.current);
-    return () => observer.disconnect();
-  }, []);
-
   return (
     <>
-      <Box display="flex" alignItems="center" gap={2}>
-        <IconButton onClick={handleOpenNotifications}>
-          <Badge
-            badgeContent={notifications.filter((n) => !n.read).length}
-            color="secondary"
-          >
-            <NotificationsRounded />
-          </Badge>
-        </IconButton>
-
-        <Paper
-          ref={buttonRef}
-          onClick={handleClick}
-          sx={{
-            cursor: 'pointer',
-            background: 'rgba(255, 255, 255, 0.07)',
-            backdropFilter: 'blur(20px) saturate(180%)',
-            WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-            boxShadow: '0 4px 30px rgba(0, 0, 0, 0.1)',
-            borderRadius: open ? '32px 32px 0 0' : 8,
-            userSelect: 'none',
-            display: 'flex',
-            alignItems: 'center',
-            px: 2,
-            py: 1,
-            gap: 2,
-            minWidth: 180,
-          }}
-        >
-          <Avatar>{user?.fullName?.[0] ?? 'U'}</Avatar>
-          <Box display="flex" flexDirection="column" flex={1}>
-            <Typography variant="body2" fontWeight={600}>
-              {user?.fullName ?? 'Utente'}
-            </Typography>
-            <Typography
-              variant="body2"
-              fontWeight={500}
-              sx={{ opacity: 0.8 }}
-            >
-              {user?.role ?? ''}
-            </Typography>
-          </Box>
-          {icon}
-        </Paper>
-      </Box>
-
-      <Menu
-        anchorEl={anchorEl}
-        open={Boolean(anchorEl)}
-        onClose={handleClose}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-        PaperProps={{
-          sx: {
-            borderRadius: '0 0 8px 8px',
-            boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)',
-            borderTop: '1px solid rgba(255, 255, 255, 0.1)',
-            width: menuWidth,
-          },
-        }}
-        disableAutoFocusItem
+      <Box
+        display="flex"
+        alignItems="center"
+        gap={2}
       >
-        <ToggleThemeModeButton asMenuItem />
+        <Notifications />
 
-        <MenuItem
-          onClick={handleLogoutClick}
-          sx={{ padding: '10px 20px' }}
+        <Stack
+          gap={2}
+          flexDirection="column"
+          width="fit-content"
         >
-          <LogoutRounded fontSize="small" sx={{ mr: 1 }} />
-          Logout
-        </MenuItem>
-      </Menu>
+          <CustomPaper
+            elevation={2}
+            sx={{ borderRadius: 8, position: 'relative' }}
+          >
+            <Stack
+              direction="row"
+              gap={2}
+            >
+              <CustomAvatar
+                size="40px"
+                role={user!.role}
+                fullName={user!.fullName}
+              />
+              <Stack>
+                <Typography
+                  variant="body2"
+                  fontWeight={600}
+                >
+                  {user!.fullName}
+                </Typography>
+                <Typography
+                  variant="body2"
+                  fontWeight={500}
+                  sx={{ opacity: 0.8 }}
+                >
+                  {roles[user!.role]}
+                </Typography>
+              </Stack>
+              <IconButton onClick={handleClick}>{icon}</IconButton>
+            </Stack>
+          </CustomPaper>
+          <Menu
+            anchorEl={anchorEl}
+            open={Boolean(anchorEl)}
+            onClose={handleClose}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+            PaperProps={{
+              sx: {
+                width: '100%',
+                position: 'absolute',
+                mt: 2,
+                borderRadius: '0 0 8px 8px',
+                boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)',
+              },
+            }}
+            disableAutoFocusItem
+          >
+            <ToggleThemeModeButton asMenuItem />
 
-      <NotificationsSidebar
-        open={notificationsOpen}
-        onClose={handleCloseNotifications}
-        notifications={notifications}
-        onMarkAllAsRead={handleMarkAllAsRead}
-        onClearRead={handleClearRead}
-      />
+            <MenuItem
+              onClick={handleLogoutClick}
+              sx={{ padding: '10px 20px' }}
+            >
+              <LogoutRounded
+                fontSize="small"
+                sx={{ mr: 1 }}
+              />
+              Logout
+            </MenuItem>
+          </Menu>
+        </Stack>
+      </Box>
 
       <Dialog
         open={dialogOpen}

@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { getAssignedIssues, getIssues } from '../api/api.ts';
+import { getAssignedIssues, getIssueByLineId, getIssues } from '../api/api.ts';
+import type { HttpError } from '../../../types/types.ts';
 
 export const useGetIssues = () => {
   return useQuery({
@@ -7,6 +8,20 @@ export const useGetIssues = () => {
     queryFn: async () => await getIssues(),
   });
 };
+
+export const useGetIssueByLineId = (lineId: string, status?: string, type?: string) => {
+  return useQuery({
+    queryKey: ['issueByLineId', lineId, status],
+    queryFn: async () => await getIssueByLineId(lineId, status, type),
+    retry: (failureCount, error) => {
+      const httpError = error as HttpError;
+      if (httpError.status === 404) return false;
+      return failureCount < 3;
+    },
+  });
+};
+
+// Hook per le notifiche.
 
 export const useGetAssignedIssues = () => {
   return useQuery({

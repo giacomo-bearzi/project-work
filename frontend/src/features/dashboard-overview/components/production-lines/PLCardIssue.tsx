@@ -13,7 +13,7 @@ interface PLCardIssueProps {
   lineId: 'line-1' | 'line-2' | 'line-3';
   lineName: string;
   issueCount: number;
-  lastIssue: ApiIssue;
+  lastIssue?: ApiIssue;
   onClick?: () => void;
 }
 
@@ -22,19 +22,23 @@ export const PLCardIssue = ({
   lineName,
   issueCount,
   lastIssue,
-  onClick
+  onClick,
 }: PLCardIssueProps) => {
   return (
-    <Grid onClick={onClick} size={{ sm: 4, md: 4, lg: 12 }}>
+    <Grid
+      onClick={onClick}
+      size={{ sm: 4, md: 4, lg: 12 }}
+    >
       <CustomPaper
-       sx={{
+        elevation={2}
+        sx={{
           p: 0,
           borderRadius: 5,
-          height: "100%",
-          cursor: "pointer",
-          transition: "all 0.3s ease",
-          "&:hover": {
-            transform: "scale(1.02)",
+          cursor: 'pointer',
+          height: '100%',
+          transition: 'all 0.3s ease',
+          '&:hover': {
+            transform: 'scale(1.01)',
           },
         }}
       >
@@ -99,7 +103,7 @@ export const PLCardIssue = ({
                   textAlign={'center'}
                   sx={{ lineClamp: 1 }}
                 >
-                  {lastIssue.description}
+                  {lastIssue?.description ?? ''}
                 </Typography>
                 <Stack
                   display={'flex'}
@@ -117,7 +121,7 @@ export const PLCardIssue = ({
                     fontWeight={600}
                     pl={1}
                   >
-                    {extractTime(lastIssue.createdAt)}
+                    {extractTime(lastIssue?.createdAt)}
                   </Typography>
                 </Stack>
               </Stack>

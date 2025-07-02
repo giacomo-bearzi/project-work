@@ -9,6 +9,7 @@ import TemperatureLog from '../models/TemperatureLog';
 import PowerLog from '../models/PowerLog';
 import CO2EmissionLog from '../models/CO2EmissionLog';
 import ConsumptionLog from '../models/ConsumptionLog';
+import ProductionLog from '../models/ProductionLog';
 
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/project-work';
 
@@ -28,6 +29,7 @@ async function seed() {
     await PowerLog.deleteMany({});
     await CO2EmissionLog.deleteMany({});
     await ConsumptionLog.deleteMany({});
+    await ProductionLog.deleteMany({});
     console.log('Deleted all production lines, sublines, machines and logs');
 
     // 2. Crea 3 linee di produzione

@@ -4,6 +4,7 @@ import Typography from '@mui/material/Typography';
 import { PieChart } from '@mui/x-charts/PieChart';
 import { IssuesDistributionChart } from './IssuesDistributionChart.tsx';
 import { CustomPaper } from '../../../../components/CustomPaper.tsx';
+import { HourlyProductionChart } from './HourlyProductionChart.tsx';
 
 export const ChartList = () => {
   const data = [
@@ -20,101 +21,16 @@ export const ChartList = () => {
     <Grid
       container
       size={12}
-      spacing={1}
+      columnSpacing={1}
+      rowSpacing={1}
     >
+      <HourlyProductionChart />
       <IssuesDistributionChart />
       <Grid size={6}>
-        <CustomPaper sx={{ p: 2, borderRadius: 5 }}>
-          <Stack
-            gap={2}
-            alignItems={'center'}
-          >
-            <Typography
-              component={'span'}
-              fontWeight={500}
-            >
-              Tipologia di segnalazioni
-            </Typography>
-            <PieChart
-              series={[
-                {
-                  arcLabel: (data) => `${data.value}%`,
-                  data: data,
-                  innerRadius: 48,
-                  cornerRadius: 4,
-                  paddingAngle: 2,
-                  highlightScope: {
-                    highlight: 'item',
-                    fade: 'global',
-                  },
-                },
-              ]}
-              slotProps={{
-                legend: {
-                  sx: {
-                    fontSize: 16,
-                  },
-                },
-                pieArc: {
-                  strokeOpacity: 0,
-                },
-                pieArcLabel: {
-                  fontSize: 16,
-                  fontWeight: 500,
-                },
-              }}
-              sx={{ aspectRatio: '16/9' }}
-            />
-          </Stack>
-        </CustomPaper>
-      </Grid>
-      <Grid size={6}>
-        <CustomPaper sx={{ p: 2, borderRadius: 5 }}>
-          <Stack
-            gap={2}
-            alignItems={'center'}
-          >
-            <Typography
-              component={'span'}
-              fontWeight={500}
-            >
-              Tipologia di segnalazioni
-            </Typography>
-            <PieChart
-              series={[
-                {
-                  arcLabel: (data) => `${data.value}%`,
-                  data: data,
-                  innerRadius: 48,
-                  cornerRadius: 4,
-                  paddingAngle: 2,
-                  highlightScope: {
-                    highlight: 'item',
-                    fade: 'global',
-                  },
-                },
-              ]}
-              slotProps={{
-                legend: {
-                  sx: {
-                    fontSize: 16,
-                  },
-                },
-                pieArc: {
-                  strokeOpacity: 0,
-                },
-                pieArcLabel: {
-                  fontSize: 16,
-                  fontWeight: 500,
-                },
-              }}
-              sx={{ aspectRatio: '16/9' }}
-            />
-          </Stack>
-        </CustomPaper>
-      </Grid>
-      <Grid size={6}>
-        <CustomPaper sx={{ p: 2, borderRadius: 5 }}>
+        <CustomPaper
+          elevation={2}
+          sx={{ p: 2, borderRadius: 5 }}
+        >
           <Stack
             gap={2}
             alignItems={'center'}

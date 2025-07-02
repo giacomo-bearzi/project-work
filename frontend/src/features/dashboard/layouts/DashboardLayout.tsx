@@ -23,11 +23,12 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         <ResponsiveHeader />
         <CustomPaper
           sx={{
-            'borderRadius': 6,
-            'p': 1,
-            'height': '100%',
-            'overflowY': 'auto',
-            'scrollbarWidth': 'none',
+            borderRadius: 6,
+            p: 1,
+            height: '100%',
+            width: '100%',
+            overflowY: 'auto',
+            scrollbarWidth: 'none',
             '&::-webkit-scrollbar': { display: 'none' },
           }}
         >

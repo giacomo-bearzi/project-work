@@ -18,6 +18,7 @@ export const NavbarDesktop = () => {
 
   return (
     <CustomPaper
+      elevation={2}
       sx={{
         borderRadius: 9,
         p: 1,

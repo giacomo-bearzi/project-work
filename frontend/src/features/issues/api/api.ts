@@ -8,6 +8,21 @@ export const getIssues = async (): Promise<ApiIssue[]> => {
   return response.data;
 };
 
+export const getIssueByLineId = async (lineId: string, status?: string, type?: string) => {
+  const params = new URLSearchParams();
+  
+  if (status) params.append('status', status);
+  if (type) params.append('type', type);
+  
+  const queryString = params.toString();
+  const url = queryString ? `${ENDPOINT}/line/${lineId}?${queryString}` : `${ENDPOINT}/line/${lineId}`;
+  
+  const response = await api.get(url);
+  return response.data;
+};
+
+// API per le notifiche.
+
 export const getAssignedIssues = async (): Promise<ApiIssue[]> => {
   const response = await api.get(`${ENDPOINT}/assigned`);
   return response.data;

@@ -1,5 +1,8 @@
 import { query, Request, Response } from 'express';
 import Issue from '../models/Issue';
+import ProductionLine from '../models/ProductionLine';
+import Task from '../models/Task';
+import { updateProductionLineStatus } from './productionLineController';
 
 export const getAllIssues = async (req: Request, res: Response) => {
   try {
@@ -9,8 +12,8 @@ export const getAllIssues = async (req: Request, res: Response) => {
     );
     res.json(issues);
   } catch (error) {
-    console.error('Error fetching issues:', error);
-    res.status(500).json({ message: 'Server Error' });
+    console.error('Errore durante il recupero delle segnalazioni:', error);
+    res.status(500).json({ message: 'Errore del server' });
   }
 };
 
@@ -34,16 +37,52 @@ export const getIssueById = async (req: Request, res: Response) => {
 
 export const createIssue = async (req: Request, res: Response) => {
   try {
+    if (!(req as any).user || !(req as any).user.userId) {
+      return res.status(401).json({ message: 'User authentication required' });
+    }
+  
+
     const newIssue = new Issue({
       ...req.body,
       reportedBy: (req as any).user.userId,
     });
 
     const issue = await newIssue.save();
+
+    if (issue.lineId) {
+      await updateProductionLineStatus(issue.lineId, 'issue');
+    }
+
     res.status(201).json(issue);
   } catch (error) {
     console.error('Error creating issue:', error);
     res.status(500).json({ message: 'Server Error' });
+  }
+};
+
+const checkAndUpdateProductionLineStatus = async (lineId: string) => {
+  try {
+    const activeHighPriorityIssues = await Issue.find({
+      lineId,
+      priority: 'alta',
+      status: { $in: ['aperta', 'in lavorazione'] }
+    });
+
+    if (activeHighPriorityIssues.length === 0) {
+      const activeIssues = await Issue.find({
+        lineId,
+        status: { $in: ['aperta', 'in lavorazione'] }
+      });
+
+      if (activeIssues.length === 0) {
+        // No issues, set status to 'active' (will be forced to stopped if outside shifts)
+        await updateProductionLineStatus(lineId, 'active');
+      } else {
+        await updateProductionLineStatus(lineId, 'maintenance');
+      }
+    }
+  } catch (error) {
+    console.error(`Error checking production line ${lineId} status:`, error);
   }
 };
 
@@ -54,6 +93,8 @@ export const updateIssue = async (req: Request, res: Response) => {
     if (!issue) {
       return res.status(404).json({ message: 'Issue not found' });
     }
+
+    const previousStatus = issue.status;
 
     Object.assign(issue, req.body);
 
@@ -71,13 +112,33 @@ export const updateIssue = async (req: Request, res: Response) => {
       }
     }
 
-    /*
-    if (req.body.status && req.body.status !== 'risolta') {
-      issue.resolvedAt = undefined;
-    }
-      */
-
     const updatedIssue = await issue.save();
+
+    if (updatedIssue.status === 'risolta' && issue.lineId) {
+      const activeIssues = await Issue.find({
+        lineId: issue.lineId,
+        status: { $in: ['aperta', 'in lavorazione'] }
+      });
+
+      if (activeIssues.length === 0) {
+        const activeTasks = await Task.find({
+          lineId: issue.lineId,
+          status: { $in: ['in_attesa', 'in_corso'] }
+        });
+
+        if (activeTasks.length === 0) {
+          await updateProductionLineStatus(issue.lineId, 'stopped');
+        } else {
+          const maintenanceTasks = activeTasks.filter(task => task.type === 'manutenzione');
+          if (maintenanceTasks.length > 0) {
+            await updateProductionLineStatus(issue.lineId, 'maintenance');
+          } else {
+            await updateProductionLineStatus(issue.lineId, 'active');
+          }
+        }
+      }
+    }
+
     res.json(updatedIssue);
   } catch (error) {
     console.error('Error updating issue:', error);
@@ -128,6 +189,7 @@ export const getIssueByLineId = async (req: Request, res: Response) => {
   try {
     const { lineId } = req.params;
     const { status } = req.query;
+    const { type } = req.query;
 
     const query: any = { lineId };
 
@@ -135,10 +197,13 @@ export const getIssueByLineId = async (req: Request, res: Response) => {
       query.status = status;
     }
 
-    const issues = await Issue.find(query).populate(
-      'reportedBy assignedTo',
-      'username fullName role',
-    );
+    if (type) {
+      query.type = type;
+    }
+
+    const issues = await Issue.find(query)
+      .populate('reportedBy assignedTo', 'username fullName role')
+      .sort({ createdAt: -1 });
 
     if (!issues || issues.length === 0) {
       return res.status(404).json({ message: 'No issues found for this line' });

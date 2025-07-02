@@ -18,16 +18,16 @@ export const NavbarButton = ({ path, children, sx }: NavbarButtonProps) => {
 
   const colors = {
     light: {
-      'color': isSelected ? '#FFF' : '#000',
-      'backgroundColor': isSelected ? '#000' : 'rgba(255, 255, 255, 0.1)',
+      color: isSelected ? '#FFF' : '#000',
+      backgroundColor: isSelected ? '#000' : 'rgba(255, 255, 255, 0.1)',
       '&:hover': {
         backgroundColor: isSelected ? '#000' : 'rgba(0, 0, 0, 0.1)',
         color: isSelected ? '#FFF' : '#000',
       },
     },
     dark: {
-      'color': isSelected ? '#000' : '#FFF',
-      'backgroundColor': isSelected ? '#FFF' : 'rgba(0, 0, 0, 0)',
+      color: isSelected ? '#000' : '#FFF',
+      backgroundColor: isSelected ? '#FFF' : 'rgba(0, 0, 0, 0)',
       '&:hover': {
         backgroundColor: isSelected ? '#FFF' : 'rgba(255, 255, 255, 0.1)',
         color: isSelected ? '#000' : '#FFF',

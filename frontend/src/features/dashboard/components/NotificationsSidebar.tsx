@@ -28,17 +28,17 @@ export const NotificationsSidebar = ({
   onClose,
   notifications,
   onMarkAllAsRead,
-  onClearRead
+  onClearRead,
 }: NotificationsSidebarProps) => {
-  const unread = notifications.filter(n => !n.read);
-  const read = notifications.filter(n => n.read);
+  const unread = notifications.filter((n) => !n.read);
+  const read = notifications.filter((n) => n.read);
 
   return (
     <Drawer
       anchor="right"
       open={open}
       onClose={onClose}
-      PaperProps={{ sx: { width: 400, maxWidth: '100vw', p: 3 } }}
+      PaperProps={{ sx: { width: 400, maxWidth: '100vw', p: 3, m: 1 } }}
     >
       <IconButton
         onClick={onClose}
@@ -47,14 +47,22 @@ export const NotificationsSidebar = ({
       >
         <CloseIcon />
       </IconButton>
-      <Typography variant="h6" fontWeight={600} sx={{ mb: 2 }}>
+      <Typography
+        variant="h6"
+        fontWeight={600}
+        sx={{ mb: 2 }}
+      >
         Notifiche
       </Typography>
 
       {unread.length > 0 && (
         <Box mt={2}>
-          {unread.map(n => (
-            <Typography key={n.id} fontWeight={500} mb={1}>
+          {unread.map((n) => (
+            <Typography
+              key={n.id}
+              fontWeight={500}
+              mb={1}
+            >
               {n.message}
             </Typography>
           ))}
@@ -72,10 +80,14 @@ export const NotificationsSidebar = ({
 
       {read.length > 0 && (
         <Box>
-          <Typography variant="subtitle2" fontWeight={500} sx={{ mb: 1 }}>
+          <Typography
+            variant="subtitle2"
+            fontWeight={500}
+            sx={{ mb: 1 }}
+          >
             Già lette
           </Typography>
-          {read.map(n => (
+          {read.map((n) => (
             <Typography
               key={n.id}
               variant="body2"
@@ -92,23 +104,28 @@ export const NotificationsSidebar = ({
       )}
 
       {read.length > 0 && onClearRead && (
-  <Box
-    position="fixed"
-    bottom={32}
-    right={32}
-    zIndex={1301}
-    sx={{ display: 'flex', justifyContent: 'flex-end', width: 400, maxWidth: '100vw' }}
-  >
-    <Button
-      variant="outlined"
-      color="error"
-      startIcon={<DeleteOutlineIcon />}
-      onClick={onClearRead}
-    >
-      Svuota lette
-    </Button>
-  </Box>
-)}
+        <Box
+          position="fixed"
+          bottom={32}
+          right={32}
+          zIndex={1301}
+          sx={{
+            display: 'flex',
+            justifyContent: 'flex-end',
+            width: 400,
+            maxWidth: '100vw',
+          }}
+        >
+          <Button
+            variant="outlined"
+            color="error"
+            startIcon={<DeleteOutlineIcon />}
+            onClick={onClearRead}
+          >
+            Svuota lette
+          </Button>
+        </Box>
+      )}
     </Drawer>
   );
 };
