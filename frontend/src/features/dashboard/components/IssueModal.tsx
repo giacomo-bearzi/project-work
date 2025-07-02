@@ -337,6 +337,8 @@ export const IssueModal: React.FC<IssueModalProps> = ({ open, onClose, onSave, l
                 onChange={e => setResolvedAt(e.target.value)}
                 InputLabelProps={{ shrink: true }}
                 fullWidth
+                disabled={status !== 'risolta'}
+                required={status === 'risolta'}
               />
             </Stack>
             <DialogActions sx={{ justifyContent: 'flex-end', gap: 2 }}>
