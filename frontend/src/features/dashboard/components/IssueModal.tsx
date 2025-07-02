@@ -151,6 +151,13 @@ export const IssueModal: React.FC<IssueModalProps> = ({ open, onClose, onSave, l
     }
   }, [open, initialValues]);
 
+  // Svuota resolvedAt se lo stato non è più 'risolta'
+  useEffect(() => {
+    if (status !== 'risolta') {
+      setResolvedAt('');
+    }
+  }, [status]);
+
   // Funzione per cercare utenti via GraphQL
   const fetchUsers = async (queryTerm: string) => {
     if (!queryTerm) {
@@ -337,6 +344,8 @@ export const IssueModal: React.FC<IssueModalProps> = ({ open, onClose, onSave, l
                 onChange={e => setResolvedAt(e.target.value)}
                 InputLabelProps={{ shrink: true }}
                 fullWidth
+                disabled={status !== 'risolta'}
+                required={status === 'risolta'}
               />
             </Stack>
             <DialogActions sx={{ justifyContent: 'flex-end', gap: 2 }}>
