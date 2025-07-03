@@ -26,20 +26,19 @@ export const UserDetails: React.FC<UserDetailsProps> = ({
     <>
       {show === "issues" && (
         <>
-          <Typography
-            variant="h6"
-            gutterBottom
-            onClick={onNavigateToIssues}
+          <Box
             sx={{
-              cursor: "pointer",
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 1,
-              transition: "color 0.3s ease",
+              backgroundColor: "#E0E0E0",
+              borderRadius: 11,
+              padding: 1,
+              color: "black ",
+              width: "100%",
               position: "sticky",
+              transform: "translateY(-10px)",
               top: 0,
-
-              zIndex: 2,
+              zIndex: 1000,
+              cursor: "pointer",
+              transition: "color 0.3s ease",
               "&:hover": {
                 color: "secondary.main",
               },
@@ -50,9 +49,23 @@ export const UserDetails: React.FC<UserDetailsProps> = ({
                 transition: "transform 0.3s ease",
               },
             }}
+            onClick={onNavigateToIssues}
           >
-            Issues segnalate <DoubleArrowIcon />
-          </Typography>
+            <Typography
+              variant="h6"
+              gutterBottom
+              sx={{
+                cursor: "pointer",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 1,
+
+                zIndex: 2,
+              }}
+            >
+              Issues segnalate <DoubleArrowIcon />
+            </Typography>
+          </Box>
           <Divider sx={{ my: 1 }} />
 
           <Box
@@ -93,20 +106,19 @@ export const UserDetails: React.FC<UserDetailsProps> = ({
 
       {show === "tasks" && (
         <>
-          <Typography
-            variant="h6"
-            gutterBottom
-            onClick={onNavigateToPlanning}
+          <Box
             sx={{
-              cursor: "pointer",
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 1,
-              transition: "color 0.3s ease",
+              backgroundColor: "#E0E0E0",
+              borderRadius: 11,
+              padding: 1,
+              color: "black ",
+              width: "100%",
               position: "sticky",
+              transform: "translateY(-10px)",
               top: 0,
-
-              zIndex: 2,
+              zIndex: 1000,
+              cursor: "pointer",
+              transition: "color 0.3s ease",
               "&:hover": {
                 color: "secondary.main",
               },
@@ -117,12 +129,39 @@ export const UserDetails: React.FC<UserDetailsProps> = ({
                 transition: "transform 0.3s ease",
               },
             }}
+            onClick={onNavigateToPlanning}
           >
-            Tasks segnalate <DoubleArrowIcon />
-          </Typography>
+            <Typography
+              variant="h6"
+              gutterBottom
+              sx={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 1,
+                transition: "color 0.3s ease",
+                position: "sticky",
+                top: 0,
+
+                zIndex: 2,
+                "&:hover": {
+                  color: "secondary.main",
+                },
+                "&:hover svg": {
+                  transform: "translateX(5px)",
+                },
+                "& svg": {
+                  transition: "transform 0.3s ease",
+                },
+              }}
+            >
+              Tasks segnalate <DoubleArrowIcon />
+            </Typography>
+          </Box>
+
           <Divider sx={{ my: 1 }} />
 
-          <Box  sx={{
+          <Box
+            sx={{
               maxHeight: 300,
               pr: 1,
               overflowY: "scroll",
@@ -130,7 +169,8 @@ export const UserDetails: React.FC<UserDetailsProps> = ({
               "&::-webkit-scrollbar": {
                 display: "none",
               },
-            }}>
+            }}
+          >
             {loading ? (
               <Typography variant="body2">Caricamento tasks...</Typography>
             ) : tasks.length > 0 ? (
