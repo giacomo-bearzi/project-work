@@ -283,7 +283,7 @@ export const TasksPage = () => {
             </Typography>
             <Typography variant="body2">
               {task.assignedTo
-                ? ` | ${typeof task.assignedTo === 'object' && task.assignedTo !== null
+                ? `${typeof task.assignedTo === 'object' && task.assignedTo !== null
                   ? task.assignedTo.fullName
                   : task.assignedTo
                 }`
