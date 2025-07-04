@@ -197,11 +197,11 @@ export const TasksPage = () => {
       prev.map((t) =>
         t._id === taskId
           ? {
-              ...t,
-              checklist: newChecklist,
-              status: newStatus,
-              completedAt,
-            }
+            ...t,
+            checklist: newChecklist,
+            status: newStatus,
+            completedAt,
+          }
           : t
       )
     );
@@ -225,9 +225,9 @@ export const TasksPage = () => {
         : task.status;
     let completedAt = allChecked
       ? new Date().toLocaleTimeString([], {
-          hour: '2-digit',
-          minute: '2-digit',
-        })
+        hour: '2-digit',
+        minute: '2-digit',
+      })
       : undefined;
     setTasks((prev) =>
       prev.map((t) =>
@@ -262,81 +262,82 @@ export const TasksPage = () => {
   };
 
   // Card stile MUI
-  const TaskCard = ({ task }: { task: Task }) => (
-    <Paper
-      sx={{
-        mb: 2,
-        p: 2,
-        borderRadius: 2,
-        boxShadow: 1,
-        borderLeft: `4px solid ${
-          task.status === 'in_corso'
-            ? '#ff9800' // arancione
-            : '#1976d2' // blu default
-        }`,
-      }}
-    >
-      <Stack direction="row" alignItems="flex-start" justifyContent="space-between" spacing={2}>
-        <Box sx={{ flex: 1, pr: 4 }}>
-          <Typography fontWeight="bold">{task.description}</Typography>
-          <Typography variant="body2">
-            {task.startTime && task.endTime ? `${task.startTime} - ${task.endTime}` : ''}
-            {task.assignedTo
-              ? ` | ${
-                  typeof task.assignedTo === 'object' && task.assignedTo !== null
-                    ? task.assignedTo.fullName
-                    : task.assignedTo
+  const TaskCard = ({ task }: { task: Task }) => {
+    const line = productionLines.find((l) => l.lineId === task.lineId);
+    return (
+      <Paper
+        sx={{
+          mb: 2,
+          p: 2,
+          borderRadius: 2,
+          boxShadow: 1,
+          borderLeft: `4px solid ${task.status === 'in_corso' ? '#ff9800' : '#1976d2'
+            }`,
+        }}
+      >
+        <Stack direction="row" alignItems="flex-start" justifyContent="space-between" spacing={2}>
+          <Box sx={{ flex: 1, pr: 4 }}>
+            <Typography fontWeight="bold">{task.description}</Typography>
+            <Typography variant="body2">
+              {line ? `Linea: ${line.name}` : ''}
+            </Typography>
+            <Typography variant="body2">
+              {task.assignedTo
+                ? ` | ${typeof task.assignedTo === 'object' && task.assignedTo !== null
+                  ? task.assignedTo.fullName
+                  : task.assignedTo
                 }`
-              : ''}
-          </Typography>
-          {task.checklist && task.checklist.length > 0 && (
-            <Box mt={1}>
-              {task.checklist.map((item, idx) => (
-                <FormControlLabel
-                  key={idx}
-                  control={
-                    <Checkbox
-                      checked={item.done}
-                      onChange={() => handleChecklistToggle(task, idx)}
-                    />
-                  }
-                  label={item.item}
-                />
-              ))}
-            </Box>
-          )}
-        </Box>
-        {canEdit && (
-          <Stack direction="row" spacing={1}>
-            <Button
-              size="small"
-              variant="text"
-              color="inherit"
-              sx={{ mt: 1, minWidth: 36, p: 0, color: '#888' }}
-              onClick={() => handleOpenEdit(task)}
-            >
-              <EditIcon />
-            </Button>
-            {(task.status === 'in_attesa' ||
-              task.status === 'in_corso' ||
-              task.status === 'waiting' ||
-              task.status === 'in corso' ||
-              task.status === 'incorso') && (
+                : ''}
+            </Typography>
+            {task.checklist && task.checklist.length > 0 && (
+              <Box mt={1}>
+                {task.checklist.map((item, idx) => (
+                  <FormControlLabel
+                    key={idx}
+                    control={
+                      <Checkbox
+                        checked={item.done}
+                        onChange={() => handleChecklistToggle(task, idx)}
+                      />
+                    }
+                    label={item.item}
+                  />
+                ))}
+              </Box>
+            )}
+          </Box>
+          {canEdit && (
+            <Stack direction="row" spacing={1}>
               <Button
                 size="small"
-                color="inherit"
                 variant="text"
+                color="inherit"
                 sx={{ mt: 1, minWidth: 36, p: 0, color: '#888' }}
-                onClick={() => handleDeleteTask(task._id)}
+                onClick={() => handleOpenEdit(task)}
               >
-                <DeleteIcon />
+                <EditIcon />
               </Button>
-            )}
-          </Stack>
-        )}
-      </Stack>
-    </Paper>
-  );
+              {(task.status === 'in_attesa' ||
+                task.status === 'in_corso' ||
+                task.status === 'waiting' ||
+                task.status === 'in corso' ||
+                task.status === 'incorso') && (
+                  <Button
+                    size="small"
+                    color="inherit"
+                    variant="text"
+                    sx={{ mt: 1, minWidth: 36, p: 0, color: '#888' }}
+                    onClick={() => handleDeleteTask(task._id)}
+                  >
+                    <DeleteIcon />
+                  </Button>
+                )}
+            </Stack>
+          )}
+        </Stack>
+      </Paper>
+    );
+  };
 
   const handleSaveSuccess = async () => {
     setOpenModal(false);
