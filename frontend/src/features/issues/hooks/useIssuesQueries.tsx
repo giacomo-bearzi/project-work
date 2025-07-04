@@ -9,10 +9,10 @@ export const useGetIssues = () => {
   });
 };
 
-export const useGetIssueByLineId = (lineId: string, status?: string, type?: string) => {
+export const useGetIssueByLineId = (lineId: string, token: string, status?: string, type?: string) => {
   return useQuery({
     queryKey: ['issueByLineId', lineId, status],
-    queryFn: async () => await getIssueByLineId(lineId, status, type),
+    queryFn: async () => await getIssueByLineId(lineId, token, status, type),
     retry: (failureCount, error) => {
       const httpError = error as HttpError;
       if (httpError.status === 404) return false;

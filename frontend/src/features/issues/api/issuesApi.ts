@@ -8,7 +8,7 @@ export const getIssues = async (): Promise<ApiGetIssue[]> => {
   return response.data;
 };
 
-export const getIssueByLineId = async (lineId: string, status?: string, type?: string) => {
+export const getIssueByLineId = async (lineId: string, token: string, status?: string, type?: string) => {
   const params = new URLSearchParams();
 
   if (status) params.append('status', status);
@@ -19,7 +19,11 @@ export const getIssueByLineId = async (lineId: string, status?: string, type?: s
     ? `${ENDPOINT}/line/${lineId}?${queryString}`
     : `${ENDPOINT}/line/${lineId}`;
 
-  const response = await api.get(url);
+  const response = await api.get(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
   return response.data;
 };
 

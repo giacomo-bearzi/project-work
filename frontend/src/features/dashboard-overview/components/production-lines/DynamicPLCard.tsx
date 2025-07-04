@@ -1,8 +1,8 @@
 import { Alert, Skeleton, Stack } from '@mui/material';
-import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import { useNavigate } from 'react-router-dom';
 import { CustomPaper } from '../../../../components/CustomPaper.tsx';
+import { useAuth } from '../../../dashboard-login/context/AuthContext.tsx';
 import { useGetIssueByLineId } from '../../../issues/hooks/useIssuesQueries.tsx';
 import type { ApiGetIssue } from '../../../issues/types/issuesTypes.ts';
 import { useGetProductionLine } from '../../../production-lines/hooks/useProductionLinesQueries.ts';
@@ -19,6 +19,8 @@ interface ProductionLineCardProps {
 }
 
 export const DynamicPLCard = ({ productionLine }: ProductionLineCardProps) => {
+  const { token } = useAuth();
+  
   const navigate = useNavigate();
 
   // Informazioni della singola linea produttiva.
@@ -29,6 +31,7 @@ export const DynamicPLCard = ({ productionLine }: ProductionLineCardProps) => {
     productionLine.lineId,
     'in_corso',
     'standard'
+    
   );
 
   // Inizializzazione array vuoto per le task standard.
@@ -42,8 +45,9 @@ export const DynamicPLCard = ({ productionLine }: ProductionLineCardProps) => {
   // Recupera le task di tipo `manutenzione` e di stato `in corso`.
   const { data: taskMaintenanceData } = useGetTaskByLineId(
     productionLine.lineId,
+    token!,
     'in_corso',
-    'manutenzione'
+    'manutenzione',
   );
 
   // Inizializzazione array vuoto per le task di manutenzione.
@@ -55,7 +59,7 @@ export const DynamicPLCard = ({ productionLine }: ProductionLineCardProps) => {
   }
 
   // Recupera le issue di stato `aperta`.
-  const { data: issueData } = useGetIssueByLineId(productionLine.lineId, 'aperta');
+  const { data: issueData } = useGetIssueByLineId(productionLine.lineId, token!, 'aperta');
 
   // Inizializzazione array vuoto per le issue.
   let productionLineIssues: ApiGetIssue[] = [];
@@ -116,47 +120,6 @@ export const DynamicPLCard = ({ productionLine }: ProductionLineCardProps) => {
           />
         );
     }
-
-    // Card "di mezzo" tra gli stati della linea produttiva.
-    return (
-      <Grid size={{ sm: 4, md: 4, lg: 12 }}>
-        <CustomPaper
-          sx={{
-            p: 0,
-            borderRadius: 5,
-            height: '100%',
-          }}
-        >
-          <Grid container height={'100%'} width={'100%'} p={2} spacing={2}>
-            <Grid size={3}>
-              <Box
-                component={'img'}
-                src={`/${productionLineData.lineId}-background.svg`}
-                sx={{
-                  height: '100%',
-                  objectFit: 'cover',
-                  borderRadius: 64,
-                }}
-              />
-            </Grid>
-            <Grid size={9} alignContent={'center'}>
-              <Stack gap={4} alignItems={'center'} display={'flex'}>
-                <Stack alignItems={'center'} display={'flex'} width={'100%'}>
-                  <Skeleton width={'75%'} />
-                  <Skeleton width={'50%'} />
-                </Stack>
-                <Skeleton
-                  variant="rectangular"
-                  width={'100%'}
-                  height={64}
-                  sx={{ borderRadius: 3 }}
-                />
-              </Stack>
-            </Grid>
-          </Grid>
-        </CustomPaper>
-      </Grid>
-    );
   }
 
   // Caricamento linee produttive in corso.
