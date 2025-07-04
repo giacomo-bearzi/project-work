@@ -1,7 +1,7 @@
-import { Card, CardContent, Typography, Box } from "@mui/material";
-import { useEffect, useState } from "react";
-import { animated, useSpring } from "@react-spring/web";
-import type { LogPoint } from "../pages/LineDetails";
+import { Card, CardContent, Typography, Box } from '@mui/material';
+import { useEffect, useState } from 'react';
+import { animated, useSpring } from '@react-spring/web';
+import type { LogPoint } from '../pages/LineDetails';
 
 interface TemperatureAlertCardProps {
   temperatureLogs: LogPoint[];
@@ -44,21 +44,21 @@ const TemperatureAlertCard = ({
       sx={{
         borderRadius: 11,
         p: 1,
-        background: "rgba(255, 165, 0, 0.1)",
-        backdropFilter: "blur(20px) saturate(180%)",
-        WebkitBackdropFilter: "blur(20px) saturate(180%)",
-        boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
-        height: "100%",
-        display: "flex",
-        flexDirection: "column",
-        borderLeft: "4px solid #FFA500",
-        transition: "all 0.3s ease",
-        "&:hover": {
-          transform: exceedCount > 0 ? "translateY(-5px)" : "none",
+        background: 'rgba(255, 165, 0, 0.1)',
+        backdropFilter: 'blur(20px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+        boxShadow: '0 4px 30px rgba(0, 0, 0, 0.1)',
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        borderLeft: '4px solid #FFA500',
+        transition: 'all 0.3s ease',
+        '&:hover': {
+          transform: exceedCount > 0 ? 'translateY(-5px)' : 'none',
           boxShadow:
             exceedCount > 0
-              ? "0 10px 20px rgba(255, 165, 0, 0.2)"
-              : "0 4px 30px rgba(0, 0, 0, 0.1)",
+              ? '0 10px 20px rgba(255, 165, 0, 0.2)'
+              : '0 4px 30px rgba(0, 0, 0, 0.1)',
         },
       }}
     >
@@ -73,24 +73,19 @@ const TemperatureAlertCard = ({
         <Box display="flex" alignItems="center" justifyContent="center" mt={2}>
           <animated.div
             style={{
-              fontSize: "2rem",
-              fontWeight: "bold",
-              color: exceedCount > 0 ? "#ff3d00" : "inherit",
+              fontSize: '2rem',
+              fontWeight: 'bold',
+              color: exceedCount > 0 ? '#ff3d00' : 'inherit',
             }}
           >
             {springProps.number.to((n) => n.toFixed(0))}
           </animated.div>
           <Typography variant="body1" ml={1}>
-            {exceedCount === 1 ? "superamento" : "superamenti"}
+            {exceedCount === 1 ? 'superamento' : 'superamenti'}
           </Typography>
         </Box>
 
-        <Typography
-          variant="caption"
-          display="block"
-          mt={2}
-          color="text.secondary"
-        >
+        <Typography variant="caption" display="block" mt={2} color="text.secondary">
           Soglia warning: <strong>{warnThreshold}°C</strong>
         </Typography>
 

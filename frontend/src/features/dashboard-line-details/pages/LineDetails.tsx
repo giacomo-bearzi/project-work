@@ -1,24 +1,16 @@
-import { useEffect, useState } from "react";
-import { Navigate, useParams } from "react-router-dom";
-import { DashboardLayout } from "../../dashboard/layouts/DashboardLayout";
-import { useProductionLine } from "../hooks/useProductionLine";
-import { useAuth } from "../../log-in/context/AuthContext";
-import CircleIcon from "@mui/icons-material/Circle";
+import { useEffect, useState } from 'react';
+import { Navigate, useParams } from 'react-router-dom';
+import { DashboardLayout } from '../../dashboard/layouts/DashboardLayout';
+import { useProductionLine } from '../hooks/useProductionLine';
+import { useAuth } from '../../dashboard-login/context/AuthContext.tsx';
+import CircleIcon from '@mui/icons-material/Circle';
 
-import {
-  Tabs,
-  Tab,
-  Typography,
-  Box,
-  Card,
-  CardContent,
-  Grid,
-} from "@mui/material";
+import { Tabs, Tab, Typography, Box, Card, CardContent, Grid } from '@mui/material';
 
-import { LineChart } from "@mui/x-charts";
-import moment from "moment";
-import api from "../../../utils/axios.ts";
-import TemperatureAlertCard from "../components/TemperatureAlertCard .tsx";
+import { LineChart } from '@mui/x-charts';
+import moment from 'moment';
+import api from '../../../utils/axios.ts';
+import TemperatureAlertCard from '../components/TemperatureAlertCard .tsx';
 
 export interface LogPoint {
   timestamp: string;
@@ -54,9 +46,9 @@ const MuiLineChartWithGradient = ({
   maxThreshold,
   warnThreshold,
 }: MuiLineChartWithGradientProps) => {
-  const color = "#FB4376";
-  const warnColor = "#FFA500"; // Arancione per la soglia di warning
-  const maxColor = "#FF0000"; // Rosso per la soglia massima
+  const color = '#FB4376';
+  const warnColor = '#FFA500'; // Arancione per la soglia di warning
+  const maxColor = '#FF0000'; // Rosso per la soglia massima
 
   return (
     <>
@@ -72,8 +64,8 @@ const MuiLineChartWithGradient = ({
         xAxis={[
           {
             data: data.map((d) => d.timestamp),
-            scaleType: "band",
-            label: "Orario",
+            scaleType: 'band',
+            label: 'Orario',
           },
         ]}
         yAxis={[{ label: yLabel }]}
@@ -83,8 +75,8 @@ const MuiLineChartWithGradient = ({
             showMark: false,
             area: true,
             color: `url(#${gradientId})`,
-            curve: "monotoneX",
-            label: "Temperatura (°C)",
+            curve: 'monotoneX',
+            label: 'Temperatura (°C)',
           },
           ...(warnThreshold
             ? [
@@ -92,8 +84,8 @@ const MuiLineChartWithGradient = ({
                   data: data.map(() => warnThreshold),
                   showMark: false,
                   color: warnColor,
-                  curve: "linear",
-                  label: "Warning Temperature",
+                  curve: 'linear',
+                  label: 'Warning Temperature',
                 },
               ]
             : []),
@@ -103,8 +95,8 @@ const MuiLineChartWithGradient = ({
                   data: data.map(() => maxThreshold),
                   showMark: false,
                   color: maxColor,
-                  curve: "linear",
-                  label: "Max Temperature",
+                  curve: 'linear',
+                  label: 'Max Temperature',
                 },
               ]
             : []),
@@ -121,7 +113,7 @@ const LineDetails = () => {
 
   const [subLines, setSubLines] = useState<SubLine[]>([]);
   const [machines, setMachines] = useState<Machine[]>([]);
-  const [selectedSubLineId, setSelectedSubLineId] = useState<string>("");
+  const [selectedSubLineId, setSelectedSubLineId] = useState<string>('');
 
   const [allTemperatureLogs, setAllTemperatureLogs] = useState<LogPoint[]>([]);
   const [allConsumptionLogs, setAllConsumptionLogs] = useState<LogPoint[]>([]);
@@ -135,23 +127,19 @@ const LineDetails = () => {
 
   const getStatusStyle = (status: string) => {
     switch (status.toLowerCase()) {
-      case "active":
-        return { color: "#4CAF50", label: "Attiva" }; // Verde
-      case "maintenance":
-        return { color: "#FF9800", label: "Manutenzione" }; // Arancio
-      case "stopped":
-        return { color: "#F44336", label: "Fermata" }; // Rosso
-      case "issue":
-        return { color: "#E64A19", label: "Problema" }; // Arancione scuro
+      case 'active':
+        return { color: '#4CAF50', label: 'Attiva' }; // Verde
+      case 'maintenance':
+        return { color: '#FF9800', label: 'Manutenzione' }; // Arancio
+      case 'stopped':
+        return { color: '#F44336', label: 'Fermata' }; // Rosso
+      case 'issue':
+        return { color: '#E64A19', label: 'Problema' }; // Arancione scuro
       default:
-        return { color: "#9E9E9E", label: status }; // Grigio per sconosciuti
+        return { color: '#9E9E9E', label: status }; // Grigio per sconosciuti
     }
   };
-  const {
-    data: line,
-    isLoading,
-    isError,
-  } = useProductionLine(lineaId!, token || "");
+  const { data: line, isLoading, isError } = useProductionLine(lineaId!, token || '');
 
   useEffect(() => {
     let interval1: number;
@@ -159,10 +147,7 @@ const LineDetails = () => {
     let interval3: number;
     let interval4: number;
 
-    const createProgressiveUpdater = (
-      source: LogPoint[],
-      setter: (val: LogPoint[]) => void
-    ) => {
+    const createProgressiveUpdater = (source: LogPoint[], setter: (val: LogPoint[]) => void) => {
       let index = 15;
       setter(source.slice(0, 15));
 
@@ -177,19 +162,11 @@ const LineDetails = () => {
     };
 
     if (allTemperatureLogs.length > 15)
-      interval1 = createProgressiveUpdater(
-        allTemperatureLogs,
-        setTemperatureLogs
-      );
+      interval1 = createProgressiveUpdater(allTemperatureLogs, setTemperatureLogs);
     if (allConsumptionLogs.length > 15)
-      interval2 = createProgressiveUpdater(
-        allConsumptionLogs,
-        setConsumptionLogs
-      );
-    if (allPowerLogs.length > 15)
-      interval3 = createProgressiveUpdater(allPowerLogs, setPowerLogs);
-    if (allCo2Logs.length > 15)
-      interval4 = createProgressiveUpdater(allCo2Logs, setCo2Logs);
+      interval2 = createProgressiveUpdater(allConsumptionLogs, setConsumptionLogs);
+    if (allPowerLogs.length > 15) interval3 = createProgressiveUpdater(allPowerLogs, setPowerLogs);
+    if (allCo2Logs.length > 15) interval4 = createProgressiveUpdater(allCo2Logs, setCo2Logs);
 
     return () => {
       clearInterval(interval1);
@@ -202,7 +179,7 @@ const LineDetails = () => {
     if (!token) return;
 
     api
-      .get("/machine", { headers: { Authorization: `Bearer ${token}` } })
+      .get('/machine', { headers: { Authorization: `Bearer ${token}` } })
       .then((res) => setMachines(res.data))
       .catch(() => setMachines([]));
   }, [token]);
@@ -214,11 +191,9 @@ const LineDetails = () => {
     }
 
     api
-      .get("/sub-lines", { headers: { Authorization: `Bearer ${token}` } })
+      .get('/sub-lines', { headers: { Authorization: `Bearer ${token}` } })
       .then((res) => {
-        const filtered = res.data.filter((sl: any) =>
-          line.subLines.includes(sl._id)
-        );
+        const filtered = res.data.filter((sl: any) => line.subLines.includes(sl._id));
         setSubLines(filtered);
       })
       .catch(() => setSubLines([]));
@@ -231,31 +206,22 @@ const LineDetails = () => {
   }, [subLines, selectedSubLineId]);
 
   useEffect(() => {
-    if (!selectedSubLineId || !token || line.status === "stopped") return;
+    if (!selectedSubLineId || !token || line.status === 'stopped') return;
 
     const selected = subLines.find((sl) => sl._id === selectedSubLineId);
     if (!selected) return;
 
     const machineId =
-      typeof selected.machine === "string"
-        ? selected.machine
-        : selected.machine?._id;
+      typeof selected.machine === 'string' ? selected.machine : selected.machine?._id;
 
     if (!machineId) return;
 
-    const prepareLogPoints = (
-      logs: any[],
-      valueKey: string,
-      machineId: string
-    ): LogPoint[] =>
+    const prepareLogPoints = (logs: any[], valueKey: string, machineId: string): LogPoint[] =>
       logs
         .filter((log) => log.machineId._id === machineId)
-        .sort(
-          (a, b) =>
-            new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
-        )
+        .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
         .map((log) => ({
-          timestamp: moment(log.timestamp).format("MM/DD HH:mm"),
+          timestamp: moment(log.timestamp).format('MM/DD HH:mm'),
           value: log[valueKey],
         }));
 
@@ -273,16 +239,12 @@ const LineDetails = () => {
         headers: { Authorization: `Bearer ${token}` },
       }),
     ]).then(([tempRes, consRes, powerRes, co2Res]) => {
-      setAllTemperatureLogs(
-        prepareLogPoints(tempRes.data, "temperature", machineId)
-      );
+      setAllTemperatureLogs(prepareLogPoints(tempRes.data, 'temperature', machineId));
       console.log(allTemperatureLogs);
 
-      setAllConsumptionLogs(
-        prepareLogPoints(consRes.data, "energyConsumed", machineId)
-      );
-      setAllPowerLogs(prepareLogPoints(powerRes.data, "power", machineId));
-      setAllCo2Logs(prepareLogPoints(co2Res.data, "co2Emission", machineId));
+      setAllConsumptionLogs(prepareLogPoints(consRes.data, 'energyConsumed', machineId));
+      setAllPowerLogs(prepareLogPoints(powerRes.data, 'power', machineId));
+      setAllCo2Logs(prepareLogPoints(co2Res.data, 'co2Emission', machineId));
     });
   }, [selectedSubLineId, subLines, token]);
   if (!lineaId) return <Navigate to="/overview" replace />;
@@ -296,34 +258,24 @@ const LineDetails = () => {
 
   const selectedSubLine = subLines.find((sl) => sl._id === selectedSubLineId);
   const machineName =
-    typeof selectedSubLine?.machine === "string"
-      ? machines.find((m) => m._id === selectedSubLine?.machine)?.name ??
-        "Macchina non trovata"
+    typeof selectedSubLine?.machine === 'string'
+      ? (machines.find((m) => m._id === selectedSubLine?.machine)?.name ?? 'Macchina non trovata')
       : selectedSubLine?.machine.name;
 
-  const selectedTabIndex = subLines.findIndex(
-    (sl) => sl._id === selectedSubLineId
-  );
+  const selectedTabIndex = subLines.findIndex((sl) => sl._id === selectedSubLineId);
   const maxThreshold =
-    typeof selectedSubLine?.machine === "string"
+    typeof selectedSubLine?.machine === 'string'
       ? machines.find((m) => m._id === selectedSubLine?.machine)?.maxTemperature
       : selectedSubLine?.machine.maxTemperature;
 
   const warnThreshold =
-    typeof selectedSubLine?.machine === "string"
-      ? machines.find((m) => m._id === selectedSubLine?.machine)
-          ?.warnTemperature
+    typeof selectedSubLine?.machine === 'string'
+      ? machines.find((m) => m._id === selectedSubLine?.machine)?.warnTemperature
       : selectedSubLine?.machine.warnTemperature;
 
   return (
     <DashboardLayout>
-      <Box
-        position="sticky"
-        top={0}
-        zIndex={1000}
-        p={2}
-        sx={{ borderRadius: 11 }}
-      >
+      <Box position="sticky" top={0} zIndex={1000} p={2} sx={{ borderRadius: 11 }}>
         <div className="flex flex-row p-1 justify-between items-center">
           <p>
             <b>{line.name}</b>
@@ -337,9 +289,7 @@ const LineDetails = () => {
         <Box borderBottom={1} borderColor="divider" mt={3}>
           <Tabs
             value={selectedTabIndex === -1 ? 0 : selectedTabIndex}
-            onChange={(e, newValue) =>
-              setSelectedSubLineId(subLines[newValue]._id)
-            }
+            onChange={(e, newValue) => setSelectedSubLineId(subLines[newValue]._id)}
             variant="scrollable"
             scrollButtons="auto"
           >
@@ -362,9 +312,9 @@ const LineDetails = () => {
             sx={{
               borderRadius: 11,
               p: 1,
-              background: "rgba(255, 255, 255, 0.07)",
-              backdropFilter: "blur(20px) saturate(180%)",
-              height: "100%",
+              background: 'rgba(255, 255, 255, 0.07)',
+              backdropFilter: 'blur(20px) saturate(180%)',
+              height: '100%',
             }}
           >
             <CardContent>
@@ -375,23 +325,11 @@ const LineDetails = () => {
               {/* Definizione dei gradienti SVG */}
               <svg width="0" height="0">
                 <defs>
-                  <linearGradient
-                    id="power-gradient"
-                    x1="0"
-                    y1="0"
-                    x2="0"
-                    y2="1"
-                  >
+                  <linearGradient id="power-gradient" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#4dabf5" stopOpacity={0.8} />
                     <stop offset="95%" stopColor="#4dabf5" stopOpacity={0} />
                   </linearGradient>
-                  <linearGradient
-                    id="consumption-gradient"
-                    x1="0"
-                    y1="0"
-                    x2="0"
-                    y2="1"
-                  >
+                  <linearGradient id="consumption-gradient" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#ffa733" stopOpacity={0.8} />
                     <stop offset="95%" stopColor="#ffa733" stopOpacity={0} />
                   </linearGradient>
@@ -407,28 +345,28 @@ const LineDetails = () => {
                 series={[
                   {
                     data: powerLogs.map((d) => d.value),
-                    label: "Potenza (W)",
-                    color: "url(#power-gradient)",
+                    label: 'Potenza (W)',
+                    color: 'url(#power-gradient)',
                     showMark: false,
-                    curve: "monotoneX",
+                    curve: 'monotoneX',
                     area: true,
                     // fill: "url(#power-gradient)",
                   },
                   {
                     data: consumptionLogs.map((d) => d.value),
-                    label: "Consumo (kWh)",
-                    color: "url(#consumption-gradient)",
+                    label: 'Consumo (kWh)',
+                    color: 'url(#consumption-gradient)',
                     showMark: false,
-                    curve: "monotoneX",
+                    curve: 'monotoneX',
                     area: true,
                     // fill: "url(#consumption-gradient)",
                   },
                   {
                     data: co2Logs.map((d) => d.value),
-                    label: "CO₂ (kg)",
-                    color: "url(#co2-gradient)",
+                    label: 'CO₂ (kg)',
+                    color: 'url(#co2-gradient)',
                     showMark: false,
-                    curve: "monotoneX",
+                    curve: 'monotoneX',
                     area: true,
                     // fill: "url(#co2-gradient)",
                   },
@@ -436,13 +374,13 @@ const LineDetails = () => {
                 xAxis={[
                   {
                     data: powerLogs.map((d) => d.timestamp),
-                    scaleType: "band",
-                    label: "Orario",
+                    scaleType: 'band',
+                    label: 'Orario',
                   },
                 ]}
                 margin={{ left: 70, right: 20 }}
                 sx={{
-                  ".MuiAreaElement-root": {
+                  '.MuiAreaElement-root': {
                     fillOpacity: 0.6,
                   },
                 }}
@@ -456,11 +394,11 @@ const LineDetails = () => {
             sx={{
               borderRadius: 11,
               p: 1,
-              background: "rgba(255, 255, 255, 0.07)",
-              backdropFilter: "blur(20px) saturate(180%)",
-              WebkitBackdropFilter: "blur(20px) saturate(180%)",
-              boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
-              height: "100%",
+              background: 'rgba(255, 255, 255, 0.07)',
+              backdropFilter: 'blur(20px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+              boxShadow: '0 4px 30px rgba(0, 0, 0, 0.1)',
+              height: '100%',
             }}
           >
             <CardContent>
@@ -485,21 +423,21 @@ const LineDetails = () => {
 
         <Grid container spacing={2} size={2}>
           <Grid size={12}>
-            {" "}
+            {' '}
             <TemperatureAlertCard
               temperatureLogs={temperatureLogs}
               warnThreshold={warnThreshold || 0}
               machineName={machineName!}
             />
-          </Grid>{" "}
+          </Grid>{' '}
           <Grid size={12}>
             <Card
               variant="outlined"
               sx={{
                 p: 1.5,
-                textAlign: "center",
+                textAlign: 'center',
                 borderRadius: 11,
-                borderLeft: "4px solid #4dabf5",
+                borderLeft: '4px solid #4dabf5',
               }}
             >
               <Typography variant="subtitle2" color="text.secondary">
@@ -508,18 +446,17 @@ const LineDetails = () => {
               <Typography variant="h4" color="#4dabf5">
                 {powerLogs.length > 0
                   ? Math.max(...powerLogs.map((d) => d.value)).toFixed(2)
-                  : "N/D"}{" "}
+                  : 'N/D'}{' '}
                 W
               </Typography>
               <Typography variant="caption" display="block">
                 {powerLogs.length > 0
                   ? `il ${new Date(
                       powerLogs.find(
-                        (d) =>
-                          d.value === Math.max(...powerLogs.map((d) => d.value))
+                        (d) => d.value === Math.max(...powerLogs.map((d) => d.value))
                       )!.timestamp
                     ).toLocaleString()}`
-                  : ""}
+                  : ''}
               </Typography>
             </Card>
           </Grid>
@@ -528,9 +465,9 @@ const LineDetails = () => {
               variant="outlined"
               sx={{
                 p: 1.5,
-                textAlign: "center",
+                textAlign: 'center',
                 borderRadius: 11,
-                borderLeft: "4px solid #FFB34F",
+                borderLeft: '4px solid #FFB34F',
               }}
             >
               <Typography variant="subtitle2" color="text.secondary">
@@ -539,19 +476,17 @@ const LineDetails = () => {
               <Typography variant="h4" color="#ffa733">
                 {consumptionLogs.length > 0
                   ? Math.max(...consumptionLogs.map((d) => d.value)).toFixed(2)
-                  : "N/D"}{" "}
+                  : 'N/D'}{' '}
                 kWh
               </Typography>
               <Typography variant="caption" display="block">
                 {consumptionLogs.length > 0
                   ? `il ${new Date(
                       consumptionLogs.find(
-                        (d) =>
-                          d.value ===
-                          Math.max(...consumptionLogs.map((d) => d.value))
+                        (d) => d.value === Math.max(...consumptionLogs.map((d) => d.value))
                       )!.timestamp
                     ).toLocaleString()}`
-                  : ""}
+                  : ''}
               </Typography>
             </Card>
           </Grid>
