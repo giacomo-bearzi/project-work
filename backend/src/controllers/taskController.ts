@@ -33,7 +33,7 @@ export const getTaskById = async (req: Request, res: Response) => {
 };
 
 // Updated helper function to update production line status based on tasks
-const updateProductionLineStatusFromTasks = async (lineId: string) => {
+export const updateProductionLineStatusFromTasks = async (lineId: string) => {
     try {
         // Get all active tasks for this line (not completed)
         const activeTasks = await Task.find({

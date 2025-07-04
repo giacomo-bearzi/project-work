@@ -2,7 +2,7 @@ import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import { CustomPaper } from '../../../../components/CustomPaper.tsx';
 import { NavbarDesktop } from '../Navbar/NavbarDesktop.tsx';
-import { UserMenuDesktop } from '../UserMenu/UserMenuDesktop.tsx';
+import { UserMenu } from './UserMenu.tsx';
 import { CurrentTime } from './CurrentTime.tsx';
 import Stack from '@mui/material/Stack';
 import { Logo } from '../Logo.tsx';
@@ -10,11 +10,7 @@ import { Logo } from '../Logo.tsx';
 export const HeaderDesktop = () => {
   return (
     <CustomPaper sx={{ borderRadius: 6 }}>
-      <AppBar
-        position="static"
-        color="transparent"
-        sx={{ boxShadow: 'none', width: '100%' }}
-      >
+      <AppBar position="static" color="transparent" sx={{ boxShadow: 'none', width: '100%' }}>
         <Toolbar
           disableGutters
           variant="dense"
@@ -25,16 +21,12 @@ export const HeaderDesktop = () => {
             justifyContent: 'space-between',
           }}
         >
-          <Stack
-            display={'flex'}
-            flexDirection={'row'}
-            gap={1}
-          >
+          <Stack display={'flex'} flexDirection={'row'} gap={1}>
             <Logo />
             <CurrentTime />
           </Stack>
           <NavbarDesktop />
-          <UserMenuDesktop />
+          <UserMenu />
         </Toolbar>
       </AppBar>
     </CustomPaper>

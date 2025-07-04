@@ -7,10 +7,10 @@ import { PieChart } from '@mui/x-charts/PieChart';
 import Box from '@mui/material/Box';
 import Skeleton from '@mui/material/Skeleton';
 import Alert from '@mui/material/Alert';
-import { useGetIssues } from '../../../issues/hooks/useIssueQueries.tsx';
-import type { ApiIssue } from '../../../issues/types/types.api.ts';
+import { useGetIssues } from '../../../issues/hooks/useIssuesQueries.tsx';
+import type { ApiGetIssue } from '../../../issues/types/issuesTypes.ts';
 
-const transformByType = (data: ApiIssue[]) => {
+const transformByType = (data: ApiGetIssue[]) => {
   const typeMap = new Map();
 
   for (const item of data) {
@@ -36,18 +36,9 @@ export const IssuesDistributionChart = () => {
   if (data) {
     return (
       <Grid size={6}>
-        <CustomPaper
-          elevation={2}
-          sx={{ p: 2, borderRadius: 5 }}
-        >
-          <Stack
-            gap={2}
-            alignItems={'center'}
-          >
-            <Typography
-              component={'span'}
-              fontWeight={500}
-            >
+        <CustomPaper elevation={2} sx={{ p: 2, borderRadius: 5 }}>
+          <Stack gap={2} alignItems={'center'}>
+            <Typography component={'span'} fontWeight={500}>
               Tipologia di segnalazioni
             </Typography>
             <PieChart
@@ -92,14 +83,8 @@ export const IssuesDistributionChart = () => {
     return (
       <Grid size={6}>
         <CustomPaper sx={{ p: 2, borderRadius: 5 }}>
-          <Stack
-            gap={2}
-            alignItems={'center'}
-          >
-            <Skeleton
-              variant="text"
-              width={'50%'}
-            />
+          <Stack gap={2} alignItems={'center'}>
+            <Skeleton variant="text" width={'50%'} />
             <Box
               sx={{
                 aspectRatio: '16/9',
@@ -109,12 +94,7 @@ export const IssuesDistributionChart = () => {
                 alignItems: 'center',
               }}
             >
-              <Skeleton
-                variant="rounded"
-                width={'100%'}
-                height={'100%'}
-                sx={{ borderRadius: 6 }}
-              />
+              <Skeleton variant="rounded" width={'100%'} height={'100%'} sx={{ borderRadius: 6 }} />
             </Box>
           </Stack>
         </CustomPaper>
@@ -126,14 +106,8 @@ export const IssuesDistributionChart = () => {
     return (
       <Grid size={6}>
         <CustomPaper sx={{ p: 2, borderRadius: 5 }}>
-          <Stack
-            gap={2}
-            alignItems={'center'}
-          >
-            <Typography
-              component={'span'}
-              fontWeight={500}
-            >
+          <Stack gap={2} alignItems={'center'}>
+            <Typography component={'span'} fontWeight={500}>
               Tipologia di segnalazioni
             </Typography>
             <Box
@@ -145,10 +119,7 @@ export const IssuesDistributionChart = () => {
                 alignItems: 'center',
               }}
             >
-              <Alert
-                severity="error"
-                variant="filled"
-              >
+              <Alert severity="error" variant="filled">
                 Oops! Si è verificato un errore
               </Alert>
             </Box>

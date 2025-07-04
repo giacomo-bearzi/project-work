@@ -18,27 +18,13 @@ export const ChartList = () => {
   ];
 
   return (
-    <Grid
-      container
-      size={12}
-      columnSpacing={1}
-      rowSpacing={1}
-    >
+    <Grid container size={12} columnSpacing={1} rowSpacing={1}>
       <HourlyProductionChart />
       <IssuesDistributionChart />
       <Grid size={6}>
-        <CustomPaper
-          elevation={2}
-          sx={{ p: 2, borderRadius: 5 }}
-        >
-          <Stack
-            gap={2}
-            alignItems={'center'}
-          >
-            <Typography
-              component={'span'}
-              fontWeight={500}
-            >
+        <CustomPaper elevation={2} sx={{ p: 2, borderRadius: 5 }}>
+          <Stack gap={2} alignItems={'center'}>
+            <Typography component={'span'} fontWeight={500}>
               Tipologia di segnalazioni
             </Typography>
             <PieChart
@@ -77,3 +63,5 @@ export const ChartList = () => {
     </Grid>
   );
 };
+
+// TODO: aggiungere grafico per i consumi.

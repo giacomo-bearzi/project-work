@@ -1,19 +1,16 @@
-import { Typography } from "@mui/material";
-import { BarChart } from "@mui/x-charts";
-import type { User } from "../../../components/Login.tsx";
-import type { Issue, Task } from "../pages/UsersPage.tsx";
+import { Typography } from '@mui/material';
+import { BarChart } from '@mui/x-charts';
+import type { ApiGetUser } from '../../users/types/usersTypes.ts';
+import type { ApiGetIssue } from '../../issues/types/issuesTypes.ts';
+import type { ApiGetTask } from '../../tasks/types/tasksTypes.ts';
 
 interface UserActivityChartProps {
-  user: User | null;
-  issues: Issue[];
-  tasks: Task[];
+  user: ApiGetUser | null;
+  issues: ApiGetIssue[];
+  tasks: ApiGetTask[];
 }
 
-export const UserActivityChart: React.FC<UserActivityChartProps> = ({
-  user,
-  issues,
-  tasks,
-}) => {
+export const UserActivityChart: React.FC<UserActivityChartProps> = ({ user, issues, tasks }) => {
   const issueStatuses = Array.from(new Set(issues.map((i) => i.status)));
   const taskStatuses = Array.from(new Set(tasks.map((t) => t.status)));
   const allStatuses = Array.from(new Set([...issueStatuses, ...taskStatuses]));
@@ -31,8 +28,8 @@ export const UserActivityChart: React.FC<UserActivityChartProps> = ({
       {user && (tasks.length > 0 || issues.length > 0) ? (
         <BarChart
           sx={{
-            maxWidth: "400px",
-            maxHeight: "400px",
+            maxWidth: '400px',
+            maxHeight: '400px',
           }}
           series={series}
           hideLegend
@@ -40,16 +37,16 @@ export const UserActivityChart: React.FC<UserActivityChartProps> = ({
           barLabel="value"
           xAxis={[
             {
-              data: ["Issues", "Tasks"],
-              scaleType: "band",
+              data: ['Issues', 'Tasks'],
+              scaleType: 'band',
             },
           ]}
         />
       ) : (
         <Typography variant="body2" color="textSecondary">
           {user
-            ? "Nessun grafico disponibile per questo utente."
-            : "Seleziona un utente per visualizzare il grafico."}
+            ? 'Nessun grafico disponibile per questo utente.'
+            : 'Seleziona un utente per visualizzare il grafico.'}
         </Typography>
       )}
     </>

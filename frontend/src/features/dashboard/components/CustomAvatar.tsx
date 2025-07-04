@@ -1,11 +1,9 @@
 import Typography from '@mui/material/Typography';
-import type { ApiUser } from '../../log-in/types/types.api';
 import Avatar from '@mui/material/Avatar';
+import { useAuth } from '../../dashboard-login/context/AuthContext';
+import type { ApiGetUser } from '../../users/types/usersTypes';
 
-const avatarColors: Record<
-  ApiUser['role'],
-  { backgroundColor: string; color: string }
-> = {
+const avatarColors: Record<ApiGetUser['role'], { backgroundColor: string; color: string }> = {
   operator: {
     backgroundColor: '#31C8FF',
     color: '#000000',
@@ -16,24 +14,18 @@ const avatarColors: Record<
 
 interface CustomAvatarProps {
   size: string;
-  role: ApiUser['role'];
   fontSize?: string;
-  fullName: ApiUser['fullName'];
 }
 
-export const CustomAvatar = ({
-  size,
-  role,
-  fontSize,
-  fullName,
-}: CustomAvatarProps) => {
+export const CustomAvatar = ({ size, fontSize }: CustomAvatarProps) => {
+  const { user } = useAuth();
+
+  if (!user) return;
+
   return (
-    <Avatar sx={{ ...avatarColors[role], height: size, width: size }}>
-      <Typography
-        component={'span'}
-        sx={{ fontWeight: 500, fontSize: fontSize }}
-      >
-        {fullName[0]}
+    <Avatar sx={{ ...avatarColors[user.role], height: size, width: size }}>
+      <Typography component={'span'} sx={{ fontWeight: 500, fontSize: fontSize }}>
+        {user.fullName[0]}
       </Typography>
     </Avatar>
   );

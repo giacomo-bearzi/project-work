@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from "react";
-import { Snackbar, Alert } from "@mui/material";
-import { useGetAssignedIssues } from "../features/issues/hooks/useIssueQueries";
+import { useEffect, useRef, useState } from 'react';
+import { Snackbar, Alert } from '@mui/material';
+import { useGetAssignedIssues } from '../features/issues/hooks/useIssuesQueries';
 
 const ToastNotification = () => {
   const { data: assignedIssues } = useGetAssignedIssues();
@@ -25,17 +25,15 @@ const ToastNotification = () => {
     <Snackbar
       open={open}
       autoHideDuration={6000}
-      anchorOrigin={{ vertical: "top", horizontal: "right" }}
+      anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
       onClose={handleClose}
     >
       {latestIssue && (
-        <Alert onClose={handleClose} severity="info" sx={{ width: "100%" }}>
+        <Alert onClose={handleClose} severity="info" sx={{ width: '100%' }}>
           <div className="font-semibold">
-            Nuova task assegnata: {latestIssue.description || "Nessuna descrizione"}
+            Nuova task assegnata: {latestIssue.description || 'Nessuna descrizione'}
           </div>
-          <div className="text-sm">
-            Apri le notifiche per visualizzarla.
-          </div>
+          <div className="text-sm">Apri le notifiche per visualizzarla.</div>
         </Alert>
       )}
     </Snackbar>

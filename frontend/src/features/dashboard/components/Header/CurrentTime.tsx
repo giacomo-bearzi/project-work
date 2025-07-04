@@ -26,43 +26,20 @@ export const CurrentTime = () => {
     return { date, time };
   }, [now]);
 
-  const {
-    // date,
-    time,
-  } = formatted;
+  const { time } = formatted;
 
   return (
-    <Stack
-      display={'flex'}
-      direction={'row'}
-      alignItems={'center'}
-      spacing={1}
-      px={1}
-      minWidth={32}
-    >
-      {/* <AccessTimeFilledRounded fontSize="small" /> */}
-      <Stack
-        display={'flex'}
-        direction={'row'}
-        alignItems={'baseline'}
-        spacing={1}
+    <Stack display={'flex'} direction={'row'} alignItems={'center'}>
+      <Typography
+        component={'span'}
+        fontSize={'1.15rem'}
+        fontWeight={500}
+        sx={{
+          minWidth: 64,
+        }}
       >
-        <Typography
-          component={'span'}
-          fontSize={'1.2rem'}
-          fontWeight={500}
-        >
-          {time}
-        </Typography>
-        {/* <Typography
-          component={'span'}
-          fontSize={'1rem'}
-          fontWeight={500}
-          sx={{ opacity: 0.8 }}
-        >
-          {date}
-        </Typography> */}
-      </Stack>
+        {time}
+      </Typography>
     </Stack>
   );
 };

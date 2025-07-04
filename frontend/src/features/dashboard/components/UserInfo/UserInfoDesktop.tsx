@@ -1,13 +1,10 @@
 import Avatar from '@mui/material/Avatar';
 import Stack from '@mui/material/Stack';
-import { useAuth } from '../../../log-in/context/AuthContext.tsx';
-import type { ApiUser } from '../../../log-in/types/types.api.ts';
+import { useAuth } from '../../../dashboard-login/context/AuthContext.tsx';
+import type { ApiUser } from '../../../dashboard-login/types/types.api.ts';
 import Typography from '@mui/material/Typography';
 
-const avatarColors: Record<
-  ApiUser['role'],
-  { backgroundColor: string; color: string }
-> = {
+const avatarColors: Record<ApiUser['role'], { backgroundColor: string; color: string }> = {
   operator: {
     backgroundColor: '#31C8FF',
     color: '#000',
@@ -28,12 +25,7 @@ export const UserInfoDesktop = () => {
   if (!user) return;
 
   return (
-    <Stack
-      display={'flex'}
-      flexDirection={'row'}
-      alignItems={'center'}
-      gap={1}
-    >
+    <Stack display={'flex'} flexDirection={'row'} alignItems={'center'} gap={1}>
       <Avatar
         sx={{
           ...avatarColors[user.role],
@@ -44,22 +36,11 @@ export const UserInfoDesktop = () => {
       >
         {user.fullName[0]}
       </Avatar>
-      <Stack
-        display={'flex'}
-        flexDirection={'column'}
-        alignItems={'start'}
-        gap={0}
-      >
-        <Typography
-          fontWeight={500}
-          fontSize={'0.9rem'}
-        >
+      <Stack display={'flex'} flexDirection={'column'} alignItems={'start'} gap={0}>
+        <Typography fontWeight={500} fontSize={'0.9rem'}>
           {user.fullName}
         </Typography>
-        <Typography
-          fontSize={'0.8rem'}
-          sx={{ opacity: 0.8 }}
-        >
+        <Typography fontSize={'0.8rem'} sx={{ opacity: 0.8 }}>
           {userRole[user.role]}
         </Typography>
       </Stack>

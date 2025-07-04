@@ -23,12 +23,7 @@ interface CustomPaperProps {
   onClick?: (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
 }
 
-export const CustomPaper = ({
-  elevation = 1,
-  children,
-  sx,
-  onClick,
-}: CustomPaperProps) => {
+export const CustomPaper = ({ elevation = 1, children, sx, onClick }: CustomPaperProps) => {
   const theme = useTheme();
   const currentTheme = theme.palette.mode;
 

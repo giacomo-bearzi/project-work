@@ -11,15 +11,8 @@ interface DashboardLayoutProps {
 
 export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   return (
-    <Box
-      p={1}
-      sx={{ width: '100dvw', height: '100dvh' }}
-    >
-      <Stack
-        direction="column"
-        gap={1}
-        sx={{ height: '100%', width: '100%' }}
-      >
+    <Box p={1} sx={{ width: '100dvw', height: '100dvh' }}>
+      <Stack direction="column" gap={1} sx={{ height: '100%', width: '100%' }}>
         <ResponsiveHeader />
         <CustomPaper
           sx={{

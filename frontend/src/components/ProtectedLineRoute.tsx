@@ -1,9 +1,9 @@
-import { useParams, Navigate } from "react-router-dom";
-import { useAuth } from "../features/log-in/context/AuthContext";
-import { useProductionLine } from "../features/dashboard-line-details/hooks/useProductionLine";
-import { Box, CircularProgress } from "@mui/material";
+import { useParams, Navigate } from 'react-router-dom';
+import { useAuth } from '../features/dashboard-login/context/AuthContext';
+import { useProductionLine } from '../features/dashboard-line-details/hooks/useProductionLine';
+import { Box, CircularProgress } from '@mui/material';
 
-const validLineIds = ["line-1", "line-2", "line-3"];
+const validLineIds = ['line-1', 'line-2', 'line-3'];
 
 export const ProtectedLineRoute = ({ children }: { children: React.ReactNode }) => {
   const { lineaId } = useParams();

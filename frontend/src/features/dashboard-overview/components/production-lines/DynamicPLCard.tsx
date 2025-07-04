@@ -3,30 +3,26 @@ import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import { useNavigate } from 'react-router-dom';
 import { CustomPaper } from '../../../../components/CustomPaper.tsx';
-import { useGetIssueByLineId } from '../../../issues/hooks/useIssueQueries.tsx';
-import type { ApiIssue } from '../../../issues/types/types.api.ts';
+import { useGetIssueByLineId } from '../../../issues/hooks/useIssuesQueries.tsx';
+import type { ApiGetIssue } from '../../../issues/types/issuesTypes.ts';
 import { useGetProductionLine } from '../../../production-lines/hooks/useProductionLinesQueries.ts';
-import type { ApiProductionLine } from '../../../production-lines/types/types.api.ts';
-import { useGetTaskByLineId } from '../../../task/hooks/useTaskQueries.ts';
-import type { GetApiTask } from '../../../task/types/taskTypes.ts';
+import type { ApiGetProductionLine } from '../../../production-lines/types/productionLinesTypes.ts';
+import { useGetTaskByLineId } from '../../../tasks/hooks/useTasksQueries.ts';
+import type { ApiGetTask } from '../../../tasks/types/tasksTypes.ts';
 import { PLCardActive } from './PLCardActive.tsx';
 import { PLCardIssue } from './PLCardIssue.tsx';
 import { PLCardMaintenance } from './PLCardMaintenance.tsx';
 import { PLCardStopped } from './PLCardStopped.tsx';
 
 interface ProductionLineCardProps {
-  productionLine: ApiProductionLine;
+  productionLine: ApiGetProductionLine;
 }
 
 export const DynamicPLCard = ({ productionLine }: ProductionLineCardProps) => {
   const navigate = useNavigate();
 
   // Informazioni della singola linea produttiva.
-  const {
-    data: productionLineData,
-    isPending,
-    isError,
-  } = useGetProductionLine(productionLine._id);
+  const { data: productionLineData, isPending, isError } = useGetProductionLine(productionLine._id);
 
   // Recupera le task di tipo `standard` e di stato `in corso`.
   const { data: taskStandardData } = useGetTaskByLineId(
@@ -36,7 +32,7 @@ export const DynamicPLCard = ({ productionLine }: ProductionLineCardProps) => {
   );
 
   // Inizializzazione array vuoto per le task standard.
-  let productionLineStandardTasks: GetApiTask[] = [];
+  let productionLineStandardTasks: ApiGetTask[] = [];
 
   // Se ci sono task, aggiorna l'array.
   if (taskStandardData && taskStandardData.length > 0) {
@@ -51,7 +47,7 @@ export const DynamicPLCard = ({ productionLine }: ProductionLineCardProps) => {
   );
 
   // Inizializzazione array vuoto per le task di manutenzione.
-  let productionLineMaintenanceTasks: GetApiTask[] = [];
+  let productionLineMaintenanceTasks: ApiGetTask[] = [];
 
   // Se ci sono task di manutenzione, aggiorna l'array.
   if (taskMaintenanceData && taskMaintenanceData.length > 0) {
@@ -59,13 +55,10 @@ export const DynamicPLCard = ({ productionLine }: ProductionLineCardProps) => {
   }
 
   // Recupera le issue di stato `aperta`.
-  const { data: issueData } = useGetIssueByLineId(
-    productionLine.lineId,
-    'aperta'
-  );
+  const { data: issueData } = useGetIssueByLineId(productionLine.lineId, 'aperta');
 
   // Inizializzazione array vuoto per le issue.
-  let productionLineIssues: ApiIssue[] = [];
+  let productionLineIssues: ApiGetIssue[] = [];
 
   // Se ci sono issue, aggiorna l'array.
   if (issueData) {
@@ -134,13 +127,7 @@ export const DynamicPLCard = ({ productionLine }: ProductionLineCardProps) => {
             height: '100%',
           }}
         >
-          <Grid
-            container
-            height={'100%'}
-            width={'100%'}
-            p={2}
-            spacing={2}
-          >
+          <Grid container height={'100%'} width={'100%'} p={2} spacing={2}>
             <Grid size={3}>
               <Box
                 component={'img'}
@@ -152,20 +139,9 @@ export const DynamicPLCard = ({ productionLine }: ProductionLineCardProps) => {
                 }}
               />
             </Grid>
-            <Grid
-              size={9}
-              alignContent={'center'}
-            >
-              <Stack
-                gap={4}
-                alignItems={'center'}
-                display={'flex'}
-              >
-                <Stack
-                  alignItems={'center'}
-                  display={'flex'}
-                  width={'100%'}
-                >
+            <Grid size={9} alignContent={'center'}>
+              <Stack gap={4} alignItems={'center'} display={'flex'}>
+                <Stack alignItems={'center'} display={'flex'} width={'100%'}>
                   <Skeleton width={'75%'} />
                   <Skeleton width={'50%'} />
                 </Stack>
@@ -197,17 +173,8 @@ export const DynamicPLCard = ({ productionLine }: ProductionLineCardProps) => {
             // position: 'relative',
           }}
         >
-          <Grid
-            container
-            height={'100%'}
-            width={'100%'}
-            p={2}
-            spacing={2}
-          >
-            <Grid
-              size={3}
-              sx={{ height: '100%', display: 'flex' }}
-            >
+          <Grid container height={'100%'} width={'100%'} p={2} spacing={2}>
+            <Grid size={3} sx={{ height: '100%', display: 'flex' }}>
               <Skeleton
                 variant="rectangular"
                 sx={{
@@ -217,20 +184,9 @@ export const DynamicPLCard = ({ productionLine }: ProductionLineCardProps) => {
                 }}
               />
             </Grid>
-            <Grid
-              size={9}
-              alignContent={'center'}
-            >
-              <Stack
-                gap={4}
-                alignItems={'center'}
-                display={'flex'}
-              >
-                <Stack
-                  alignItems={'center'}
-                  display={'flex'}
-                  width={'100%'}
-                >
+            <Grid size={9} alignContent={'center'}>
+              <Stack gap={4} alignItems={'center'} display={'flex'}>
+                <Stack alignItems={'center'} display={'flex'} width={'100%'}>
                   <Skeleton width={'75%'} />
                   <Skeleton width={'50%'} />
                 </Stack>

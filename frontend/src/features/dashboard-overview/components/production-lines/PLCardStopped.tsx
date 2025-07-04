@@ -12,16 +12,9 @@ interface PLCardStoppedProps {
   onClick?: () => void;
 }
 
-export const PLCardStopped = ({
-  lineId,
-  lineName,
-  onClick,
-}: PLCardStoppedProps) => {
+export const PLCardStopped = ({ lineId, lineName, onClick }: PLCardStoppedProps) => {
   return (
-    <Grid
-      onClick={onClick}
-      size={{ sm: 4, md: 4, lg: 12 }}
-    >
+    <Grid onClick={onClick} size={{ sm: 4, md: 4, lg: 12 }}>
       <CustomPaper
         elevation={2}
         sx={{
@@ -35,13 +28,7 @@ export const PLCardStopped = ({
           },
         }}
       >
-        <Grid
-          container
-          height={'100%'}
-          width={'100%'}
-          p={2}
-          spacing={2}
-        >
+        <Grid container height={'100%'} width={'100%'} p={2} spacing={2}>
           <Grid size={3}>
             <Box
               component={'img'}
@@ -53,36 +40,14 @@ export const PLCardStopped = ({
               }}
             />
           </Grid>
-          <Grid
-            size={9}
-            alignContent={'center'}
-          >
-            <Stack
-              gap={4}
-              alignItems={'center'}
-              display={'flex'}
-            >
-              <Stack
-                alignItems={'center'}
-                display={'flex'}
-                width={'100%'}
-                gap={1}
-              >
-                <Typography
-                  component={'span'}
-                  fontWeight={500}
-                  fontSize={'1.1rem'}
-                  pl={1}
-                >
+          <Grid size={9} alignContent={'center'}>
+            <Stack gap={4} alignItems={'center'} display={'flex'}>
+              <Stack alignItems={'center'} display={'flex'} width={'100%'} gap={1}>
+                <Typography component={'span'} fontWeight={500} fontSize={'1.1rem'} pl={1}>
                   {lineName}
                 </Typography>
                 <Chip
-                  icon={
-                    <StopRounded
-                      fontSize="small"
-                      color="inherit"
-                    />
-                  }
+                  icon={<StopRounded fontSize="small" color="inherit" />}
                   label={'FERMA'}
                   sx={{
                     fontWeight: 500,

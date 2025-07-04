@@ -1,6 +1,6 @@
 // components/UserActionsToolbar.tsx
-import { TextField, Button } from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
+import { TextField, Button } from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
 
 export const UserActionsToolbar = ({
   searchTerm,
@@ -20,11 +20,7 @@ export const UserActionsToolbar = ({
       size="small"
       sx={{ width: 300 }}
     />
-    <Button
-      variant="contained"
-      onClick={onAddUser}
-      startIcon={<AddIcon />}
-    >
+    <Button variant="contained" onClick={onAddUser} startIcon={<AddIcon />}>
       Aggiungi Utente
     </Button>
   </div>

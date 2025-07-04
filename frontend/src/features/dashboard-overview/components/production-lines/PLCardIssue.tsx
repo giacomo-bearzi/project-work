@@ -7,13 +7,13 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { CustomPaper } from '../../../../components/CustomPaper.tsx';
 import { extractTime } from '../../../../utils/helpers.ts';
-import type { ApiIssue } from '../../../issues/types/types.api.ts';
+import type { ApiGetIssue } from '../../../issues/types/issuesTypes.ts';
 
 interface PLCardIssueProps {
   lineId: 'line-1' | 'line-2' | 'line-3';
   lineName: string;
   issueCount: number;
-  lastIssue?: ApiIssue;
+  lastIssue?: ApiGetIssue;
   onClick?: () => void;
 }
 
@@ -24,11 +24,10 @@ export const PLCardIssue = ({
   lastIssue,
   onClick,
 }: PLCardIssueProps) => {
+  if (!lastIssue) return;
+
   return (
-    <Grid
-      onClick={onClick}
-      size={{ sm: 4, md: 4, lg: 12 }}
-    >
+    <Grid onClick={onClick} size={{ sm: 4, md: 4, lg: 12 }}>
       <CustomPaper
         elevation={2}
         sx={{
@@ -42,13 +41,7 @@ export const PLCardIssue = ({
           },
         }}
       >
-        <Grid
-          container
-          height={'100%'}
-          width={'100%'}
-          p={2}
-          spacing={2}
-        >
+        <Grid container height={'100%'} width={'100%'} p={2} spacing={2}>
           <Grid size={3}>
             <Box
               component={'img'}
@@ -60,21 +53,9 @@ export const PLCardIssue = ({
               }}
             />
           </Grid>
-          <Grid
-            size={9}
-            alignContent={'center'}
-          >
-            <Stack
-              gap={4}
-              alignItems={'center'}
-              display={'flex'}
-            >
-              <Stack
-                alignItems={'center'}
-                display={'flex'}
-                width={'100%'}
-                gap={1}
-              >
+          <Grid size={9} alignContent={'center'}>
+            <Stack gap={4} alignItems={'center'} display={'flex'}>
+              <Stack alignItems={'center'} display={'flex'} width={'100%'} gap={1}>
                 <Typography
                   component={'span'}
                   fontWeight={500}
@@ -93,10 +74,7 @@ export const PLCardIssue = ({
                   }}
                 />
               </Stack>
-              <Stack
-                alignItems={'center'}
-                width={'100%'}
-              >
+              <Stack alignItems={'center'} width={'100%'}>
                 <Typography
                   component={'span'}
                   fontWeight={600}
@@ -105,22 +83,11 @@ export const PLCardIssue = ({
                 >
                   {lastIssue?.description ?? ''}
                 </Typography>
-                <Stack
-                  display={'flex'}
-                  flexDirection={'row'}
-                  alignItems={'center'}
-                >
-                  <Typography
-                    component={'span'}
-                    pl={1}
-                  >
+                <Stack display={'flex'} flexDirection={'row'} alignItems={'center'}>
+                  <Typography component={'span'} pl={1}>
                     Segnalato alle
                   </Typography>
-                  <Typography
-                    component={'span'}
-                    fontWeight={600}
-                    pl={1}
-                  >
+                  <Typography component={'span'} fontWeight={600} pl={1}>
                     {extractTime(lastIssue?.createdAt)}
                   </Typography>
                 </Stack>

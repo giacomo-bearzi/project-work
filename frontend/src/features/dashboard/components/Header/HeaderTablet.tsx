@@ -4,17 +4,13 @@ import { Logo } from '../Logo.tsx';
 import { CustomPaper } from '../../../../components/CustomPaper.tsx';
 import Stack from '@mui/material/Stack';
 import { CurrentTime } from './CurrentTime.tsx';
-import { UserMenuDesktop } from '../UserMenu/UserMenuDesktop.tsx';
+import { UserMenu } from './UserMenu.tsx';
 import { NavbarTablet } from '../Navbar/NavbarTablet.tsx';
 
 export const HeaderTablet = () => {
   return (
     <CustomPaper sx={{ borderRadius: 6 }}>
-      <AppBar
-        position="static"
-        color="transparent"
-        sx={{ boxShadow: 'none', width: '100%' }}
-      >
+      <AppBar position="static" color="transparent" sx={{ boxShadow: 'none', width: '100%' }}>
         <Toolbar
           disableGutters
           variant="dense"
@@ -25,16 +21,12 @@ export const HeaderTablet = () => {
             justifyContent: 'space-between',
           }}
         >
-          <Stack
-            display={'flex'}
-            flexDirection={'row'}
-            gap={1}
-          >
+          <Stack display={'flex'} flexDirection={'row'} gap={1}>
             <Logo />
             <CurrentTime />
           </Stack>
           <NavbarTablet />
-          <UserMenuDesktop />
+          <UserMenu />
         </Toolbar>
       </AppBar>
     </CustomPaper>

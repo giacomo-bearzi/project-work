@@ -1,11 +1,4 @@
-import {
-  Drawer,
-  Typography,
-  Box,
-  Button,
-  Divider,
-  IconButton,
-} from '@mui/material';
+import { Drawer, Typography, Box, Button, Divider, IconButton } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 
@@ -38,7 +31,7 @@ export const NotificationsSidebar = ({
       anchor="right"
       open={open}
       onClose={onClose}
-      PaperProps={{ sx: { width: 400, maxWidth: '100vw', p: 3, m: 1 } }}
+      PaperProps={{ sx: { width: 400, maxWidth: '100%', p: 2, m: 1 } }}
     >
       <IconButton
         onClick={onClose}
@@ -47,30 +40,18 @@ export const NotificationsSidebar = ({
       >
         <CloseIcon />
       </IconButton>
-      <Typography
-        variant="h6"
-        fontWeight={600}
-        sx={{ mb: 2 }}
-      >
+      <Typography variant="h6" fontWeight={600} sx={{ mb: 2 }}>
         Notifiche
       </Typography>
 
       {unread.length > 0 && (
         <Box mt={2}>
           {unread.map((n) => (
-            <Typography
-              key={n.id}
-              fontWeight={500}
-              mb={1}
-            >
+            <Typography key={n.id} fontWeight={500} mb={1}>
               {n.message}
             </Typography>
           ))}
-          <Button
-            onClick={onMarkAllAsRead}
-            size="small"
-            sx={{ mt: 1 }}
-          >
+          <Button onClick={onMarkAllAsRead} size="small" sx={{ mt: 1 }}>
             Segna tutte come lette
           </Button>
         </Box>
@@ -80,19 +61,11 @@ export const NotificationsSidebar = ({
 
       {read.length > 0 && (
         <Box>
-          <Typography
-            variant="subtitle2"
-            fontWeight={500}
-            sx={{ mb: 1 }}
-          >
+          <Typography variant="subtitle2" fontWeight={500} sx={{ mb: 1 }}>
             Già lette
           </Typography>
           {read.map((n) => (
-            <Typography
-              key={n.id}
-              variant="body2"
-              sx={{ color: 'text.secondary', mb: 1 }}
-            >
+            <Typography key={n.id} variant="body2" sx={{ color: 'text.secondary', mb: 1 }}>
               {n.message}
             </Typography>
           ))}

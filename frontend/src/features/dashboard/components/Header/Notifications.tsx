@@ -1,13 +1,10 @@
 import { useState } from 'react';
-import { useGetAssignedIssues } from '../../../issues/hooks/useIssueQueries';
+import { useGetAssignedIssues } from '../../../issues/hooks/useIssuesQueries';
 import IconButton from '@mui/material/IconButton';
 import Badge from '@mui/material/Badge';
 import { NotificationsRounded } from '@mui/icons-material';
 import { NotificationsSidebar } from '../NotificationsSidebar';
-import {
-  hideReadAssignedIssues,
-  markAssignedIssuesAsRead,
-} from '../../../issues/api/api';
+import { hideReadAssignedIssues, markAssignedIssuesAsRead } from '../../../issues/api/issuesApi';
 
 export const Notifications = () => {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
@@ -36,10 +33,7 @@ export const Notifications = () => {
   return (
     <>
       <IconButton onClick={handleOpenNotifications}>
-        <Badge
-          badgeContent={notifications.filter((n) => !n.read).length}
-          color="secondary"
-        >
+        <Badge badgeContent={notifications.filter((n) => !n.read).length} color="secondary">
           <NotificationsRounded />
         </Badge>
       </IconButton>

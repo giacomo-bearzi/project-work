@@ -1,6 +1,6 @@
 import Stack from '@mui/material/Stack';
 import { CustomPaper } from '../../../../components/CustomPaper.tsx';
-import { useAuth } from '../../../log-in/context/AuthContext.tsx';
+import { useAuth } from '../../../dashboard-login/context/AuthContext.tsx';
 import { NavbarButton } from '../NavbarButton.tsx';
 import {
   AssignmentRounded,
@@ -26,10 +26,7 @@ export const NavbarDesktop = () => {
         fontSize: '0.9rem',
       }}
     >
-      <Stack
-        direction="row"
-        gap={1}
-      >
+      <Stack direction="row" gap={1}>
         <NavbarButton path="/overview">
           <BarChartRounded fontSize="small" />
           Panoramica
@@ -45,7 +42,7 @@ export const NavbarDesktop = () => {
         {isAdmin && (
           <NavbarButton path="/users">
             <GroupRounded fontSize="small" />
-            Gestione Utenti
+            Utenti
           </NavbarButton>
         )}
       </Stack>

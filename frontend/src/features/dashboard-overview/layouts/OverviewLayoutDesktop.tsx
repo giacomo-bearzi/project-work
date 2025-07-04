@@ -6,12 +6,7 @@ import { ChartList } from '../components/charts/ChartList.tsx';
 
 export const OverviewLayoutDesktop = () => {
   return (
-    <Grid
-      container
-      spacing={2}
-      height={'100%'}
-      alignContent={'start'}
-    >
+    <Grid container spacing={2} height={'100%'} alignContent={'start'}>
       <ProductionLineList />
       <Grid
         container

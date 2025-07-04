@@ -19,6 +19,8 @@ import resolvers from './graphql/resolvers';
 import cron from 'node-cron';
 import { resetDailyStoppedTime, resetShiftStoppedTime, updateProductionLineStatus } from './controllers/productionLineController';
 import { getCurrentShift, shouldForceStopForLunch } from './utils/shiftCalculator';
+import { updateProductionLineStatusFromTasks } from './controllers/taskController';
+import ProductionLine from './models/ProductionLine';
 dotenv.config();
 
 const app = express();
@@ -78,8 +80,8 @@ cron.schedule('0 13 * * *', () => {
   resetShiftStoppedTime();
 });
 
-// Enforce lunch break - stop all lines at 12:00
-cron.schedule('0 12 * * *', async () => {
+// Enforce lunch break - stop all lines at 13:00
+cron.schedule('0 13 * * *', async () => {
   console.log('Lunch break starting - stopping all production lines');
   try {
     // Get all active production lines and stop them
@@ -93,6 +95,33 @@ cron.schedule('0 12 * * *', async () => {
     console.log(`Stopped ${activeLines.length} production lines for lunch break`);
   } catch (error) {
     console.error('Error enforcing lunch break:', error);
+  }
+});
+
+// Update production line statuses at the start of each shift based on active tasks
+cron.schedule('0 9 * * *', async () => {
+  console.log('Morning shift starting - updating production line statuses based on active tasks');
+  try {
+    const lines = await ProductionLine.find({});
+    for (const line of lines) {
+      await updateProductionLineStatusFromTasks(line.lineId);
+    }
+    console.log(`Updated statuses for ${lines.length} production lines at morning shift start.`);
+  } catch (error) {
+    console.error('Error updating production line statuses at morning shift start:', error);
+  }
+});
+
+cron.schedule('0 14 * * *', async () => {
+  console.log('Afternoon shift starting - updating production line statuses based on active tasks');
+  try {
+    const lines = await ProductionLine.find({});
+    for (const line of lines) {
+      await updateProductionLineStatusFromTasks(line.lineId);
+    }
+    console.log(`Updated statuses for ${lines.length} production lines at afternoon shift start.`);
+  } catch (error) {
+    console.error('Error updating production line statuses at afternoon shift start:', error);
   }
 });
 

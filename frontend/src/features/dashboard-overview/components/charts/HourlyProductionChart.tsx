@@ -7,24 +7,22 @@ import { CustomPaper } from '../../../../components/CustomPaper.tsx';
 
 // Dati per il grafico.
 const rawData = [
-  { hour: '08:00', produced: 0 },
-  { hour: '08:30', produced: 2700 },
-  { hour: '09:00', produced: 2798 },
-  { hour: '09:30', produced: 2798 },
-  { hour: '10:00', produced: 1320 },
+  { hour: '09:00', produced: 0 },
+  { hour: '09:30', produced: 2700 },
+  { hour: '10:00', produced: 2798 },
   { hour: '10:30', produced: 2798 },
-  { hour: '11:00', produced: 2798 },
-  { hour: '11:30', produced: 2700 },
-  { hour: '12:00', produced: 0 },
+  { hour: '11:00', produced: 1320 },
+  { hour: '11:30', produced: 2798 },
+  { hour: '12:00', produced: 2798 },
+  { hour: '12:30', produced: 2700 },
   { hour: '13:00', produced: 0 },
-  { hour: '13:30', produced: 2467 },
-  { hour: '14:00', produced: 2798 },
+  { hour: '14:00', produced: 0 },
   { hour: '14:30', produced: 2798 },
   { hour: '15:00', produced: 2798 },
   { hour: '15:30', produced: 2750 },
   { hour: '16:00', produced: 2798 },
   { hour: '16:30', produced: 1674 },
-  { hour: '17:00', produced: 0 },
+  { hour: '17:00', produced: 2565 },
 ];
 
 export const HourlyProductionChart = () => {
@@ -61,33 +59,25 @@ export const HourlyProductionChart = () => {
 
   // Aggiorna i dati ogni 30 minuti per mantenere aggiornato il grafico.
   useEffect(() => {
-    const interval = setInterval(() => {
-      processData();
-    }, 30 * 60 * 1000);
+    const interval = setInterval(
+      () => {
+        processData();
+      },
+      30 * 60 * 1000
+    );
 
     return () => clearInterval(interval);
   }, []);
 
   return (
     <Grid size={12}>
-      <CustomPaper
-        elevation={2}
-        sx={{ p: 2, borderRadius: 5 }}
-      >
-        <Stack
-          gap={2}
-          alignItems={'center'}
-        >
-          <Typography
-            component={'span'}
-            fontWeight={500}
-          >
+      <CustomPaper elevation={2} sx={{ p: 2, borderRadius: 5 }}>
+        <Stack gap={2} alignItems={'center'}>
+          <Typography component={'span'} fontWeight={500}>
             Produzione oraria vs Target
           </Typography>
           <LineChart
-            xAxis={[
-              { scaleType: 'point', label: 'Ora', data: chartData.hours },
-            ]}
+            xAxis={[{ scaleType: 'point', label: 'Ora', data: chartData.hours }]}
             yAxis={[{ scaleType: 'linear', label: 'Produzione' }]}
             series={[
               {
@@ -97,10 +87,7 @@ export const HourlyProductionChart = () => {
                 showMark: false,
               },
               {
-                data: Array.from(
-                  { length: chartData.hours.length },
-                  () => 2000
-                ),
+                data: Array.from({ length: chartData.hours.length }, () => 2000),
                 label: 'Target',
                 color: '#F3A658',
                 showMark: false,

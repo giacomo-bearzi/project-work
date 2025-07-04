@@ -11,26 +11,28 @@ export const SHIFTS: Shift[] = [
 ];
 
 export const LUNCH_BREAK = {
-  startTime: '12:00',
-  endTime: '13:00'
+  startTime: '13:00',
+  endTime: '14:00'
+};
+
+// Helper to get current time in 'HH:mm' format in Europe/Rome timezone
+const getRomeTimeString = () => {
+  const now = new Date();
+  return now.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Europe/Rome' });
 };
 
 export const getCurrentShift = (): Shift | null => {
-  const now = new Date();
-  const currentTime = now.toTimeString().slice(0, 5); // HH:mm format
-  
+  const currentTime = getRomeTimeString();
   // Check if we're in lunch break
   if (currentTime >= LUNCH_BREAK.startTime && currentTime < LUNCH_BREAK.endTime) {
     return null;
   }
-  
   // Check if we're in a shift
   for (const shift of SHIFTS) {
     if (currentTime >= shift.startTime && currentTime < shift.endTime) {
       return shift;
     }
   }
-  
   return null;
 };
 
@@ -39,8 +41,7 @@ export const isInShift = (): boolean => {
 };
 
 export const isLunchBreak = (): boolean => {
-  const now = new Date();
-  const currentTime = now.toTimeString().slice(0, 5);
+  const currentTime = getRomeTimeString();
   return currentTime >= LUNCH_BREAK.startTime && currentTime < LUNCH_BREAK.endTime;
 };
 
@@ -109,7 +110,7 @@ export const shouldForceStopForLunch = (): boolean => {
 
 export const getNextShiftStart = (): Date => {
   const now = new Date();
-  const currentTime = now.toTimeString().slice(0, 5);
+  const currentTime = getRomeTimeString();
   
   // If we're before morning shift
   if (currentTime < SHIFTS[0].startTime) {

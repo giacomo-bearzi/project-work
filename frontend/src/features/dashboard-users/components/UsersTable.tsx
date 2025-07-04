@@ -12,31 +12,29 @@ import {
   Paper,
   Button,
   type SelectChangeEvent,
-} from "@mui/material";
+} from '@mui/material';
 import {
   Delete,
   Edit as EditIcon,
   Save as SaveIcon,
   Clear as ClearIcon,
-} from "@mui/icons-material";
-import type { User } from "../../../components/Login.tsx";
+} from '@mui/icons-material';
+import type { ApiGetUser } from '../../users/types/usersTypes';
 
 interface UsersTableProps {
-  users: User[];
-  selectedUser: User | null;
+  users: ApiGetUser[];
+  selectedUser: ApiGetUser | null;
   editingUserId: string | null;
-  editedUser: Partial<User>;
+  editedUser: Partial<ApiGetUser>;
   searchTerm: string;
   onEditChange: (
-    e:
-      | React.ChangeEvent<HTMLInputElement>
-      | React.ChangeEvent<{ name?: string; value: unknown }>
+    e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<{ name?: string; value: unknown }>
   ) => void;
-  onStartEditing: (user: User) => void;
+  onStartEditing: (user: ApiGetUser) => void;
   onCancelEditing: () => void;
   onSaveEdit: () => void;
-  onSelectUser: (user: User) => void;
-  onDeleteClick: (user: User) => void;
+  onSelectUser: (user: ApiGetUser) => void;
+  onDeleteClick: (user: ApiGetUser) => void;
 }
 
 export const UsersTable: React.FC<UsersTableProps> = ({
@@ -52,7 +50,7 @@ export const UsersTable: React.FC<UsersTableProps> = ({
   onSelectUser,
   onDeleteClick,
 }) => {
-  const filteredUsers = users.filter((u) => {
+  const filteredUsers = users.filter((u: ApiGetUser) => {    
     const term = searchTerm.toLowerCase();
     return (
       u.fullName.toLowerCase().includes(term) ||
@@ -66,16 +64,16 @@ export const UsersTable: React.FC<UsersTableProps> = ({
       component={Paper}
       sx={{
         borderRadius: 8,
-        background: "rgba(255, 255, 255, 0.07)",
-        backdropFilter: "blur(20px) saturate(180%)",
-        WebkitBackdropFilter: "blur(20px) saturate(180%)",
-        boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
-        display: "flex",
-        maxHeight: "75vh",
-        overflowY: "scroll",
-        scrollbarWidth: "none",
-        "&::-webkit-scrollbar": {
-          display: "none",
+        background: 'rgba(255, 255, 255, 0.07)',
+        backdropFilter: 'blur(20px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+        boxShadow: '0 4px 30px rgba(0, 0, 0, 0.1)',
+        display: 'flex',
+        maxHeight: '75vh',
+        overflowY: 'scroll',
+        scrollbarWidth: 'none',
+        '&::-webkit-scrollbar': {
+          display: 'none',
         },
       }}
     >
@@ -83,7 +81,7 @@ export const UsersTable: React.FC<UsersTableProps> = ({
         <TableHead>
           <TableRow>
             <TableCell>Nome</TableCell>
-            <TableCell>Username</TableCell>
+            <TableCell>Nome utente</TableCell>
             <TableCell>Ruolo</TableCell>
             <TableCell align="right">Azioni</TableCell>
           </TableRow>
@@ -98,19 +96,19 @@ export const UsersTable: React.FC<UsersTableProps> = ({
                 hover
                 onClick={() => onSelectUser(u)}
                 sx={{
-                  cursor: "pointer",
+                  cursor: 'pointer',
                   backgroundColor:
                     selectedUser && selectedUser._id === u._id
-                      ? "rgba(255, 255, 255, 0.2)"
-                      : "transparent",
-                  transition: "background-color 0.3s",
+                      ? 'rgba(255, 255, 255, 0.2)'
+                      : 'transparent',
+                  transition: 'background-color 0.3s',
                 }}
               >
                 <TableCell>
                   {isEditing ? (
                     <TextField
                       name="fullName"
-                      value={editedUser.fullName || ""}
+                      value={editedUser.fullName || ''}
                       onChange={onEditChange}
                       size="small"
                       fullWidth
@@ -123,7 +121,7 @@ export const UsersTable: React.FC<UsersTableProps> = ({
                   {isEditing ? (
                     <TextField
                       name="username"
-                      value={editedUser.username || ""}
+                      value={editedUser.username || ''}
                       onChange={onEditChange}
                       size="small"
                       fullWidth
@@ -136,14 +134,14 @@ export const UsersTable: React.FC<UsersTableProps> = ({
                   {isEditing ? (
                     <Select
                       name="role"
-                      value={editedUser.role || ""}
+                      value={editedUser.role || ''}
                       onChange={(e: SelectChangeEvent) => onEditChange(e)}
                       size="small"
                       fullWidth
                     >
-                      <MenuItem value="admin">admin</MenuItem>
-                      <MenuItem value="manager">manager</MenuItem>
-                      <MenuItem value="operator">operator</MenuItem>
+                      <MenuItem value="admin">Amministratore</MenuItem>
+                      <MenuItem value="manager">Manager</MenuItem>
+                      <MenuItem value="operator">Operatore</MenuItem>
                     </Select>
                   ) : (
                     u.role

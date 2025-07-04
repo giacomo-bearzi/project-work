@@ -1,10 +1,19 @@
 import { useQuery } from '@tanstack/react-query';
-import { getProductionLine, getProductionLines, getProductionStats, getTotalStoppedTime, getCurrentShiftInfo, getLineHourlyProduction, getCombinedHourlyProduction } from '../api/api.ts';
+import {
+  getProductionLine,
+  getProductionLines,
+  getProductionStats,
+  getTotalStoppedTime,
+  getCurrentShiftInfo,
+  getLineHourlyProduction,
+  getCombinedHourlyProduction,
+  getOEEData,
+} from '../api/productionLinesApi.ts';
 
-export const useGetProductionLines = (token: string) => {
+export const useGetProductionLines = () => {
   return useQuery({
     queryKey: ['productionLines'],
-    queryFn: async () => await getProductionLines(token),
+    queryFn: async () => await getProductionLines(),
   });
 };
 
@@ -35,9 +44,9 @@ export const useGetProductionStats = () => {
   return useQuery({
     queryKey: ['productionStats'],
     queryFn: () => getProductionStats(),
-    refetchInterval: 10000
+    refetchInterval: 10000,
   });
-}
+};
 
 export const useGetLineHourlyProduction = (lineId: string) => {
   return useQuery({
@@ -54,3 +63,11 @@ export const useGetCombinedHourlyProduction = () => {
     refetchInterval: 30000,
   });
 };
+
+export const useGetOEEData = () => {
+  return useQuery({
+    queryKey: ['oeeData'],
+    queryFn: getOEEData,
+    refetchInterval: 30000,
+  });
+}

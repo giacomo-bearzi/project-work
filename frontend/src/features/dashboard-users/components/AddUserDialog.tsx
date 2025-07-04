@@ -8,7 +8,7 @@ import {
   Select,
   MenuItem,
   type SelectChangeEvent,
-} from "@mui/material";
+} from '@mui/material';
 
 interface AddUserDialogProps {
   open: boolean;
@@ -20,9 +20,7 @@ interface AddUserDialogProps {
     password: string;
     role: string;
   };
-  onChange: (
-    e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>
-  ) => void;
+  onChange: (e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>) => void;
 }
 
 export const AddUserDialog: React.FC<AddUserDialogProps> = ({

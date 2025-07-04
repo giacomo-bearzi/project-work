@@ -6,7 +6,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { CustomPaper } from '../../../../components/CustomPaper.tsx';
 import { CustomAvatar } from '../../../dashboard/components/CustomAvatar.tsx';
-import type { ApiUser } from '../../../log-in/types/types.api.ts';
+import type { ApiUser } from '../../../dashboard-login/types/types.api.ts';
 
 interface PLCardMaintenanceProps {
   lineId: 'line-1' | 'line-2' | 'line-3';
@@ -26,20 +26,14 @@ export const PLCardMaintenance = ({
   let formattedMaintenanceEnd = '';
 
   if (maintenanceEnd) {
-    formattedMaintenanceEnd = new Date(maintenanceEnd).toLocaleTimeString(
-      'it-IT',
-      {
-        hour: '2-digit',
-        minute: '2-digit',
-      }
-    );
+    formattedMaintenanceEnd = new Date(maintenanceEnd).toLocaleTimeString('it-IT', {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
   }
 
   return (
-    <Grid
-      onClick={onClick}
-      size={{ sm: 4, md: 4, lg: 12 }}
-    >
+    <Grid onClick={onClick} size={{ sm: 4, md: 4, lg: 12 }}>
       <CustomPaper
         elevation={2}
         sx={{
@@ -53,13 +47,7 @@ export const PLCardMaintenance = ({
           },
         }}
       >
-        <Grid
-          container
-          height={'100%'}
-          width={'100%'}
-          p={2}
-          spacing={2}
-        >
+        <Grid container height={'100%'} width={'100%'} p={2} spacing={2}>
           <Grid size={3}>
             <Box
               component={'img'}
@@ -71,36 +59,14 @@ export const PLCardMaintenance = ({
               }}
             />
           </Grid>
-          <Grid
-            size={9}
-            alignContent={'center'}
-          >
-            <Stack
-              gap={4}
-              alignItems={'center'}
-              display={'flex'}
-            >
-              <Stack
-                alignItems={'center'}
-                display={'flex'}
-                width={'100%'}
-                gap={1}
-              >
-                <Typography
-                  component={'span'}
-                  fontWeight={500}
-                  fontSize={'1.1rem'}
-                  pl={1}
-                >
+          <Grid size={9} alignContent={'center'}>
+            <Stack gap={4} alignItems={'center'} display={'flex'}>
+              <Stack alignItems={'center'} display={'flex'} width={'100%'} gap={1}>
+                <Typography component={'span'} fontWeight={500} fontSize={'1.1rem'} pl={1}>
                   {lineName}
                 </Typography>
                 <Chip
-                  icon={
-                    <HandymanRounded
-                      fontSize="small"
-                      color="inherit"
-                    />
-                  }
+                  icon={<HandymanRounded fontSize="small" color="inherit" />}
                   label={'MANUTENZIONE'}
                   sx={{
                     backgroundColor: '#D7730F',
@@ -108,23 +74,12 @@ export const PLCardMaintenance = ({
                   }}
                 />
               </Stack>
-              <Stack
-                alignItems={'center'}
-                width={'100%'}
-                gap={1}
-              >
+              <Stack alignItems={'center'} width={'100%'} gap={1}>
                 <Stack direction={'row'}>
-                  <Typography
-                    component={'span'}
-                    pl={1}
-                  >
+                  <Typography component={'span'} pl={1}>
                     Fine prevista
                   </Typography>
-                  <Typography
-                    component={'span'}
-                    fontWeight={600}
-                    pl={1}
-                  >
+                  <Typography component={'span'} fontWeight={600} pl={1}>
                     {formattedMaintenanceEnd}
                   </Typography>
                 </Stack>
@@ -134,11 +89,7 @@ export const PLCardMaintenance = ({
                     role={assignedTo.role}
                     fullName={assignedTo.fullName}
                   />
-                  <Typography
-                    component={'span'}
-                    fontWeight={500}
-                    pl={1}
-                  >
+                  <Typography component={'span'} fontWeight={500} pl={1}>
                     {assignedTo.fullName}
                   </Typography>
                 </Stack>

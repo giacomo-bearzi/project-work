@@ -1,17 +1,17 @@
-import { Typography, Divider, Box } from "@mui/material";
-
-import type { User } from "../../../components/Login.tsx";
-import type { Issue, Task } from "../pages/UsersPage.tsx";
-import DoubleArrowIcon from "@mui/icons-material/DoubleArrow";
+import { Typography, Divider, Box } from '@mui/material';
+import DoubleArrowIcon from '@mui/icons-material/DoubleArrow';
+import type { ApiGetUser } from '../../users/types/usersTypes';
+import type { ApiGetIssue } from '../../issues/types/issuesTypes';
+import type { ApiGetTask } from '../../tasks/types/tasksTypes';
 
 interface UserDetailsProps {
-  user: User;
-  issues: Issue[];
-  tasks: Task[];
+  user: ApiGetUser;
+  issues: ApiGetIssue[];
+  tasks: ApiGetTask[];
   loading: boolean;
   onNavigateToIssues: () => void;
   onNavigateToPlanning: () => void;
-  show: "issues" | "tasks";
+  show: 'issues' | 'tasks';
 }
 
 export const UserDetails: React.FC<UserDetailsProps> = ({
@@ -24,30 +24,30 @@ export const UserDetails: React.FC<UserDetailsProps> = ({
 }) => {
   return (
     <>
-      {show === "issues" && (
+      {show === 'issues' && (
         <>
           <Typography
             variant="h6"
             gutterBottom
             onClick={onNavigateToIssues}
             sx={{
-              cursor: "pointer",
-              display: "inline-flex",
-              alignItems: "center",
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
               gap: 1,
-              transition: "color 0.3s ease",
-              position: "sticky",
+              transition: 'color 0.3s ease',
+              position: 'sticky',
               top: 0,
 
               zIndex: 2,
-              "&:hover": {
-                color: "secondary.main",
+              '&:hover': {
+                color: 'secondary.main',
               },
-              "&:hover svg": {
-                transform: "translateX(5px)",
+              '&:hover svg': {
+                transform: 'translateX(5px)',
               },
-              "& svg": {
-                transition: "transform 0.3s ease",
+              '& svg': {
+                transition: 'transform 0.3s ease',
               },
             }}
           >
@@ -59,17 +59,17 @@ export const UserDetails: React.FC<UserDetailsProps> = ({
             sx={{
               maxHeight: 300,
               pr: 1,
-              overflowY: "scroll",
-              scrollbarWidth: "none",
-              "&::-webkit-scrollbar": {
-                display: "none",
+              overflowY: 'scroll',
+              scrollbarWidth: 'none',
+              '&::-webkit-scrollbar': {
+                display: 'none',
               },
             }}
           >
             {loading ? (
               <Typography variant="body2">Caricamento issues...</Typography>
             ) : issues.length > 0 ? (
-              <ul style={{ paddingLeft: "1rem", margin: 0 }}>
+              <ul style={{ paddingLeft: '1rem', margin: 0 }}>
                 {issues.map((issue, id) => (
                   <li key={issue._id}>
                     <Typography variant="body2">
@@ -83,38 +83,36 @@ export const UserDetails: React.FC<UserDetailsProps> = ({
                 ))}
               </ul>
             ) : (
-              <Typography variant="body2">
-                Nessuna issue trovata per questo utente.
-              </Typography>
+              <Typography variant="body2">Nessuna issue trovata per questo utente.</Typography>
             )}
           </Box>
         </>
       )}
 
-      {show === "tasks" && (
+      {show === 'tasks' && (
         <>
           <Typography
             variant="h6"
             gutterBottom
             onClick={onNavigateToPlanning}
             sx={{
-              cursor: "pointer",
-              display: "inline-flex",
-              alignItems: "center",
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
               gap: 1,
-              transition: "color 0.3s ease",
-              position: "sticky",
+              transition: 'color 0.3s ease',
+              position: 'sticky',
               top: 0,
 
               zIndex: 2,
-              "&:hover": {
-                color: "secondary.main",
+              '&:hover': {
+                color: 'secondary.main',
               },
-              "&:hover svg": {
-                transform: "translateX(5px)",
+              '&:hover svg': {
+                transform: 'translateX(5px)',
               },
-              "& svg": {
-                transition: "transform 0.3s ease",
+              '& svg': {
+                transition: 'transform 0.3s ease',
               },
             }}
           >
@@ -122,19 +120,21 @@ export const UserDetails: React.FC<UserDetailsProps> = ({
           </Typography>
           <Divider sx={{ my: 1 }} />
 
-          <Box  sx={{
+          <Box
+            sx={{
               maxHeight: 300,
               pr: 1,
-              overflowY: "scroll",
-              scrollbarWidth: "none",
-              "&::-webkit-scrollbar": {
-                display: "none",
+              overflowY: 'scroll',
+              scrollbarWidth: 'none',
+              '&::-webkit-scrollbar': {
+                display: 'none',
               },
-            }}>
+            }}
+          >
             {loading ? (
               <Typography variant="body2">Caricamento tasks...</Typography>
             ) : tasks.length > 0 ? (
-              <ul style={{ paddingLeft: "1rem", margin: 0 }}>
+              <ul style={{ paddingLeft: '1rem', margin: 0 }}>
                 {tasks.map((task, id) => (
                   <li key={task._id}>
                     <Typography variant="body2">
@@ -142,27 +142,24 @@ export const UserDetails: React.FC<UserDetailsProps> = ({
                       <br />
                       <strong>Data:</strong> {task.date} <br />
                       <strong>Linea:</strong> {task.lineId} <br />
-                      <strong>Descrizione:</strong>{" "}
+                      <strong>Descrizione:</strong>{' '}
                       {task.description.length > 30
-                        ? task.description.substring(0, 30) + "..."
+                        ? task.description.substring(0, 30) + '...'
                         : task.description}
                       <br />
-                      <strong>Stima:</strong> {task.estimatedMinutes} minuti{" "}
-                      <br />
+                      <strong>Stima:</strong> {task.estimatedMinutes} minuti <br />
                       <strong>Stato:</strong> {task.status}
                     </Typography>
 
                     {task.checklist?.length > 0 && (
                       <Box ml={2} mt={1}>
                         <Typography variant="subtitle2">Checklist:</Typography>
-                        <ul style={{ marginTop: 0, paddingLeft: "1rem" }}>
+                        <ul style={{ marginTop: 0, paddingLeft: '1rem' }}>
                           {task.checklist.map((item, index) => (
                             <li key={index}>
                               <Typography variant="body2">
                                 - {item.item}
-                                {item.done
-                                  ? " ✅ Completato"
-                                  : " ⏳ In sospeso"}
+                                {item.done ? ' ✅ Completato' : ' ⏳ In sospeso'}
                               </Typography>
                             </li>
                           ))}
@@ -174,9 +171,7 @@ export const UserDetails: React.FC<UserDetailsProps> = ({
                 ))}
               </ul>
             ) : (
-              <Typography variant="body2">
-                Nessuna task trovata per questo utente.
-              </Typography>
+              <Typography variant="body2">Nessuna task trovata per questo utente.</Typography>
             )}
           </Box>
         </>
